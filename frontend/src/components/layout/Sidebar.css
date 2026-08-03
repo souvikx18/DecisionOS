@@ -1,0 +1,300 @@
+/* ── Sidebar Layout ──────────────────────────────────────────────── */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 220px;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-dir);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  transition: width 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.sidebar--collapsed {
+  width: 64px;
+}
+
+/* Logo row */
+.sidebar__logo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 16px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  min-height: 64px;
+}
+
+.sidebar__logo--clickable {
+  cursor: pointer;
+}
+
+/* Hover overlay — only for collapsed state (full cover) */
+.sidebar__logo-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+}
+
+/* Only show overlay when in collapsed state */
+.sidebar__logo--is-collapsed.sidebar__logo--clickable:hover .sidebar__logo-overlay {
+  opacity: 1;
+}
+
+.sidebar__logo-chevron {
+  color: var(--accent-primary);
+  transition: transform 250ms ease;
+}
+
+/* Close hint — only for expanded state, slides in beside the logo */
+.sidebar__logo-close-hint {
+  margin-left: auto;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: #EFF6FF;
+  border: 1px solid #DBEAFE;
+  opacity: 0;
+  transform: translateX(4px);
+  transition: opacity 180ms ease, transform 180ms ease;
+  pointer-events: none;
+}
+
+/* Show close hint on hover when expanded */
+.sidebar__logo--clickable:not(.sidebar__logo--is-collapsed):hover .sidebar__logo-close-hint {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.sidebar__logo-img {
+  height: 36px;
+  width: auto;
+  max-width: 130px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.sidebar__logo-icon-collapsed {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  overflow: hidden;
+  background: transparent;
+}
+
+
+
+
+/* Nav */
+.sidebar__nav {
+  flex: 1;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+}
+
+.sidebar__nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 500;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  position: relative;
+}
+
+.sidebar__nav-item:hover {
+  background: var(--bg-canvas);
+  color: var(--text-main);
+}
+
+.sidebar__nav-item--active {
+  background: #EFF6FF;
+  color: var(--accent-primary);
+  font-weight: 600;
+}
+
+.sidebar__nav-item--active .sidebar__nav-icon {
+  color: var(--accent-primary);
+}
+
+.sidebar__nav-item--active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 3px;
+  background: var(--accent-primary);
+  border-radius: 0 3px 3px 0;
+}
+
+.sidebar__nav-icon {
+  flex-shrink: 0;
+  color: var(--text-disabled);
+  transition: color var(--transition-fast);
+}
+
+.sidebar__nav-item:hover .sidebar__nav-icon {
+  color: var(--text-muted);
+}
+
+.sidebar__nav-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Bottom */
+.sidebar__bottom {
+  border-top: 1px solid var(--border-subtle);
+  padding: 10px;
+}
+
+.sidebar__user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 6px;
+  margin-bottom: 8px;
+}
+
+.sidebar__user--collapsed {
+  justify-content: center;
+}
+
+.sidebar__avatar {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-indigo));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.sidebar__user-info {
+  overflow: hidden;
+}
+
+.sidebar__user-name {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar__user-role {
+  display: block;
+  font-size: 11px;
+  color: var(--text-disabled);
+  text-transform: capitalize;
+}
+
+.sidebar__actions {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+.sidebar__action-btn {
+  background: none;
+  border: none;
+  padding: 7px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text-disabled);
+  transition: all var(--transition-fast);
+}
+
+.sidebar__action-btn:hover {
+  background: var(--bg-canvas);
+  color: var(--text-muted);
+}
+
+.sidebar__action-btn--logout:hover {
+  background: #fee2e2;
+  color: var(--accent-error);
+}
+
+/* ── Dark mode ────────────────────────────────────────────────────── */
+[data-theme="dark"] .sidebar {
+  background: #1E293B;
+  border-right-color: rgba(255,255,255,0.06);
+  box-shadow: 2px 0 12px rgba(0,0,0,0.4);
+}
+[data-theme="dark"] .sidebar__nav-item {
+  color: #64748B;
+}
+[data-theme="dark"] .sidebar__nav-item:hover {
+  background: rgba(255,255,255,0.05);
+  color: #94A3B8;
+}
+[data-theme="dark"] .sidebar__nav-item--active {
+  background: rgba(29,78,216,0.15);
+  color: #60A5FA;
+  border-left-color: #60A5FA;
+}
+[data-theme="dark"] .sidebar__user {
+  border-top-color: rgba(255,255,255,0.06);
+}
+[data-theme="dark"] .sidebar__action-btn:hover {
+  background: rgba(255,255,255,0.06);
+}
+[data-theme="dark"] .sidebar__action-btn--logout:hover {
+  background: rgba(239,68,68,0.12);
+}
+[data-theme="dark"] .sidebar__divider {
+  border-color: rgba(255,255,255,0.06);
+}
+
+/* Mobile Sidebar Drawer */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 240px !important;
+    z-index: 999;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
+    transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .sidebar--collapsed {
+    transform: translateX(-100%);
+    width: 240px !important;
+  }
+}
