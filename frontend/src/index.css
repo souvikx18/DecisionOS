@@ -191,7 +191,7 @@ body {
 
 .input-field {
   width: 100%;
-  background: #fff;
+  background: var(--bg-sidebar);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
   padding: 10px 14px;
@@ -207,6 +207,15 @@ body {
 .input-field:focus {
   border-color: var(--accent-primary);
   box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.1);
+}
+[data-theme="dark"] .input-field {
+  background: #1E293B;
+  color: #F1F5F9;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+[data-theme="dark"] .input-field option {
+  background: #1E293B;
+  color: #F1F5F9;
 }
 
 /* Badge variants */

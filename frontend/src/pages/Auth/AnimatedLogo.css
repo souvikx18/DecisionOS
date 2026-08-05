@@ -1,0 +1,316 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   AnimatedLogo.css — Cinematic 3D Logo Animation System
+   Used in Login & Register left panels
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Root container: centers everything, sets perspective for 3D ─────── */
+.anim-logo-root {
+  position: relative;
+  width: 160px;
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  perspective: 600px;
+}
+
+/* ── Ambient Glow Field — radial soft light behind logo ─────────────── */
+.anim-logo-glow-field {
+  position: absolute;
+  inset: -40px;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse 80% 80% at 50% 50%,
+    rgba(59, 130, 246, 0.35) 0%,
+    rgba(139, 92, 246, 0.2) 40%,
+    transparent 75%
+  );
+  filter: blur(20px);
+  animation: glowFieldPulse 4s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes glowFieldPulse {
+  0%   { opacity: 0.6; transform: scale(0.9); }
+  100% { opacity: 1;   transform: scale(1.15); }
+}
+
+/* ── Halo Rings — concentric pulsing rings radiating outward ────────── */
+.anim-logo-halo {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid rgba(59, 130, 246, 0.4);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -55%);
+  pointer-events: none;
+  animation: haloPulse 3.5s ease-out infinite;
+}
+
+.anim-logo-halo--1 {
+  width: 90px;
+  height: 90px;
+  border-color: rgba(59, 130, 246, 0.55);
+  animation-delay: 0s;
+}
+.anim-logo-halo--2 {
+  width: 120px;
+  height: 120px;
+  border-color: rgba(139, 92, 246, 0.4);
+  animation-delay: 0.8s;
+}
+.anim-logo-halo--3 {
+  width: 155px;
+  height: 155px;
+  border-color: rgba(14, 165, 233, 0.25);
+  animation-delay: 1.6s;
+}
+
+@keyframes haloPulse {
+  0%   { opacity: 1;   transform: translate(-50%, -55%) scale(0.8); }
+  70%  { opacity: 0.3; }
+  100% { opacity: 0;   transform: translate(-50%, -55%) scale(1.4); }
+}
+
+/* ── Orbit Rings — rotating rings with a glowing dot on them ─────────── */
+.anim-logo-orbit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  pointer-events: none;
+  transform-origin: center center;
+}
+
+/* Ring 1 — fast CCW, blue, 100×100 */
+.anim-logo-orbit--1 {
+  width: 100px;
+  height: 100px;
+  margin-top: -50px;
+  margin-left: -50px;
+  border-color: rgba(59, 130, 246, 0.3);
+  animation: orbitSpin 4s linear infinite;
+}
+
+/* Ring 2 — slow CW, purple, 130×130 */
+.anim-logo-orbit--2 {
+  width: 130px;
+  height: 130px;
+  margin-top: -65px;
+  margin-left: -65px;
+  border-color: rgba(139, 92, 246, 0.25);
+  animation: orbitSpinReverse 7s linear infinite;
+  transform: rotateX(60deg);
+}
+
+/* Ring 3 — medium CCW, cyan, 160×60 (elliptical tilt) */
+.anim-logo-orbit--3 {
+  width: 160px;
+  height: 60px;
+  margin-top: -30px;
+  margin-left: -80px;
+  border-color: rgba(14, 165, 233, 0.25);
+  animation: orbitSpin 9s linear infinite;
+  transform: rotateX(75deg) rotateZ(30deg);
+}
+
+@keyframes orbitSpin {
+  to { transform: rotate(360deg); }
+}
+@keyframes orbitSpinReverse {
+  to { transform: rotateX(60deg) rotate(-360deg); }
+}
+
+/* Glowing dot riding each orbit ring */
+.anim-logo-orbit__dot {
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  border-radius: 50%;
+  background: #3B82F6;
+  box-shadow: 0 0 12px 4px rgba(59, 130, 246, 0.8);
+}
+
+.anim-logo-orbit__dot--purple {
+  background: #A78BFA;
+  box-shadow: 0 0 12px 4px rgba(167, 139, 250, 0.8);
+}
+
+.anim-logo-orbit__dot--cyan {
+  background: #22D3EE;
+  box-shadow: 0 0 12px 4px rgba(34, 211, 238, 0.8);
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+}
+
+/* ── Spark Particles — 8 particles orbiting outward perpetually ──────── */
+.anim-logo-spark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  margin-top: -53px; /* offset to halo level */
+  margin-left: -2px;
+  background: hsl(calc(var(--spark-i) * 45deg), 90%, 70%);
+  box-shadow: 0 0 6px 2px hsl(calc(var(--spark-i) * 45deg), 90%, 60%);
+  transform-origin: 2px 53px;
+  animation: sparkOrbit calc(5s + var(--spark-i) * 0.7s) linear infinite;
+  animation-delay: calc(var(--spark-i) * -0.6s);
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+@keyframes sparkOrbit {
+  0%   { transform: rotate(calc(var(--spark-i) * 45deg)) scaleY(1); opacity: 0.9; }
+  50%  { opacity: 0.5; }
+  100% { transform: rotate(calc(360deg + var(--spark-i) * 45deg)) scaleY(1); opacity: 0.9; }
+}
+
+/* ── Core Logo — floats up/down with 3D perspective tilt ─────────────── */
+.anim-logo-core {
+  position: relative;
+  z-index: 10;
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: -10px; /* center in the halo stack */
+  border-radius: 20px;
+  overflow: hidden;
+  animation: logoFloat 3.5s ease-in-out infinite;
+  transform-style: preserve-3d;
+}
+
+@keyframes logoFloat {
+  0%   { transform: translateY(0px)   rotateX(0deg)   rotateY(-4deg); }
+  25%  { transform: translateY(-8px)  rotateX(4deg)   rotateY(4deg); }
+  50%  { transform: translateY(-12px) rotateX(0deg)   rotateY(4deg); }
+  75%  { transform: translateY(-5px)  rotateX(-3deg)  rotateY(-3deg); }
+  100% { transform: translateY(0px)   rotateX(0deg)   rotateY(-4deg); }
+}
+
+/* Glass card behind logo */
+.anim-logo-glass {
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(59,130,246,0.25) 0%, rgba(30,15,60,0.6) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.6),
+    0 0 30px rgba(59, 130, 246, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  animation: glassShadowPulse 3.5s ease-in-out infinite;
+}
+
+@keyframes glassShadowPulse {
+  0%, 100% {
+    box-shadow:
+      0 20px 60px rgba(0, 0, 0, 0.6),
+      0 0 30px rgba(59, 130, 246, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    box-shadow:
+      0 30px 80px rgba(0, 0, 0, 0.7),
+      0 0 60px rgba(59, 130, 246, 0.8),
+      inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  }
+}
+
+/* Logo image */
+.anim-logo-img {
+  position: relative;
+  z-index: 2;
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(96, 165, 250, 0.8));
+  animation: logoImgGlow 3.5s ease-in-out infinite;
+}
+
+@keyframes logoImgGlow {
+  0%, 100% { filter: brightness(0) invert(1) drop-shadow(0 0 6px rgba(96, 165, 250, 0.7)); }
+  50%       { filter: brightness(0) invert(1) drop-shadow(0 0 16px rgba(165, 180, 252, 1)); }
+}
+
+/* Shimmer glint that sweeps across the logo */
+.anim-logo-glint {
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: glintSweep 3s ease-in-out infinite;
+  z-index: 3;
+  pointer-events: none;
+}
+
+@keyframes glintSweep {
+  0%   { background-position: -100% 0; opacity: 0; }
+  10%  { opacity: 1; }
+  50%  { background-position: 200% 0; opacity: 1; }
+  60%  { opacity: 0; }
+  100% { background-position: 200% 0; opacity: 0; }
+}
+
+/* ── Wordmark — brand name below the logo ────────────────────────────── */
+.anim-logo-wordmark {
+  position: relative;
+  z-index: 10;
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  animation: wordmarkFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+
+@keyframes wordmarkFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.anim-logo-wordmark__text {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #fff;
+  text-shadow: 0 0 20px rgba(96, 165, 250, 0.7);
+  font-family: 'Inter', sans-serif;
+  animation: textGlowPulse 3s ease-in-out infinite alternate;
+}
+
+@keyframes textGlowPulse {
+  0%   { text-shadow: 0 0 12px rgba(96, 165, 250, 0.5); }
+  100% { text-shadow: 0 0 28px rgba(167, 139, 250, 0.9); }
+}
+
+.anim-logo-wordmark__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #60A5FA;
+  box-shadow: 0 0 8px 3px rgba(96, 165, 250, 0.8);
+  animation: dotBlink 1.5s ease-in-out infinite;
+}
+
+@keyframes dotBlink {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.6); }
+}

@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { Eye, EyeOff, ArrowRight } from 'lucide-react'
 import toast from 'react-hot-toast'
-import logoImg from '../../assets/logo.png'
+import AnimatedLogo from './AnimatedLogo'
 import './Auth.css'
 
 const INDUSTRIES = ['Manufacturing', 'Retail', 'Distribution', 'Services', 'Pharma', 'Food & Beverage', 'Other']
@@ -45,9 +45,10 @@ export default function Register() {
     <div className="auth-page">
       <div className="auth-left">
         <div className="auth-left__inner">
-          <Link to="/" className="auth-logo">
-            <img src={logoImg} alt="DecisionOS" className="auth-logo__img" />
-          </Link>
+
+          {/* ── Crazy animated logo ── */}
+          <AnimatedLogo />
+
           <div className="auth-left__badge"><span>✦</span> Free 14-day trial. No credit card needed.</div>
           <h2 className="auth-left__title">Start making data-driven decisions in 5 minutes.</h2>
           <ul className="auth-left__checklist">

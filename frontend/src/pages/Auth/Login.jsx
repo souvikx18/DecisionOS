@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { Eye, EyeOff, ArrowRight } from 'lucide-react'
 import toast from 'react-hot-toast'
-import logoImg from '../../assets/logo.png'
+import AnimatedLogo from './AnimatedLogo'
 import './Auth.css'
 
 export default function Login() {
@@ -36,9 +36,10 @@ export default function Login() {
       {/* Left panel */}
       <div className="auth-left">
         <div className="auth-left__inner">
-          <Link to="/" className="auth-logo">
-            <img src={logoImg} alt="DecisionOS" className="auth-logo__img" />
-          </Link>
+
+          {/* ── Crazy animated logo ── */}
+          <AnimatedLogo />
+
           <div className="auth-left__badge">
             <span>✦</span> Trusted by 500+ Indian businesses
           </div>
@@ -46,8 +47,8 @@ export default function Login() {
           <div className="auth-left__stats">
             {[
               { val: '₹240Cr+', label: 'Revenue tracked' },
-              { val: '98%',     label: 'Customer satisfaction' },
-              { val: '5 min',   label: 'Setup time' },
+              { val: '98%', label: 'Customer satisfaction' },
+              { val: '5 min', label: 'Setup time' },
             ].map(s => (
               <div key={s.label} className="auth-left__stat">
                 <span className="auth-left__stat-val">{s.val}</span>
