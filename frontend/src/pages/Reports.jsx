@@ -5,7 +5,7 @@ import {
 } from 'recharts'
 import { mockSalesTrend, mockExpenseTrend, mockTopCustomers } from '../data/mockData'
 import { FileText, Download, Calendar, TrendingUp, DollarSign, Users } from 'lucide-react'
-import toast from 'react-hot-toast'
+import { notify } from '../components/ui/CustomToast'
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
 import './Reports.css'
@@ -27,7 +27,7 @@ export default function Reports() {
   const handleExportPDF = async () => {
     if (!reportRef.current) return
     setExporting(true)
-    toast.loading('Generating PDF…', { id: 'pdf' })
+    notify.loading('Compiling chart vectors and table data…', 'Generating PDF', { id: 'pdf' })
     try {
       const canvas = await html2canvas(reportRef.current, { scale: 2, useCORS: true, backgroundColor: '#fff' })
       const imgData = canvas.toDataURL('image/png')
@@ -36,9 +36,9 @@ export default function Reports() {
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width
       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
       pdf.save(`DecisionOS_${activeReport}_report_${new Date().toISOString().slice(0,10)}.pdf`)
-      toast.success('PDF downloaded!', { id: 'pdf' })
+      notify.success('High-resolution PDF report saved to downloads.', 'PDF Report Exported', { id: 'pdf' })
     } catch {
-      toast.error('Export failed. Try again.', { id: 'pdf' })
+      notify.error('Could not generate PDF vector canvas. Please try again.', 'Export Failed', { id: 'pdf' })
     } finally {
       setExporting(false)
     }

@@ -8,11 +8,11 @@ import logoFull from '../../assets/logo.png'
 import './Sidebar.css'
 
 const NAV_ITEMS = [
-  { to: '/dashboard',   icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/import',      icon: UploadCloud,     label: 'Data Import' },
-  { to: '/insights',    icon: Sparkles,        label: 'AI Insights' },
-  { to: '/reports',     icon: FileText,        label: 'Reports' },
-  { to: '/notifications', icon: Bell,          label: 'Notifications' },
+  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/import', icon: UploadCloud, label: 'Data Import' },
+  { to: '/insights', icon: Sparkles, label: 'AI Insights' },
+  { to: '/reports', icon: FileText, label: 'Reports' },
+  { to: '/notifications', icon: Bell, label: 'Notifications' },
 ]
 
 export default function Sidebar({ collapsed, setCollapsed }) {
@@ -79,26 +79,49 @@ export default function Sidebar({ collapsed, setCollapsed }) {
 
       {/* Bottom section */}
       <div className="sidebar__bottom">
-        {/* User avatar */}
-        <div className={`sidebar__user ${collapsed ? 'sidebar__user--collapsed' : ''}`}>
-          <div className="sidebar__avatar">{user?.avatar || 'U'}</div>
-          {!collapsed && (
+        {collapsed ? (
+          /* ── Collapsed: avatar centered + icon buttons stacked ── */
+          <>
+            <div className="sidebar__user-collapsed-wrap" title={user?.name}>
+              <div className="sidebar__avatar sidebar__avatar--lg">
+                {user?.photo
+                  ? <img src={user.photo} alt={user.name} className="sidebar__avatar-photo" />
+                  : (user?.avatar || 'U')
+                }
+              </div>
+            </div>
+            <div className="sidebar__actions-collapsed">
+              <button className="sidebar__action-btn" title="Settings">
+                <Settings size={15} strokeWidth={1.75} />
+              </button>
+              <button className="sidebar__action-btn sidebar__action-btn--logout" title="Logout" onClick={handleLogout}>
+                <LogOut size={15} strokeWidth={1.75} />
+              </button>
+            </div>
+          </>
+        ) : (
+          /* ── Expanded: unified professional user card ── */
+          <div className="sidebar__user-card">
+            <div className="sidebar__avatar">
+              {user?.photo
+                ? <img src={user.photo} alt={user.name} className="sidebar__avatar-photo" />
+                : (user?.avatar || 'U')
+              }
+            </div>
             <div className="sidebar__user-info">
               <span className="sidebar__user-name">{user?.name}</span>
               <span className="sidebar__user-role">{user?.role}</span>
             </div>
-          )}
-        </div>
-
-        {/* Actions */}
-        <div className="sidebar__actions">
-          <button className="sidebar__action-btn" title="Settings">
-            <Settings size={16} strokeWidth={1.75} />
-          </button>
-          <button className="sidebar__action-btn sidebar__action-btn--logout" title="Logout" onClick={handleLogout}>
-            <LogOut size={16} strokeWidth={1.75} />
-          </button>
-        </div>
+            <div className="sidebar__card-actions">
+              <button className="sidebar__action-btn" title="Settings">
+                <Settings size={14} strokeWidth={1.75} />
+              </button>
+              <button className="sidebar__action-btn sidebar__action-btn--logout" title="Logout" onClick={handleLogout}>
+                <LogOut size={14} strokeWidth={1.75} />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </aside>
   )

@@ -74,7 +74,12 @@ export default function Topbar({ sidebarCollapsed, onToggleSidebar }) {
 
         {/* User chip */}
         <div className="topbar__user">
-          <div className="topbar__avatar">{user?.avatar || 'U'}</div>
+          <div className="topbar__avatar">
+            {user?.photo
+              ? <img src={user.photo} alt={user.name} className="topbar__avatar-photo" />
+              : (user?.avatar || 'U')
+            }
+          </div>
           <div className="topbar__user-info">
             <span className="topbar__user-name">{user?.name}</span>
             <span className="topbar__company">{user?.company?.name}</span>

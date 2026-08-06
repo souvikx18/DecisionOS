@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
-import { Eye, EyeOff, ArrowRight } from 'lucide-react'
-import toast from 'react-hot-toast'
+import { Eye, EyeOff, ArrowRight, Camera, X } from 'lucide-react'
+import { toast } from 'react-hot-toast'
+import { notify } from '../../components/ui/CustomToast'
 import AnimatedLogo from './AnimatedLogo'
 import './Auth.css'
 
@@ -11,31 +12,47 @@ const INDUSTRIES = ['Manufacturing', 'Retail', 'Distribution', 'Services', 'Phar
 export default function Register() {
   const { register } = useAuth()
   const navigate = useNavigate()
-  const [form, setForm] = useState({ name: '', email: '', company: '', industry: '', password: '', confirm: '' })
+  const [form, setForm] = useState({ name: '', email: '', company: '', industry: '', password: '', confirm: '', photo: null })
   const [showPass, setShowPass] = useState(false)
   const [loading, setLoading] = useState(false)
   const [step, setStep] = useState(1)
+  const photoInputRef = useRef(null)
 
   const update = key => e => setForm(p => ({ ...p, [key]: e.target.value }))
 
+  const handlePhoto = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    if (file.size > 2 * 1024 * 1024) { notify.error('Selected photo exceeds the 2 MB limit.', 'File Too Large'); return }
+    const reader = new FileReader()
+    reader.onload = (ev) => setForm(p => ({ ...p, photo: ev.target.result }))
+    reader.readAsDataURL(file)
+  }
+
+  const removePhoto = (e) => {
+    e.stopPropagation()
+    setForm(p => ({ ...p, photo: null }))
+    if (photoInputRef.current) photoInputRef.current.value = ''
+  }
+
   const nextStep = (e) => {
     e.preventDefault()
-    if (!form.name || !form.email) { toast.error('Fill in your name and email'); return }
+    if (!form.name || !form.email) { notify.error('Please fill in both your full name and work email address.', 'Info Required'); return }
     setStep(2)
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!form.company || !form.industry) { toast.error('Fill in company details'); return }
-    if (form.password.length < 8) { toast.error('Password must be at least 8 characters'); return }
-    if (form.password !== form.confirm) { toast.error('Passwords do not match'); return }
+    if (!form.company || !form.industry) { notify.error('Please select your company name and industry category.', 'Details Missing'); return }
+    if (form.password.length < 8) { notify.error('Password must be at least 8 characters long.', 'Password Too Short'); return }
+    if (form.password !== form.confirm) { notify.error('The passwords you entered do not match.', 'Password Mismatch'); return }
     setLoading(true)
     try {
       await register(form)
-      toast.success('Account created! Welcome to DecisionOS 🎉')
+      notify.success('Your workspace account is ready. Welcome!', 'Account Created 🎉')
       navigate('/dashboard')
     } catch {
-      toast.error('Something went wrong. Please try again.')
+      notify.error('Could not complete registration. Please try again.', 'Registration Failed')
     } finally {
       setLoading(false)
     }
@@ -79,6 +96,51 @@ export default function Register() {
 
           {step === 1 ? (
             <form className="auth-form" onSubmit={nextStep} id="register-step1">
+
+              {/* ── Profile photo picker ── */}
+              <div className="auth-avatar-picker">
+                <div className="auth-avatar-wrap">
+                  <div
+                    className="auth-avatar-circle"
+                    onClick={() => photoInputRef.current.click()}
+                    title="Upload profile photo"
+                  >
+                    {form.photo ? (
+                      <img src={form.photo} alt="Profile" className="auth-avatar-preview" />
+                    ) : (
+                      <span className="auth-avatar-initials">
+                        {form.name ? form.name.slice(0, 2).toUpperCase() : '?'}
+                      </span>
+                    )}
+                    <div className="auth-avatar-overlay">
+                      <Camera size={18} strokeWidth={1.75} />
+                      <span>{form.photo ? 'Change' : 'Add photo'}</span>
+                    </div>
+                  </div>
+
+                  {/* Delete badge — only when photo is set */}
+                  {form.photo && (
+                    <button
+                      type="button"
+                      className="auth-avatar-delete"
+                      onClick={removePhoto}
+                      title="Remove photo"
+                    >
+                      <X size={10} strokeWidth={3} />
+                    </button>
+                  )}
+                </div>
+
+                <input
+                  ref={photoInputRef}
+                  type="file"
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  onChange={handlePhoto}
+                  id="reg-photo"
+                />
+              </div>
+
               <div className="auth-field">
                 <label htmlFor="reg-name">Full name</label>
                 <input id="reg-name" type="text" className="input-field" placeholder="Arjun Mehta" value={form.name} onChange={update('name')} />

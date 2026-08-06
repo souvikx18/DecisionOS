@@ -4,7 +4,8 @@ import {
   UploadCloud, FileText, CheckCircle, XCircle, Loader, Trash2,
   FileSpreadsheet, AlertCircle, Info
 } from 'lucide-react'
-import toast from 'react-hot-toast'
+import { toast } from 'react-hot-toast'
+import { notify } from '../components/ui/CustomToast'
 import './DataImport.css'
 
 const UPLOAD_TYPES = [
@@ -52,7 +53,7 @@ export default function DataImport() {
 
   const onDrop = useCallback((accepted, rejected) => {
     if (rejected.length > 0) {
-      toast.error('Only .csv, .xlsx, .xls files are accepted.')
+      notify.error('Only .csv, .xlsx, .xls spreadsheet files under 10MB are accepted.', 'Invalid File Format')
       return
     }
     const newFiles = accepted.map(f => ({
@@ -67,12 +68,17 @@ export default function DataImport() {
     // Simulate upload
     newFiles.forEach(f => {
       setTimeout(() => {
+        const isSuccess = Math.random() > 0.1
         setFiles(prev => prev.map(pf =>
           pf.id === f.id
-            ? { ...pf, status: Math.random() > 0.1 ? 'success' : 'error', error: 'Parse error: column mismatch' }
+            ? { ...pf, status: isSuccess ? 'success' : 'error', error: 'Parse error: column mismatch' }
             : pf
         ))
-        toast.success(`${f.name} imported successfully!`)
+        if (isSuccess) {
+          notify.success(`${f.name} processed and merged into your business metrics.`, 'File Imported')
+        } else {
+          notify.error(`${f.name} could not be parsed due to column mismatch.`, 'Import Failed')
+        }
       }, 1500 + Math.random() * 1000)
     })
   }, [])
@@ -133,7 +139,7 @@ export default function DataImport() {
                 </div>
               ))}
             </div>
-            <a href="#" className="import-guide-download" onClick={e => { e.preventDefault(); toast.success('Template downloaded!') }}>
+            <a href="#" className="import-guide-download" onClick={e => { e.preventDefault(); notify.success('Sample template file downloaded to your system.', 'Download Complete') }}>
               Download template CSV
             </a>
           </div>

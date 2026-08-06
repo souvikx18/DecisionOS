@@ -40,6 +40,7 @@ export function AuthProvider({ children }) {
       email: data.email,
       company: { ...MOCK_USER.company, name: data.company },
       avatar: data.name.slice(0, 2).toUpperCase(),
+      photo: data.photo || null,
     }
     setUser(mockUser)
     localStorage.setItem('dos_user', JSON.stringify(mockUser))

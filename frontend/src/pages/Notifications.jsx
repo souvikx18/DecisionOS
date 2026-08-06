@@ -1,14 +1,14 @@
 import { useState } from 'react'
 import { mockNotifications } from '../data/mockData'
 import { Bell, TrendingDown, Package, Users, DollarSign, CheckCheck, Trash2, BellOff } from 'lucide-react'
-import toast from 'react-hot-toast'
+import { notify } from '../components/ui/CustomToast'
 import './Notifications.css'
 
 const TYPE_META = {
-  stock:   { icon: Package,     color: 'var(--accent-error)',   bg: '#FEE2E2' },
-  churn:   { icon: Users,       color: 'var(--accent-warning)', bg: '#FEF3C7' },
-  sales:   { icon: TrendingDown,color: 'var(--accent-primary)', bg: '#DBEAFE' },
-  expense: { icon: DollarSign,  color: 'var(--accent-indigo)',  bg: '#E0E7FF' },
+  stock: { icon: Package, color: 'var(--accent-error)', bg: '#FEE2E2' },
+  churn: { icon: Users, color: 'var(--accent-warning)', bg: '#FEF3C7' },
+  sales: { icon: TrendingDown, color: 'var(--accent-primary)', bg: '#DBEAFE' },
+  expense: { icon: DollarSign, color: 'var(--accent-indigo)', bg: '#E0E7FF' },
 }
 
 export default function Notifications() {
@@ -17,17 +17,17 @@ export default function Notifications() {
 
   const filtered = notifs.filter(n => {
     if (filter === 'unread') return !n.read
-    if (filter === 'read')   return n.read
+    if (filter === 'read') return n.read
     return true
   })
 
   const markAllRead = () => {
     setNotifs(prev => prev.map(n => ({ ...n, read: true })))
-    toast.success('All notifications marked as read')
+    notify.success('All unread alerts have been marked as read.', 'Notifications Cleared')
   }
   const markRead = id => setNotifs(prev => prev.map(n => n.id === id ? { ...n, read: true } : n))
   const deleteNotif = id => setNotifs(prev => prev.filter(n => n.id !== id))
-  const clearAll = () => { setNotifs([]); toast.success('All notifications cleared') }
+  const clearAll = () => { setNotifs([]); notify.info('All notification entries cleared from inbox.', 'Inbox Empty') }
 
   const unreadCount = notifs.filter(n => !n.read).length
 

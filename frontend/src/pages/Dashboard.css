@@ -12,17 +12,20 @@
   flex-wrap: wrap;
   gap: 12px;
 }
+
 .dashboard__title {
   font-size: 22px;
   font-weight: 800;
   color: var(--text-main);
   letter-spacing: -0.4px;
 }
+
 .dashboard__sub {
   font-size: 13.5px;
   color: var(--text-muted);
   margin-top: 2px;
 }
+
 .dashboard__header-actions {
   display: flex;
   gap: 10px;
@@ -50,19 +53,23 @@
   margin-bottom: 16px;
   gap: 12px;
 }
+
 .dashboard__card-title {
   font-size: 15px;
   font-weight: 700;
   color: var(--text-main);
 }
+
 .dashboard__card-sub {
   font-size: 12px;
   color: var(--text-disabled);
   margin-top: 2px;
 }
+
 .dashboard__chart-card {
   padding: 20px 20px 12px;
 }
+
 .dashboard__view-all {
   display: flex;
   align-items: center;
@@ -77,7 +84,10 @@
   font-family: 'Inter', sans-serif;
   transition: opacity var(--transition-fast);
 }
-.dashboard__view-all:hover { opacity: 0.7; }
+
+.dashboard__view-all:hover {
+  opacity: 0.7;
+}
 
 /* Chart tooltip */
 .chart-tooltip {
@@ -88,11 +98,13 @@
   box-shadow: var(--shadow-md);
   font-size: 12.5px;
 }
+
 .chart-tooltip__label {
   font-weight: 700;
   color: var(--text-main);
   margin-bottom: 6px;
 }
+
 .chart-tooltip__row {
   display: flex;
   align-items: center;
@@ -100,6 +112,7 @@
   color: var(--text-muted);
   margin: 3px 0;
 }
+
 .chart-tooltip__dot {
   width: 8px;
   height: 8px;
@@ -112,6 +125,7 @@
   grid-template-columns: 1fr 1fr 1.2fr;
   gap: 16px;
 }
+
 .dashboard__table-card,
 .dashboard__insights-card {
   padding: 20px;
@@ -123,6 +137,7 @@
   flex-direction: column;
   gap: 2px;
 }
+
 .dashboard__customer-row {
   display: flex;
   align-items: center;
@@ -131,7 +146,11 @@
   border-radius: var(--radius-sm);
   transition: background var(--transition-fast);
 }
-.dashboard__customer-row:hover { background: var(--bg-canvas); }
+
+.dashboard__customer-row:hover {
+  background: var(--bg-canvas);
+}
+
 .dashboard__customer-rank {
   font-size: 11px;
   font-weight: 700;
@@ -139,6 +158,7 @@
   width: 20px;
   text-align: center;
 }
+
 .dashboard__customer-avatar {
   width: 30px;
   height: 30px;
@@ -152,10 +172,12 @@
   color: #fff;
   flex-shrink: 0;
 }
+
 .dashboard__customer-info {
   flex: 1;
   overflow: hidden;
 }
+
 .dashboard__customer-name {
   display: block;
   font-size: 12.5px;
@@ -165,22 +187,26 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .dashboard__customer-orders {
   display: block;
   font-size: 11px;
   color: var(--text-disabled);
 }
+
 .dashboard__customer-rev {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 2px;
 }
+
 .dashboard__customer-amount {
   font-size: 13px;
   font-weight: 700;
   color: var(--text-main);
 }
+
 .dashboard__customer-change {
   display: flex;
   align-items: center;
@@ -188,8 +214,14 @@
   font-size: 10.5px;
   font-weight: 600;
 }
-.dashboard__customer-change.up   { color: var(--accent-success); }
-.dashboard__customer-change.down { color: var(--accent-error); }
+
+.dashboard__customer-change.up {
+  color: var(--accent-success);
+}
+
+.dashboard__customer-change.down {
+  color: var(--accent-error);
+}
 
 /* Inventory list */
 .dashboard__inventory-list {
@@ -197,11 +229,13 @@
   flex-direction: column;
   gap: 12px;
 }
+
 .dashboard__inventory-row {
   display: flex;
   align-items: center;
   gap: 10px;
 }
+
 .dashboard__inventory-icon {
   width: 28px;
   height: 28px;
@@ -213,10 +247,12 @@
   color: var(--text-disabled);
   flex-shrink: 0;
 }
+
 .dashboard__inventory-info {
   flex: 1;
   overflow: hidden;
 }
+
 .dashboard__inventory-name {
   font-size: 12px;
   font-weight: 600;
@@ -226,11 +262,13 @@
   text-overflow: ellipsis;
   margin-bottom: 5px;
 }
+
 .dashboard__inventory-bar-wrap {
   display: flex;
   align-items: center;
   gap: 6px;
 }
+
 .dashboard__inventory-bar {
   flex: 1;
   height: 5px;
@@ -238,14 +276,25 @@
   border-radius: 99px;
   overflow: hidden;
 }
+
 .dashboard__inventory-fill {
   height: 100%;
   border-radius: 99px;
   transition: width 0.6s ease;
 }
-.dashboard__inventory-fill--critical { background: var(--accent-error); }
-.dashboard__inventory-fill--warning  { background: var(--accent-warning); }
-.dashboard__inventory-fill--ok       { background: var(--accent-success); }
+
+.dashboard__inventory-fill--critical {
+  background: var(--accent-error);
+}
+
+.dashboard__inventory-fill--warning {
+  background: var(--accent-warning);
+}
+
+.dashboard__inventory-fill--ok {
+  background: var(--accent-success);
+}
+
 .dashboard__inventory-pct {
   font-size: 10px;
   font-weight: 600;
@@ -253,7 +302,10 @@
   min-width: 28px;
   text-align: right;
 }
-.dashboard__inventory-meta { flex-shrink: 0; }
+
+.dashboard__inventory-meta {
+  flex-shrink: 0;
+}
 
 /* AI insights tab */
 .dashboard__insight-filter {
@@ -262,6 +314,7 @@
   flex-wrap: wrap;
   margin-bottom: 12px;
 }
+
 .dashboard__filter-btn {
   background: none;
   border: 1px solid var(--border-subtle);
@@ -274,12 +327,18 @@
   transition: all var(--transition-fast);
   font-family: 'Inter', sans-serif;
 }
-.dashboard__filter-btn:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
+
+.dashboard__filter-btn:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
 .dashboard__filter-btn--active {
   background: var(--accent-primary);
   border-color: var(--accent-primary);
   color: #fff;
 }
+
 .dashboard__insights-list {
   display: flex;
   flex-direction: column;
@@ -290,14 +349,31 @@
 
 /* Responsive */
 @media (max-width: 1280px) {
-  .dashboard__kpi-grid  { grid-template-columns: repeat(2, 1fr); }
-  .dashboard__bottom-row { grid-template-columns: 1fr 1fr; }
-  .dashboard__insights-card { grid-column: 1 / -1; }
+  .dashboard__kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dashboard__bottom-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .dashboard__insights-card {
+    grid-column: 1 / -1;
+  }
 }
+
 @media (max-width: 900px) {
-  .dashboard__charts-row { grid-template-columns: 1fr; }
-  .dashboard__bottom-row  { grid-template-columns: 1fr; }
+  .dashboard__charts-row {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard__bottom-row {
+    grid-template-columns: 1fr;
+  }
 }
+
 @media (max-width: 600px) {
-  .dashboard__kpi-grid { grid-template-columns: 1fr; }
+  .dashboard__kpi-grid {
+    grid-template-columns: 1fr;
+  }
 }

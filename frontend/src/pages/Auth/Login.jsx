@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { Eye, EyeOff, ArrowRight } from 'lucide-react'
-import toast from 'react-hot-toast'
+import { notify } from '../../components/ui/CustomToast'
 import AnimatedLogo from './AnimatedLogo'
 import './Auth.css'
 
@@ -16,16 +16,16 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!form.email || !form.password) {
-      toast.error('Please fill in all fields')
+      notify.error('Please enter both work email and password.', 'Required Fields')
       return
     }
     setLoading(true)
     try {
       await login(form.email, form.password)
-      toast.success('Welcome back!')
+      notify.success('Session authenticated. Redirecting to workspace…', 'Welcome Back! 👋')
       navigate('/dashboard')
     } catch {
-      toast.error('Invalid credentials. Try again.')
+      notify.error('Please check your credentials and try again.', 'Authentication Error')
     } finally {
       setLoading(false)
     }

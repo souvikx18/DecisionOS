@@ -2,7 +2,8 @@ import { useState } from 'react'
 import InsightCard from '../components/ui/InsightCard'
 import { mockAIInsights } from '../data/mockData'
 import { Sparkles, RefreshCw, Filter } from 'lucide-react'
-import toast from 'react-hot-toast'
+import { toast } from 'react-hot-toast'
+import { notify } from '../components/ui/CustomToast'
 import './AIInsights.css'
 
 const SEVERITIES = ['all', 'critical', 'warning', 'info', 'success']
@@ -22,8 +23,8 @@ export default function AIInsights() {
     setRefreshing(true)
     setTimeout(() => {
       setRefreshing(false)
-      toast.success('AI insights refreshed!')
-    }, 1800)
+      notify.ai('All intelligence models re-analyzed with latest business parameters.', 'AI Insights Refreshed 🎉')
+    }, 1200)
   }
 
   const counts = {
@@ -95,7 +96,7 @@ export default function AIInsights() {
           </div>
         ) : (
           filtered.map(insight => (
-            <InsightCard key={insight.id} {...insight} onAction={() => toast.success('Opening detail view…')} />
+            <InsightCard key={insight.id} {...insight} onAction={() => notify.info('Opening detailed metric analytics…', 'Deep Analysis')} />
           ))
         )}
       </div>
