@@ -4,20 +4,11 @@ import './StatCard.css'
 export default function StatCard({ icon: Icon, label, value, change, changeLabel, color = 'blue', prefix = '', suffix = '' }) {
   const positive = parseFloat(change) >= 0
 
-  const colorMap = {
-    blue:   { bg: '#EFF6FF', icon: '#1D4ED8', iconBg: '#DBEAFE' },
-    green:  { bg: '#ECFDF5', icon: '#10B981', iconBg: '#D1FAE5' },
-    amber:  { bg: '#FFFBEB', icon: '#F59E0B', iconBg: '#FEF3C7' },
-    red:    { bg: '#FEF2F2', icon: '#EF4444', iconBg: '#FEE2E2' },
-    indigo: { bg: '#EEF2FF', icon: '#6366F1', iconBg: '#E0E7FF' },
-  }
-  const c = colorMap[color] || colorMap.blue
-
   return (
     <div className="stat-card glass-card">
       <div className="stat-card__header">
-        <div className="stat-card__icon-wrap" style={{ background: c.iconBg }}>
-          <Icon size={18} strokeWidth={1.75} style={{ color: c.icon }} />
+        <div className={`stat-card__icon-wrap stat-card__icon-wrap--${color}`}>
+          <Icon size={18} strokeWidth={1.75} />
         </div>
         {change !== undefined && (
           <div className={`stat-card__trend ${positive ? 'stat-card__trend--up' : 'stat-card__trend--down'}`}>

@@ -62,7 +62,7 @@
   padding: 12px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-subtle);
-  background: #fff;
+  background: var(--bg-sidebar, #fff);
   cursor: pointer;
   text-align: left;
   transition: all var(--transition-fast);
@@ -174,7 +174,7 @@
   flex-direction: column;
   align-items: center;
   gap: 12px;
-  background: #fff;
+  background: var(--bg-sidebar, #fff);
   cursor: pointer;
   transition: all var(--transition-fast);
   text-align: center;
@@ -346,6 +346,83 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+/* ── Dark Mode Overrides for DataImport ────────────────────────────── */
+[data-theme="dark"] .import-type-btn {
+  background: rgba(30, 41, 59, 0.4);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .import-type-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+[data-theme="dark"] .import-type-btn--active {
+  background: rgba(37, 99, 235, 0.18);
+  border-color: #3B82F6;
+  color: #60A5FA;
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.2);
+}
+
+[data-theme="dark"] .import-type-btn--active .import-type-label {
+  color: #60A5FA;
+}
+
+[data-theme="dark"] .import-guide-header,
+[data-theme="dark"] .import-guide-download {
+  color: #60A5FA;
+}
+
+[data-theme="dark"] .import-guide-col {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+[data-theme="dark"] .import-dropzone {
+  background: rgba(30, 41, 59, 0.4);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+[data-theme="dark"] .import-dropzone:hover {
+  background: rgba(37, 99, 235, 0.1);
+  border-color: #3B82F6;
+}
+
+[data-theme="dark"] .import-dropzone--active {
+  background: rgba(37, 99, 235, 0.18);
+  border-color: #3B82F6;
+}
+
+[data-theme="dark"] .import-dropzone--active .import-dropzone__icon {
+  color: #60A5FA;
+}
+
+[data-theme="dark"] .file-row {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .file-row.success {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+[data-theme="dark"] .file-row.error {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+[data-theme="dark"] .import-files__success-banner {
+  background: rgba(16, 185, 129, 0.18);
+  color: #34D399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+[data-theme="dark"] .file-row__remove:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #F87171;
 }
 
 @media (max-width: 960px) {

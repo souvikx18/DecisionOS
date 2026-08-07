@@ -347,6 +347,42 @@
   overflow-y: auto;
 }
 
+/* Dark mode specific rules */
+[data-theme="dark"] .dashboard__customer-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+[data-theme="dark"] .dashboard__inventory-icon {
+  background: rgba(255, 255, 255, 0.06);
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .dashboard__inventory-bar {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .dashboard__filter-btn {
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .dashboard__filter-btn:hover {
+  border-color: #3B82F6;
+  color: #60A5FA;
+  background: rgba(37, 99, 235, 0.1);
+}
+
+[data-theme="dark"] .dashboard__filter-btn--active {
+  background: #1D4ED8 !important;
+  border-color: #1D4ED8 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 12px rgba(29, 78, 216, 0.4);
+}
+
+[data-theme="dark"] .dashboard__view-all {
+  color: #60A5FA;
+}
+
 /* Responsive */
 @media (max-width: 1280px) {
   .dashboard__kpi-grid {

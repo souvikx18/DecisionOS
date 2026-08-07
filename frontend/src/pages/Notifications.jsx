@@ -1,18 +1,17 @@
 import { useState } from 'react'
-import { mockNotifications } from '../data/mockData'
 import { Bell, TrendingDown, Package, Users, DollarSign, CheckCheck, Trash2, BellOff } from 'lucide-react'
-import { notify } from '../components/ui/CustomToast'
+import { useNotifications } from '../context/NotificationContext'
 import './Notifications.css'
 
 const TYPE_META = {
-  stock: { icon: Package, color: 'var(--accent-error)', bg: '#FEE2E2' },
-  churn: { icon: Users, color: 'var(--accent-warning)', bg: '#FEF3C7' },
-  sales: { icon: TrendingDown, color: 'var(--accent-primary)', bg: '#DBEAFE' },
-  expense: { icon: DollarSign, color: 'var(--accent-indigo)', bg: '#E0E7FF' },
+  stock: { icon: Package, color: 'var(--notif-ic-stock, var(--accent-error))', bg: 'var(--notif-bg-stock, #FEE2E2)' },
+  churn: { icon: Users, color: 'var(--notif-ic-churn, var(--accent-warning))', bg: 'var(--notif-bg-churn, #FEF3C7)' },
+  sales: { icon: TrendingDown, color: 'var(--notif-ic-sales, var(--accent-primary))', bg: 'var(--notif-bg-sales, #DBEAFE)' },
+  expense: { icon: DollarSign, color: 'var(--notif-ic-expense, var(--accent-indigo))', bg: 'var(--notif-bg-expense, #E0E7FF)' },
 }
 
 export default function Notifications() {
-  const [notifs, setNotifs] = useState(mockNotifications)
+  const { notifs, unreadCount, markAllRead, markRead, deleteNotif, clearAll } = useNotifications()
   const [filter, setFilter] = useState('all')
 
   const filtered = notifs.filter(n => {
@@ -20,16 +19,6 @@ export default function Notifications() {
     if (filter === 'read') return n.read
     return true
   })
-
-  const markAllRead = () => {
-    setNotifs(prev => prev.map(n => ({ ...n, read: true })))
-    notify.success('All unread alerts have been marked as read.', 'Notifications Cleared')
-  }
-  const markRead = id => setNotifs(prev => prev.map(n => n.id === id ? { ...n, read: true } : n))
-  const deleteNotif = id => setNotifs(prev => prev.filter(n => n.id !== id))
-  const clearAll = () => { setNotifs([]); notify.info('All notification entries cleared from inbox.', 'Inbox Empty') }
-
-  const unreadCount = notifs.filter(n => !n.read).length
 
   return (
     <div className="notif-page">

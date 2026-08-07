@@ -45,6 +45,11 @@
   color: var(--text-muted);
 }
 
+[data-theme="dark"] .insight-card__icon-wrap {
+  background: rgba(255, 255, 255, 0.06);
+  color: #94A3B8;
+}
+
 .insight-card__title {
   font-size: 14px;
   font-weight: 600;
@@ -80,4 +85,15 @@
 .insight-card__action:hover {
   background: #EFF6FF;
   border-color: var(--accent-primary);
+}
+
+[data-theme="dark"] .insight-card__action {
+  color: #60A5FA;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+[data-theme="dark"] .insight-card__action:hover {
+  background: rgba(37, 99, 235, 0.2);
+  border-color: #3B82F6;
+  color: #93C5FD;
 }

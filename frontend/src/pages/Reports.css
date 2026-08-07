@@ -27,7 +27,7 @@
 .reports-tabs {
   display: flex;
   gap: 8px;
-  background: #fff;
+  background: var(--bg-sidebar, #fff);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
   padding: 4px;
@@ -41,7 +41,7 @@
   padding: 8px 16px;
   border-radius: 6px;
   border: none;
-  background: none;
+  background: transparent;
   font-size: 13.5px;
   font-weight: 600;
   color: var(--text-muted);
@@ -50,14 +50,18 @@
   font-family: 'Inter', sans-serif;
 }
 
-.reports-tab:hover {
+.reports-tab:hover:not(.reports-tab--active) {
   background: var(--bg-canvas);
   color: var(--text-main);
 }
 
-.reports-tab--active {
-  background: var(--accent-primary);
-  color: #fff;
+.reports-tab--active,
+.reports-tab--active:hover,
+.reports-tab--active:focus,
+.reports-tab--active:active {
+  background: var(--accent-primary) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(29, 78, 216, 0.25);
 }
 
 .reports-content {
@@ -192,6 +196,34 @@
 .reports-customers-tbl td.down {
   color: var(--accent-error);
   font-weight: 700;
+}
+
+/* ── Dark Mode Overrides for Reports ────────────────────────────── */
+[data-theme="dark"] .reports-tabs {
+  background: rgba(17, 24, 39, 0.8);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .reports-customers-tbl th {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .reports-customers-tbl td {
+  border-bottom-color: rgba(255, 255, 255, 0.04);
+  color: #CBD5E1;
+}
+
+[data-theme="dark"] .reports-customers-tbl tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+[data-theme="dark"] .reports-customers-tbl td.up {
+  color: #34D399;
+}
+
+[data-theme="dark"] .reports-customers-tbl td.down {
+  color: #F87171;
 }
 
 @media (max-width: 900px) {

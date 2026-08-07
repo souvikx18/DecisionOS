@@ -25,6 +25,41 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+/* Light mode icon variants */
+.stat-card__icon-wrap--blue { background: #DBEAFE; color: #1D4ED8; }
+.stat-card__icon-wrap--green { background: #D1FAE5; color: #10B981; }
+.stat-card__icon-wrap--amber { background: #FEF3C7; color: #F59E0B; }
+.stat-card__icon-wrap--red { background: #FEE2E2; color: #EF4444; }
+.stat-card__icon-wrap--indigo { background: #E0E7FF; color: #6366F1; }
+
+/* Dark mode icon variants */
+[data-theme="dark"] .stat-card__icon-wrap--blue {
+  background: rgba(37, 99, 235, 0.18);
+  color: #60A5FA;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+[data-theme="dark"] .stat-card__icon-wrap--green {
+  background: rgba(16, 185, 129, 0.18);
+  color: #34D399;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+[data-theme="dark"] .stat-card__icon-wrap--amber {
+  background: rgba(245, 158, 11, 0.18);
+  color: #FBBF24;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+[data-theme="dark"] .stat-card__icon-wrap--red {
+  background: rgba(239, 68, 68, 0.18);
+  color: #F87171;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+[data-theme="dark"] .stat-card__icon-wrap--indigo {
+  background: rgba(99, 102, 241, 0.18);
+  color: #818CF8;
+  border: 1px solid rgba(99, 102, 241, 0.25);
 }
 
 .stat-card__trend {
@@ -45,6 +80,18 @@
 .stat-card__trend--down {
   background: #fee2e2;
   color: #991b1b;
+}
+
+[data-theme="dark"] .stat-card__trend--up {
+  background: rgba(16, 185, 129, 0.18);
+  color: #34D399;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+[data-theme="dark"] .stat-card__trend--down {
+  background: rgba(239, 68, 68, 0.18);
+  color: #F87171;
+  border: 1px solid rgba(239, 68, 68, 0.25);
 }
 
 .stat-card__value {

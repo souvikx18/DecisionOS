@@ -2,12 +2,14 @@ import { useState } from 'react'
 import { Search, Bell, ChevronDown, Calendar, Sun, Moon, Menu } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useTheme } from '../../context/ThemeContext'
+import { useNotifications } from '../../context/NotificationContext'
 import { useNavigate } from 'react-router-dom'
 import './Topbar.css'
 
 export default function Topbar({ sidebarCollapsed, onToggleSidebar }) {
   const { user } = useAuth()
   const { theme, toggleTheme } = useTheme()
+  const { hasUnread } = useNotifications()
   const navigate = useNavigate()
   const [searchFocused, setSearchFocused] = useState(false)
   const isDark = theme === 'dark'
@@ -69,7 +71,7 @@ export default function Topbar({ sidebarCollapsed, onToggleSidebar }) {
           title="Notifications"
         >
           <Bell size={18} strokeWidth={1.75} />
-          <span className="topbar__notif-dot" />
+          {hasUnread && <span className="topbar__notif-dot" />}
         </button>
 
         {/* User chip */}
