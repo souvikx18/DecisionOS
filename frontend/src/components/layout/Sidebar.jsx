@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import { useNotifications } from '../../context/NotificationContext'
 import {
   LayoutDashboard, UploadCloud, Sparkles, FileText,
   Bell, LogOut, Settings, ChevronRight
@@ -17,6 +18,7 @@ const NAV_ITEMS = [
 
 export default function Sidebar({ collapsed, setCollapsed }) {
   const { user, logout } = useAuth()
+  const { hasUnread, unreadCount } = useNotifications()
   const navigate = useNavigate()
 
   const handleLogout = () => {
@@ -73,6 +75,12 @@ export default function Sidebar({ collapsed, setCollapsed }) {
           >
             <Icon size={18} strokeWidth={1.75} className="sidebar__nav-icon" />
             {!collapsed && <span className="sidebar__nav-label">{label}</span>}
+            {!collapsed && to === '/notifications' && hasUnread && (
+              <span className="sidebar__notif-badge">{unreadCount}</span>
+            )}
+            {collapsed && to === '/notifications' && hasUnread && (
+              <span className="sidebar__notif-dot-collapsed" />
+            )}
           </NavLink>
         ))}
       </nav>
