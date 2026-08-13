@@ -250,6 +250,6 @@ Distributed under the **MIT License**. See `LICENSE` for more information.
 
 ---
 
-Made with ❤️ for Enterprise & SME Decision Makers by **DecisionOS Team**
+Made with ❤️ for Enterprise & SME Decision Makers by ** Souvik's- DecisionOS Team**
 
 </div>

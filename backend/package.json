@@ -1,0 +1,18 @@
+{
+  "name": "decisionos-backend",
+  "version": "1.0.0",
+  "description": "Zero-Knowledge End-to-End Encrypted (E2EE) Backend Server for DecisionOS",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test test/e2ee.test.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "ws": "^8.18.0"
+  }
+}
