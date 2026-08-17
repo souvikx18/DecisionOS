@@ -1,18 +1,30 @@
 {
   "name": "decisionos-backend",
-  "version": "1.0.0",
-  "description": "Zero-Knowledge End-to-End Encrypted (E2EE) Backend Server for DecisionOS",
+  "version": "2.0.0",
+  "description": "DecisionOS — AI-Powered Business Intelligence SaaS Backend",
   "main": "src/server.js",
   "type": "module",
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
-    "test": "node --test test/e2ee.test.js"
+    "test": "node --test test/e2ee.test.js",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:migrate:prod": "prisma migrate deploy",
+    "db:seed": "node prisma/seed.js",
+    "db:studio": "prisma studio",
+    "db:reset": "prisma migrate reset",
+    "db:push": "prisma db push"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   },
   "dependencies": {
+    "@prisma/client": "5.22.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "prisma": "5.22.0",
     "ws": "^8.18.0"
   }
 }

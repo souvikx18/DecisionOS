@@ -1,0 +1,658 @@
+// ============================================================
+// DecisionOS — Full Prisma Schema
+// Multi-tenant SaaS BI Platform
+// Every business table scoped by organizationId
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// ENUMS
+// ============================================================
+
+enum MemberRole {
+  OWNER
+  ADMIN
+  ANALYST
+  VIEWER
+}
+
+enum OrgStatus {
+  ACTIVE
+  SUSPENDED
+  DELETED
+}
+
+enum ImportStatus {
+  PENDING
+  PROCESSING
+  VALIDATING
+  COMPLETED
+  FAILED
+  PARTIAL
+}
+
+enum ImportType {
+  SALES
+  EXPENSES
+  INVENTORY
+  CUSTOMERS
+  PRODUCTS
+}
+
+enum InsightType {
+  REVENUE_ANOMALY
+  CHURN_RISK
+  INVENTORY_STOCKOUT
+  SALES_TREND
+  EXPENSE_SPIKE
+  CUSTOMER_OPPORTUNITY
+  GENERAL
+}
+
+enum InsightSeverity {
+  CRITICAL
+  WARNING
+  INFO
+  GOOD
+}
+
+enum AiJobStatus {
+  QUEUED
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+enum ReportType {
+  DAILY_SUMMARY
+  WEEKLY_REPORT
+  MONTHLY_REPORT
+  CUSTOM
+}
+
+enum ReportStatus {
+  PENDING
+  GENERATING
+  READY
+  FAILED
+}
+
+enum PlanTier {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  UNPAID
+}
+
+enum NotificationType {
+  LOW_STOCK
+  SALES_DROP
+  CHURN_ALERT
+  PAYMENT_ALERT
+  PAYMENT_SUCCESS
+  IMPORT_COMPLETE
+  IMPORT_FAILED
+  REPORT_READY
+  MEMBER_JOINED
+  MEMBER_LEFT
+  AI_INSIGHT
+  SYSTEM
+}
+
+enum AuditAction {
+  USER_LOGIN
+  USER_LOGOUT
+  USER_INVITED
+  MEMBER_ROLE_CHANGED
+  MEMBER_REMOVED
+  DATA_IMPORTED
+  DATA_EXPORTED
+  REPORT_GENERATED
+  AI_RUN
+  PLAN_UPGRADED
+  PLAN_DOWNGRADED
+  SUBSCRIPTION_CANCELED
+  PASSWORD_CHANGED
+  SETTINGS_UPDATED
+  ACCOUNT_DELETED
+}
+
+// ============================================================
+// MODULE 1 — IDENTITY & AUTH
+// ============================================================
+
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  passwordHash    String
+  firstName       String
+  lastName        String
+  avatarUrl       String?
+  isEmailVerified Boolean   @default(false)
+  isSuperAdmin    Boolean   @default(false)
+  lastLoginAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  sessions           Session[]
+  emailVerifications EmailVerification[]
+  passwordResets     PasswordReset[]
+  orgMemberships     OrganizationMember[]
+  notifications      Notification[]
+  auditLogs          AuditLog[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  ipAddress String?
+  userAgent String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@map("sessions")
+}
+
+model EmailVerification {
+  id        String    @id @default(cuid())
+  userId    String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("email_verifications")
+}
+
+model PasswordReset {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("password_resets")
+}
+
+// ============================================================
+// MODULE 2 — ORGANIZATIONS & RBAC
+// ============================================================
+
+model Organization {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String    @unique
+  logoUrl   String?
+  industry  String?
+  timezone  String    @default("Asia/Kolkata")
+  currency  String    @default("INR")
+  status    OrgStatus @default(ACTIVE)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  members      OrganizationMember[]
+  invitations  Invitation[]
+  customers    Customer[]
+  products     Product[]
+  sales        Sale[]
+  expenses     Expense[]
+  inventory    InventoryItem[]
+  dataImports  DataImport[]
+  uploadedFiles UploadedFile[]
+  aiInsights   AiInsight[]
+  aiUsage      AiUsage[]
+  aiJobs       AiJob[]
+  reports      Report[]
+  notifications Notification[]
+  subscription Subscription?
+  auditLogs    AuditLog[]
+
+  @@map("organizations")
+}
+
+model OrganizationMember {
+  id             String     @id @default(cuid())
+  organizationId String
+  userId         String
+  role           MemberRole @default(VIEWER)
+  joinedAt       DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+  @@index([organizationId])
+  @@index([userId])
+  @@map("organization_members")
+}
+
+model Invitation {
+  id             String     @id @default(cuid())
+  organizationId String
+  email          String
+  role           MemberRole
+  token          String     @unique
+  expiresAt      DateTime
+  acceptedAt     DateTime?
+  createdAt      DateTime   @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, email])
+  @@index([organizationId])
+  @@map("invitations")
+}
+
+// ============================================================
+// MODULE 3 — BUSINESS DATA (all scoped to organizationId)
+// ============================================================
+
+model Customer {
+  id             String    @id @default(cuid())
+  organizationId String
+  name           String
+  email          String?
+  phone          String?
+  company        String?
+  region         String?
+  segment        String?
+  totalRevenue   Decimal   @default(0) @db.Decimal(15, 2)
+  lastOrderAt    DateTime?
+  churnRisk      Float?
+  tags           String[]
+  metadata       Json?
+  isArchived     Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  sales        Sale[]
+
+  @@index([organizationId])
+  @@index([organizationId, churnRisk])
+  @@index([organizationId, isArchived])
+  @@map("customers")
+}
+
+model Product {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  sku            String?
+  category       String?
+  unit           String?
+  costPrice      Decimal  @db.Decimal(15, 2)
+  sellingPrice   Decimal  @db.Decimal(15, 2)
+  isActive       Boolean  @default(true)
+  isArchived     Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization  Organization    @relation(fields: [organizationId], references: [id])
+  sales         Sale[]
+  inventory     InventoryItem[]
+
+  @@unique([organizationId, sku])
+  @@index([organizationId])
+  @@index([organizationId, category])
+  @@map("products")
+}
+
+model Sale {
+  id             String   @id @default(cuid())
+  organizationId String
+  customerId     String?
+  productId      String?
+  quantity       Int
+  unitPrice      Decimal  @db.Decimal(15, 2)
+  totalAmount    Decimal  @db.Decimal(15, 2)
+  discount       Decimal  @default(0) @db.Decimal(15, 2)
+  channel        String?
+  region         String?
+  soldAt         DateTime
+  notes          String?
+  importId       String?
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  customer     Customer?    @relation(fields: [customerId], references: [id])
+  product      Product?     @relation(fields: [productId], references: [id])
+
+  @@index([organizationId])
+  @@index([organizationId, soldAt])
+  @@index([organizationId, customerId])
+  @@index([organizationId, productId])
+  @@map("sales")
+}
+
+model Expense {
+  id             String   @id @default(cuid())
+  organizationId String
+  category       String
+  subCategory    String?
+  amount         Decimal  @db.Decimal(15, 2)
+  description    String?
+  vendor         String?
+  receiptUrl     String?
+  occurredAt     DateTime
+  importId       String?
+  isArchived     Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId])
+  @@index([organizationId, occurredAt])
+  @@index([organizationId, category])
+  @@map("expenses")
+}
+
+model InventoryItem {
+  id                String    @id @default(cuid())
+  organizationId    String
+  productId         String?
+  name              String
+  sku               String?
+  quantity          Int
+  reorderLevel      Int       @default(0)
+  reorderQty        Int       @default(0)
+  warehouseLocation String?
+  lastRestockedAt   DateTime?
+  isArchived        Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  product      Product?     @relation(fields: [productId], references: [id])
+
+  @@index([organizationId])
+  @@index([organizationId, quantity])
+  @@map("inventory_items")
+}
+
+// ============================================================
+// MODULE 4 — DATA IMPORT PIPELINE
+// ============================================================
+
+model UploadedFile {
+  id             String   @id @default(cuid())
+  organizationId String
+  uploadedBy     String
+  fileName       String
+  fileSize       Int
+  mimeType       String
+  storageKey     String
+  storageUrl     String
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  imports      DataImport[]
+
+  @@index([organizationId])
+  @@map("uploaded_files")
+}
+
+model DataImport {
+  id             String       @id @default(cuid())
+  organizationId String
+  fileId         String
+  importedBy     String
+  type           ImportType
+  status         ImportStatus @default(PENDING)
+  totalRows      Int          @default(0)
+  validRows      Int          @default(0)
+  errorRows      Int          @default(0)
+  errorDetails   Json?
+  columnMapping  Json?
+  completedAt    DateTime?
+  createdAt      DateTime     @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  file         UploadedFile  @relation(fields: [fileId], references: [id])
+
+  @@index([organizationId])
+  @@index([organizationId, status])
+  @@map("data_imports")
+}
+
+// ============================================================
+// MODULE 5 — AI ENGINE
+// ============================================================
+
+model AiInsight {
+  id             String          @id @default(cuid())
+  organizationId String
+  type           InsightType
+  severity       InsightSeverity
+  title          String
+  summary        String          @db.Text
+  details        Json?
+  affectedEntity String?
+  confidence     Float?
+  isRead         Boolean         @default(false)
+  isDismissed    Boolean         @default(false)
+  expiresAt      DateTime?
+  generatedAt    DateTime        @default(now())
+  jobId          String?
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId])
+  @@index([organizationId, severity])
+  @@index([organizationId, isRead, isDismissed])
+  @@map("ai_insights")
+}
+
+model AiUsage {
+  id             String   @id @default(cuid())
+  organizationId String
+  userId         String?
+  feature        String
+  tokensUsed     Int
+  costCents      Int
+  provider       String
+  model          String
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId])
+  @@index([organizationId, createdAt])
+  @@map("ai_usage")
+}
+
+model AiJob {
+  id             String      @id @default(cuid())
+  organizationId String
+  type           String
+  status         AiJobStatus @default(QUEUED)
+  payload        Json
+  result         Json?
+  error          String?
+  startedAt      DateTime?
+  completedAt    DateTime?
+  createdAt      DateTime    @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId, status])
+  @@map("ai_jobs")
+}
+
+// ============================================================
+// MODULE 6 — REPORTS
+// ============================================================
+
+model Report {
+  id             String       @id @default(cuid())
+  organizationId String
+  generatedBy    String
+  type           ReportType
+  title          String
+  status         ReportStatus @default(PENDING)
+  periodStart    DateTime
+  periodEnd      DateTime
+  config         Json?
+  createdAt      DateTime     @default(now())
+
+  exports      ReportExport[]
+  organization Organization  @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId])
+  @@index([organizationId, status])
+  @@map("reports")
+}
+
+model ReportExport {
+  id           String    @id @default(cuid())
+  reportId     String
+  format       String
+  storageKey   String
+  signedUrl    String?
+  urlExpiresAt DateTime?
+  fileSize     Int?
+  createdAt    DateTime  @default(now())
+
+  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@map("report_exports")
+}
+
+// ============================================================
+// MODULE 7 — BILLING
+// ============================================================
+
+model Plan {
+  id                  String   @id @default(cuid())
+  name                String
+  tier                PlanTier @unique
+  stripePriceId       String?
+  priceMonthly        Int
+  priceYearly         Int?
+  maxMembers          Int
+  maxAiCallsPerMonth  Int
+  maxImportsPerMonth  Int
+  maxStorageMb        Int
+  features            Json
+  isActive            Boolean  @default(true)
+  createdAt           DateTime @default(now())
+
+  subscriptions Subscription[]
+
+  @@map("plans")
+}
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  organizationId       String             @unique
+  planId               String
+  stripeCustomerId     String?            @unique
+  stripeSubscriptionId String?            @unique
+  status               SubscriptionStatus
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+  trialEndsAt          DateTime?
+  cancelAtPeriodEnd    Boolean            @default(false)
+  canceledAt           DateTime?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  plan         Plan         @relation(fields: [planId], references: [id])
+  payments     Payment[]
+
+  @@map("subscriptions")
+}
+
+model Payment {
+  id                    String    @id @default(cuid())
+  subscriptionId        String
+  stripeInvoiceId       String    @unique
+  stripePaymentIntentId String?
+  amount                Int
+  currency              String    @default("inr")
+  status                String
+  invoiceUrl            String?
+  paidAt                DateTime?
+  createdAt             DateTime  @default(now())
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id])
+
+  @@index([subscriptionId])
+  @@map("payments")
+}
+
+// ============================================================
+// MODULE 8 — NOTIFICATIONS & AUDIT
+// ============================================================
+
+model Notification {
+  id             String           @id @default(cuid())
+  organizationId String
+  userId         String
+  type           NotificationType
+  title          String
+  message        String
+  metadata       Json?
+  isRead         Boolean          @default(false)
+  readAt         DateTime?
+  createdAt      DateTime         @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  user         User         @relation(fields: [userId], references: [id])
+
+  @@index([organizationId, userId, isRead])
+  @@index([userId, createdAt])
+  @@map("notifications")
+}
+
+model AuditLog {
+  id             String      @id @default(cuid())
+  organizationId String?
+  userId         String?
+  action         AuditAction
+  entityType     String?
+  entityId       String?
+  metadata       Json?
+  ipAddress      String?
+  userAgent      String?
+  createdAt      DateTime    @default(now())
+
+  organization Organization? @relation(fields: [organizationId], references: [id])
+  user         User?         @relation(fields: [userId], references: [id])
+
+  @@index([organizationId, createdAt])
+  @@index([userId, createdAt])
+  @@index([action])
+  @@map("audit_logs")
+}
