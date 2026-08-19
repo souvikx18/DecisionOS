@@ -1,0 +1,4 @@
+Item Name,SKU,Current Stock Qty,Reorder Level
+Drill Bit 10mm,DRILL-10,50,10
+Faulty Item,,INVALID_NUMBER,10
+Drill Bit 12mm,DRILL-12,80,15

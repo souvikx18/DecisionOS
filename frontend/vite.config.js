@@ -7,4 +7,19 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+
+  // ── Dev Server ─────────────────────────────────────────────
+  server: {
+    port: 5173,
+
+    // Proxy: /api/v1/* requests → backend at :3001
+    // This avoids CORS issues during development
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
 })

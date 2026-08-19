@@ -1,19 +1,17 @@
 import { useState } from 'react'
-import { Search, Bell, ChevronDown, Calendar, Sun, Moon, Menu, ShieldCheck } from 'lucide-react'
+import { Search, Bell, ChevronDown, Calendar, Sun, Moon, Menu } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useTheme } from '../../context/ThemeContext'
 import { useNotifications } from '../../context/NotificationContext'
 import { useNavigate } from 'react-router-dom'
-import { E2EESecurityModal } from '../ui/E2EESecurityModal'
 import './Topbar.css'
 
 export default function Topbar({ sidebarCollapsed, onToggleSidebar }) {
-  const { user, e2eeEnabled } = useAuth()
+  const { user } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const { hasUnread } = useNotifications()
   const navigate = useNavigate()
   const [searchFocused, setSearchFocused] = useState(false)
-  const [isSecurityModalOpen, setIsSecurityModalOpen] = useState(false)
   const isDark = theme === 'dark'
 
   const today = new Date().toLocaleDateString('en-IN', {
@@ -34,7 +32,7 @@ export default function Topbar({ sidebarCollapsed, onToggleSidebar }) {
         <Menu size={18} />
       </button>
 
-      {/* Search */}
+      {/* Search Bar */}
       <div className={`topbar__search ${searchFocused ? 'topbar__search--focused' : ''}`}>
         <Search size={15} className="topbar__search-icon" />
         <input
@@ -45,7 +43,7 @@ export default function Topbar({ sidebarCollapsed, onToggleSidebar }) {
         />
       </div>
 
-      {/* Right section */}
+      {/* Right Section */}
       <div className="topbar__right">
         {/* Date */}
         <div className="topbar__date">
@@ -53,29 +51,7 @@ export default function Topbar({ sidebarCollapsed, onToggleSidebar }) {
           <span>{today}</span>
         </div>
 
-        {/* E2EE Security Vault Button */}
-        <button
-          onClick={() => setIsSecurityModalOpen(true)}
-          className="topbar__icon-btn"
-          style={{
-            background: 'rgba(16, 185, 129, 0.12)',
-            border: '1px solid rgba(16, 185, 129, 0.3)',
-            color: '#10b981',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '4px 10px',
-            borderRadius: '8px',
-            fontSize: '12px',
-            fontWeight: 600
-          }}
-          title="Open Zero-Knowledge E2EE Vault"
-        >
-          <ShieldCheck size={16} className="animate-pulse" />
-          <span className="hidden sm:inline">E2EE Vault</span>
-        </button>
-
-        {/* Theme toggle */}
+        {/* Theme Toggle */}
         <button
           className="topbar__icon-btn topbar__theme-btn"
           onClick={toggleTheme}
@@ -98,7 +74,7 @@ export default function Topbar({ sidebarCollapsed, onToggleSidebar }) {
           {hasUnread && <span className="topbar__notif-dot" />}
         </button>
 
-        {/* User chip */}
+        {/* User Profile Pill */}
         <div className="topbar__user">
           <div className="topbar__avatar">
             {user?.photo
@@ -107,18 +83,12 @@ export default function Topbar({ sidebarCollapsed, onToggleSidebar }) {
             }
           </div>
           <div className="topbar__user-info">
-            <span className="topbar__user-name">{user?.name}</span>
-            <span className="topbar__company">{user?.company?.name}</span>
+            <span className="topbar__user-name">{user?.name || 'Executive'}</span>
+            <span className="topbar__company">{user?.company?.name || 'DecisionOS'}</span>
           </div>
           <ChevronDown size={14} className="topbar__chevron" />
         </div>
       </div>
-
-      {/* E2EE Security Vault Modal */}
-      <E2EESecurityModal
-        isOpen={isSecurityModalOpen}
-        onClose={() => setIsSecurityModalOpen(false)}
-      />
     </header>
   )
 }
