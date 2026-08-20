@@ -28,6 +28,7 @@ import expensesRouter    from './modules/expenses/expenses.router.js';
 import inventoryRouter   from './modules/inventory/inventory.router.js';
 import analyticsRouter   from './modules/analytics/analytics.router.js';
 import importsRouter     from './modules/imports/imports.router.js';
+import aiRouter          from './modules/ai/ai.router.js';
 
 const app = express();
 
@@ -131,6 +132,7 @@ app.use('/api/v1/expenses',      expensesRouter);
 app.use('/api/v1/inventory',     inventoryRouter);
 app.use('/api/v1/analytics',     analyticsRouter);
 app.use('/api/v1/imports',       importsRouter);
+app.use('/api/v1/ai',            aiRouter);
 
 // ── 10. 404 Handler ──────────────────────────────────────────
 app.use((req, res) => {
