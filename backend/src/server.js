@@ -13,6 +13,8 @@ import { env } from './config/env.js';
 import { getRedis } from './config/redis.js';
 import { prisma } from './lib/prisma.js';
 import { startImportWorker, closeImportWorker } from './workers/import.worker.js';
+import { startReportWorker, closeReportWorker } from './workers/report.worker.js';
+import { startReportScheduler, stopReportScheduler } from './workers/report.scheduler.js';
 
 const server = http.createServer(app);
 
@@ -27,8 +29,10 @@ async function startServer() {
     await redis.ping();
     console.log('✅ Redis connected');
 
-    // 3. Start BullMQ background import worker
+    // 3. Start BullMQ background workers
     startImportWorker();
+    startReportWorker();
+    startReportScheduler();
 
     // 4. Start HTTP server
     server.listen(env.PORT, () => {
@@ -61,6 +65,12 @@ async function shutdown(signal) {
 
       await closeImportWorker();
       console.log('[Server] ✅ Import worker stopped');
+
+      await closeReportWorker();
+      console.log('[Server] ✅ Report worker stopped');
+
+      stopReportScheduler();
+      console.log('[Server] ✅ Report scheduler stopped');
 
       const redis = getRedis();
       await redis.quit();

@@ -50,3 +50,40 @@ export async function addImportJob(dataImportId, payload) {
     }
   );
 }
+
+// ── 2. Report Generation Queue ─────────────────────────────────
+export const REPORT_QUEUE_NAME = 'report-generation-queue';
+
+export const reportQueue = new Queue(REPORT_QUEUE_NAME, {
+  connection: bullRedisConnection,
+  defaultJobOptions: {
+    attempts: 2,
+    backoff: {
+      type: 'exponential',
+      delay: 3000,
+    },
+    removeOnComplete: {
+      age: 7 * 24 * 3600, // Keep for 7 days
+      count: 200,
+    },
+    removeOnFail: {
+      age: 30 * 24 * 3600, // Keep failed for 30 days
+    },
+  },
+});
+
+/**
+ * Dispatch a report generation job to the background worker.
+ */
+export async function addReportJob(reportId, payload) {
+  return reportQueue.add(
+    'generate-report',
+    {
+      reportId,
+      ...payload,
+    },
+    {
+      jobId: `report-${reportId}`,
+    }
+  );
+}

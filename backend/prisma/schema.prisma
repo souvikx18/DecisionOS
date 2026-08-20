@@ -231,10 +231,11 @@ model Organization {
   aiInsights   AiInsight[]
   aiUsage      AiUsage[]
   aiJobs       AiJob[]
-  reports      Report[]
-  notifications Notification[]
-  subscription Subscription?
-  auditLogs    AuditLog[]
+  reports          Report[]
+  reportSchedules  ReportSchedule[]
+  notifications    Notification[]
+  subscription     Subscription?
+  auditLogs        AuditLog[]
 
   @@map("organizations")
 }
@@ -546,6 +547,29 @@ model ReportExport {
   report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
 
   @@map("report_exports")
+}
+
+model ReportSchedule {
+  id             String     @id @default(cuid())
+  organizationId String
+  createdBy      String
+  type           ReportType
+  frequency      String     // DAILY | WEEKLY | MONTHLY
+  formats        String[]   // ["PDF", "CSV", "XLSX"]
+  emailTo        String[]   // list of recipient emails
+  dayOfWeek      Int?       // 0-6 for WEEKLY (0 = Sunday)
+  dayOfMonth     Int?       // 1-28 for MONTHLY
+  isActive       Boolean    @default(true)
+  lastRunAt      DateTime?
+  nextRunAt      DateTime?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId])
+  @@index([nextRunAt, isActive])
+  @@map("report_schedules")
 }
 
 // ============================================================

@@ -18,7 +18,7 @@
  * @param {number} statusCode - HTTP status (default 200)
  * @param {string} message - Optional success message
  */
-export function sendSuccess(res, data = null, statusCode = 200, message = null) {
+export function sendSuccess(res, data = null, statusCode = 200, message = null, meta = {}) {
   const body = {
     success: true,
     ...(message && { message }),
@@ -26,6 +26,7 @@ export function sendSuccess(res, data = null, statusCode = 200, message = null) 
     meta: {
       requestId: res.locals.requestId ?? null,
       timestamp: new Date().toISOString(),
+      ...(meta || {}),
     },
   };
   return res.status(statusCode).json(body);
