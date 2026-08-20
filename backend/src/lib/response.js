@@ -59,7 +59,7 @@ export function sendError(res, statusCode, code, message, details = []) {
 /**
  * Send a validation error (400) from Zod issues
  * @param {import('express').Response} res
- * @param {import('zod').ZodIssue[]} issues
+ * @param {Array<{ path: (string|number)[], message: string }>} issues
  */
 export function sendValidationError(res, issues) {
   const details = issues.map((issue) => ({
