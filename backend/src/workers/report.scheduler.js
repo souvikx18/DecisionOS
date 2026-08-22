@@ -7,10 +7,12 @@
 
 import { prisma }        from '../lib/prisma.js';
 import { addReportJob }  from '../config/queue.js';
-import { calcPeriod, calcNextRunAt } from '../modules/reports/reports.service.js';
+import { calcPeriod, calcNextRunAt, purgeExpiredReportFiles } from '../modules/reports/reports.service.js';
 
 let schedulerInterval = null;
-const POLL_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+let tickCount = 0;
+const POLL_INTERVAL_MS  = 5 * 60 * 1000; // 5 minutes
+const PURGE_EVERY_TICKS = 288;            // once every ~24 h (288 × 5 min)
 
 async function runSchedulerTick() {
   const now = new Date();
@@ -68,6 +70,14 @@ async function runSchedulerTick() {
     }
   } catch (err) {
     console.error('[ReportScheduler] Tick error:', err.message);
+  }
+
+  // Daily purge of expired Supabase Storage files (30-day retention)
+  tickCount++;
+  if (tickCount % PURGE_EVERY_TICKS === 0) {
+    purgeExpiredReportFiles().catch((err) =>
+      console.error('[ReportScheduler] Purge error:', err.message)
+    );
   }
 }
 

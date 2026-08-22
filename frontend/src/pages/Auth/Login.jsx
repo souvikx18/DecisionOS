@@ -24,8 +24,10 @@ export default function Login() {
       await login(form.email, form.password)
       notify.success('Session authenticated. Redirecting to workspace…', 'Welcome Back! 👋')
       navigate('/dashboard')
-    } catch {
-      notify.error('Please check your credentials and try again.', 'Authentication Error')
+    } catch (err) {
+      const errData = err.response?.data?.error
+      const msg = errData?.details?.[0]?.message || errData?.message || err.message || 'Please check your credentials and try again.'
+      notify.error(msg, 'Authentication Error')
     } finally {
       setLoading(false)
     }

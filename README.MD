@@ -6,6 +6,7 @@
 
 [![Node.js](https://img.shields.io/badge/Node.js-v24-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
+[![Vite](https://img.shields.io/badge/Vite-8.x-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://supabase.com/)
 [![Redis](https://img.shields.io/badge/Redis-Upstash-DC382D?style=for-the-badge&logo=redis&logoColor=white)](https://upstash.com/)
 [![Google Gemini](https://img.shields.io/badge/Google_Gemini-3.6_Flash-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev/)
@@ -14,14 +15,14 @@
 
 ---
 
-[Overview](#-overview) • [Key Features](#-key-features) • [System Architecture](#-system-architecture) • [Tech Stack](#-tech-stack) • [Getting Started](#-getting-started) • [API Reference](#-api-reference) • [Test Suite](#-test-suite) • [Security & Multi-Tenancy](#-security--multi-tenancy)
+[Overview](#-overview) • [Key Features](#-key-features) • [System Architecture](#-system-architecture) • [Frontend Suite](#-frontend-suite) • [Tech Stack](#-tech-stack) • [Getting Started](#-getting-started) • [API Reference](#-api-reference) • [Test Suite](#-test-suite) • [Security & Multi-Tenancy](#-security--multi-tenancy)
 
 ---
 
 </div>
 
 > [!NOTE]
-> **DecisionOS** is a full-stack, multi-tenant SaaS platform that unifies fragmented operational spreadsheets and ERP data into an executive BI cockpit. Powered by Google Gemini 3.6 Flash with statistical fallback, BullMQ background queues, and automated PDF/CSV/Excel report builders, DecisionOS delivers real-time anomaly detection, churn prediction, revenue forecasting, and scheduled executive reports.
+> **DecisionOS** is a production-grade, full-stack, multi-tenant SaaS platform that unifies operational spreadsheets and ERP data into an executive BI cockpit. Powered by Google Gemini 3.6 Flash with statistical fallback, BullMQ async background queues, and automated PDF/CSV/Excel report builders, DecisionOS delivers real-time anomaly detection, churn prediction, revenue forecasting, automated cron schedules, and a 10-page executive dashboard.
 
 ---
 
@@ -31,10 +32,10 @@ Modern SMEs and enterprises drown in scattered spreadsheets and siloed data. Dec
 
 - **Enterprise REST API** — Express.js + Prisma ORM + Supabase PostgreSQL with 60+ fully tested endpoints.
 - **AI-Powered Analytics** — Google Gemini 3.6 Flash paired with internal statistical anomaly models (Z-score, RFM, linear regression).
-- **Automated Report Engine** — Generates styled PDF, multi-sheet CSV, and Excel (`.xlsx`) reports on automated cron schedules (Daily, Weekly, Monthly) with Resend SMTP email delivery.
+- **Automated Report Engine** — Generates styled PDF, multi-sheet CSV, and Excel (`.xlsx`) reports on automated cron schedules (Daily, Weekly, Monthly) with 30-day automatic cloud purging and Resend email delivery.
 - **Resilient Data Import Pipeline** — Multer + BullMQ + Redis background workers with fuzzy header detection and row-level error isolation (`PARTIAL` status).
 - **Multi-Tenant Security** — Complete tenant isolation (`organizationId` scoping), Argon2 session auth, and granular RBAC.
-- **Modern Executive UI** — React 19 + Tailwind CSS + Recharts in deep Obsidian Slate dark mode (`#0B0F19`) with glassmorphism.
+- **Modern Executive UI** — React 19 + Vite with 10 production pages, responsive Recharts visualizations, and a Sonner-inspired **Dynamic Island floating notification system**.
 
 ---
 
@@ -70,7 +71,8 @@ Modern SMEs and enterprises drown in scattered spreadsheets and siloed data. Dec
         <li><b>PDF Reports (PDFKit)</b>: Vector-rendered executive summaries with KPI cards, charts, and alert badges.</li>
         <li><b>Excel Spreadsheets (ExcelJS)</b>: Multi-sheet <code>.xlsx</code> workbooks with styled headers & auto-fit columns.</li>
         <li><b>Streaming CSV</b>: Multi-section CSV exports for fast data ingestion.</li>
-        <li><b>Cron Scheduler</b>: Automated Daily, Weekly, and Monthly triggers.</li>
+        <li><b>Cron Scheduler</b>: Automated Daily, Weekly, and Monthly background triggers.</li>
+        <li><b>30-Day File Retention</b>: Automated daily cloud file purging for expired exports.</li>
         <li><b>Email Delivery</b>: Branded HTML notifications via Resend SMTP with 1-hour signed download URLs.</li>
       </ul>
     </td>
@@ -95,12 +97,12 @@ Modern SMEs and enterprises drown in scattered spreadsheets and siloed data. Dec
       </ul>
     </td>
     <td width="50%">
-      <h3>🌑 Executive Cockpit UI</h3>
+      <h3>💎 Executive Cockpit UI</h3>
       <ul>
-        <li><b>Obsidian Slate Theme</b>: Deep dark mode (<code>#0B0F19</code>) with 16px backdrop blur.</li>
+        <li><b>10 Dedicated Pages</b>: Dashboard, Import, AI Insights, Reports, Sales, Expenses, Inventory, Customers, Notifications, Settings.</li>
+        <li><b>Dynamic Island Toasts</b>: Floating glassmorphic HUD pill notifications with spring physics.</li>
         <li><b>Live Visualizations</b>: Responsive Recharts line, area, and stacked bar graphs.</li>
-        <li><b>Health Score</b>: Real-time business health index (0–100).</li>
-        <li><b>Notification Inbox</b>: Unread badges with real-time alert sync.</li>
+        <li><b>Dark & Light Theme</b>: Seamless theme engine with system mode detection.</li>
       </ul>
     </td>
   </tr>
@@ -113,37 +115,40 @@ Modern SMEs and enterprises drown in scattered spreadsheets and siloed data. Dec
 ```mermaid
 flowchart TD
     subgraph Client["Frontend (React 19 + Vite)"]
-        UI[Dashboard / AI Insights / Reports / Data Import]
-        Charts[Recharts Visualizations]
+        UI["10 Production Pages\n(Dashboard, Sales, Expenses, Inventory, CRM, Reports, AI, Import, Settings)"]
+        Toast["Dynamic Island Toast HUD"]
+        Charts["Recharts Visualizations"]
     end
 
     subgraph API["Backend (Express.js + Node.js)"]
-        Auth[Auth & RBAC Middleware]
-        Modules[12 Business Modules]
-        AIEngine[AI Engine Service]
-        ImportSvc[Data Import Service]
-        ReportSvc[Report Generation Service]
+        Auth["Auth & RBAC Middleware"]
+        Tenant["Organization Context Middleware"]
+        Modules["12 Business Modules"]
+        AIEngine["AI Engine Service"]
+        ImportSvc["Data Import Service"]
+        ReportSvc["Report Generation Service"]
     end
 
     subgraph Workers["Background Workers (BullMQ + Redis)"]
-        ImportWorker[Import Worker]
-        ReportWorker[Report Worker]
-        ReportScheduler[5-Min Cron Scheduler]
+        ImportWorker["Import Worker"]
+        ReportWorker["Report Worker"]
+        ReportScheduler["5-Min Cron Scheduler"]
+        Purger["30-Day Storage Purger"]
     end
 
     subgraph AI["AI Reasoning Layer"]
-        Gemini[Google Gemini 3.6 Flash]
-        Fallback[Statistical Heuristic Engine]
+        Gemini["Google Gemini 3.6 Flash"]
+        Fallback["Statistical Heuristic Engine"]
     end
 
     subgraph Infra["Cloud Infrastructure"]
-        PG[(PostgreSQL - Supabase)]
-        Redis[(Redis - Upstash)]
-        Storage[Supabase Storage]
-        Email[Resend SMTP Email]
+        PG[("PostgreSQL - Supabase")]
+        Redis[("Redis - Upstash")]
+        Storage["Supabase Cloud Storage"]
+        Email["Resend SMTP Email"]
     end
 
-    UI --> Auth --> Modules
+    UI --> Auth --> Tenant --> Modules
     Modules --> PG
     Modules --> AIEngine
     AIEngine --> Gemini
@@ -152,8 +157,28 @@ flowchart TD
     ReportSvc --> Storage
     ReportScheduler --> Redis --> ReportWorker --> ReportSvc
     ReportWorker --> Email
-    Modules --> Storage
+    Purger --> Storage
 ```
+
+---
+
+## 🖥️ Frontend Suite
+
+The frontend is built with React 19 and Vite 8, featuring 10 fully integrated, production-ready pages:
+
+| Page | Route | Description |
+|---|---|---|
+| **Dashboard** | `/dashboard` | Executive cockpit with 4 key KPI cards, Revenue Trend chart, Expense Breakdown, Top Customers, and AI quick insights. |
+| **Data Import** | `/import` | Drag-and-drop CSV/XLSX file uploader with fuzzy column detection, 5-row preview, sample templates, and progress polling. |
+| **AI Insights** | `/insights` | Predictive insights dashboard with Business Health Score (0-100), risk filters, and natural language Q&A. |
+| **Reports** | `/reports` | 3-tab report center for on-demand generation (PDF/Excel/CSV), export history with signed downloads, and automated cron schedules. |
+| **Sales** | `/sales` | Paginated sales transactions ledger with total revenue summaries, product search, and status badges. |
+| **Expenses** | `/expenses` | Expense tracking with category donut breakdown, monthly averages, and category filters. |
+| **Inventory** | `/inventory` | SKU stock control, dynamic stock-level progress bars, low-stock warnings, and unit cost rollups. |
+| **Customers** | `/customers` | CRM directory with customer lifetime revenue, order counts, RFM rankings, and search/sort. |
+| **Notifications** | `/notifications` | Live notification inbox with unread count badges and filterable alert types. |
+| **Settings** | `/settings` | 5-tab settings console: Profile editing, Organization details, Notification toggles, Theme switcher, and Session termination. |
+| **Auth** | `/login`, `/register` | Multi-step onboarding with profile photo upload, password complexity validation, and animated brand identity. |
 
 ---
 
@@ -167,27 +192,26 @@ flowchart TD
 | **ORM** | Prisma | 5.22 | Type-safe PostgreSQL client & migrations |
 | **Primary Database** | PostgreSQL (Supabase) | 15+ | Relational multi-tenant data store |
 | **Queue / Cache** | Redis (Upstash) | — | BullMQ job queue & distributed locks |
-| **Background Jobs** | BullMQ | 6.x | Async worker queues for imports & reports |
+| **Background Jobs** | BullMQ | 6.x | Async worker queues for imports, reports, & file purging |
 | **AI LLM** | Google Gemini | 3.6 Flash | Predictive analytics & natural language Q&A |
 | **PDF Generation** | PDFKit | 0.19 | Programmatic vector PDF reports |
-| **Excel Generation** | ExcelJS | 4.4 | Formatted multi-sheet spreadsheets |
+| **Excel Generation** | ExcelJS | 4.4 | Formatted multi-sheet spreadsheets (`.xlsx`) |
 | **CSV Generation** | @fast-csv/format | 5.0 | Streaming CSV serialization |
 | **Email Delivery** | Nodemailer + Resend | 9.x | Branded HTML transactional emails |
-| **Password Hashing**| Argon2 | 0.45 | Industry-standard password hashing |
-| **Validation** | Zod | 4.x | Runtime request schema validation |
-| **Security** | Helmet + RateLimit | — | Secure headers & brute-force defense |
+| **Password Hashing**| Argon2 | 0.45 | Memory-hard Argon2id password hashing |
+| **Validation** | Zod | 4.x | Strict runtime request schema validation |
+| **Security** | Helmet + RateLimit | — | Secure HTTP headers & brute-force protection |
 
 ### Frontend
 | Component | Technology | Version | Purpose |
 |---|---|:---:|---|
 | **Framework** | React | 19 | UI component architecture |
 | **Build Tool** | Vite | 8.x | High-speed HMR development & build |
-| **Styling** | Tailwind CSS | 4.x | Utility-first CSS & theme tokens |
-| **Charts** | Recharts | 3.x | Financial charts & trends |
-| **Animations** | Framer Motion | 12.x | Glassmorphism & UI transitions |
-| **HTTP Client** | Axios | 1.x | REST API integration with credentials |
-| **Icons** | Lucide React | — | Clean SVG iconography |
-| **Notifications** | react-hot-toast | — | Animated toast notifications |
+| **Styling** | Vanilla CSS + Design Tokens | — | Custom glassmorphism, responsive grid, & CSS custom properties |
+| **Charts** | Recharts | 3.x | Financial charts, revenue trends, & expense distributions |
+| **HTTP Client** | Axios | 1.x | REST API integration with `withCredentials: true` |
+| **Icons** | Lucide React | — | Modern SVG iconography |
+| **Notifications** | react-hot-toast + Custom HUD | — | Sonner-inspired floating Dynamic Island pill toasts |
 
 ---
 
@@ -197,30 +221,31 @@ flowchart TD
 DecisionOS/
 ├── 📂 backend/
 │   ├── 📂 prisma/
-│   │   ├── schema.prisma          # Database schema (8 modules, 20+ models)
-│   │   └── seed.js                # Plan tiers & super-admin seed script
+│   │   ├── schema.prisma              # Database schema (8 modules, 20+ models)
+│   │   ├── migrations/                # Schema migrations (including file retention)
+│   │   └── seed.js                    # Plan tiers & super-admin seed script
 │   ├── 📂 src/
 │   │   ├── 📂 config/
-│   │   │   ├── env.js             # Validated environment variables (Zod)
-│   │   │   ├── gemini.js          # Google Gemini 3.6 Flash client & fallback
-│   │   │   ├── queue.js           # BullMQ queue configurations
-│   │   │   └── redis.js           # Redis connection singleton
+│   │   │   ├── env.js                 # Validated environment variables (Zod)
+│   │   │   ├── gemini.js              # Google Gemini 3.6 Flash client & fallback
+│   │   │   ├── queue.js               # BullMQ queue configurations
+│   │   │   └── redis.js               # Redis connection singleton
 │   │   ├── 📂 lib/
-│   │   │   ├── aiContextBuilder.js   # Multi-tenant AI metrics aggregator
-│   │   │   ├── anomalyDetector.js    # Statistical anomaly detection algorithms
-│   │   │   ├── columnDetector.js     # Fuzzy header matcher for imports
-│   │   │   ├── crypto.js             # Secure token generator
-│   │   │   ├── email.js              # Resend SMTP email delivery
-│   │   │   ├── fileParser.js         # CSV & Excel streaming parser
-│   │   │   ├── forecaster.js         # Linear regression revenue forecaster
-│   │   │   ├── prisma.js             # Prisma client singleton
-│   │   │   ├── 📂 reportBuilder/     # Report generation engine
-│   │   │   │   ├── csvBuilder.js     # Multi-section CSV builder
-│   │   │   │   ├── pdfBuilder.js     # PDFKit vector PDF builder
-│   │   │   │   ├── reportDataFetcher.js # Context aggregator across modules
-│   │   │   │   └── xlsxBuilder.js    # ExcelJS multi-sheet formatted workbook
-│   │   │   ├── response.js           # Standardized API response envelope
-│   │   │   └── templateGenerator.js  # Sample CSV template generator
+│   │   │   ├── aiContextBuilder.js    # Multi-tenant AI metrics aggregator
+│   │   │   ├── anomalyDetector.js     # Statistical anomaly detection algorithms
+│   │   │   ├── columnDetector.js      # Fuzzy header matcher for imports
+│   │   │   ├── crypto.js              # Secure token generator
+│   │   │   ├── email.js               # Resend SMTP email delivery
+│   │   │   ├── fileParser.js          # CSV & Excel streaming parser
+│   │   │   ├── forecaster.js          # Linear regression revenue forecaster
+│   │   │   ├── prisma.js              # Prisma client singleton
+│   │   │   ├── 📂 reportBuilder/      # Report generation engine
+│   │   │   │   ├── csvBuilder.js      # Multi-section CSV builder
+│   │   │   │   ├── pdfBuilder.js      # PDFKit vector PDF builder
+│   │   │   │   ├── reportDataFetcher.js # Cross-module context aggregator
+│   │   │   │   └── xlsxBuilder.js     # ExcelJS multi-sheet formatted workbook
+│   │   │   ├── response.js            # Standardized API response envelope
+│   │   │   └── templateGenerator.js   # Sample CSV template generator
 │   │   ├── 📂 middleware/
 │   │   │   ├── auth.middleware.js     # Session cookie verification
 │   │   │   ├── org.middleware.js      # Tenant context injection
@@ -228,43 +253,46 @@ DecisionOS/
 │   │   │   ├── rateLimit.middleware.js # Express rate limiters
 │   │   │   └── errorHandler.js        # Global error interceptor
 │   │   ├── 📂 modules/
-│   │   │   ├── 📂 ai/             # AI Engine (insights, forecasting, ask)
-│   │   │   ├── 📂 analytics/      # Executive P&L & chart aggregations
-│   │   │   ├── 📂 auth/           # Registration, login, sessions
-│   │   │   ├── 📂 customers/      # Customer CRM & RFM scoring
-│   │   │   ├── 📂 expenses/       # Expense ledger & surge alerts
-│   │   │   ├── 📂 imports/        # Data import pipeline & preview
-│   │   │   ├── 📂 inventory/      # Stock control & reorder tracking
-│   │   │   ├── 📂 invitations/    # Team invitation system
-│   │   │   ├── 📂 members/        # Team member roles & permissions
-│   │   │   ├── 📂 organizations/  # Multi-tenant organization manager
-│   │   │   ├── 📂 products/       # Product catalogue & margins
-│   │   │   ├── 📂 reports/        # Automated Report Generation module
-│   │   │   └── 📂 sales/          # Sales transactions with inventory decrements
+│   │   │   ├── 📂 ai/                 # AI Engine (insights, forecasting, ask)
+│   │   │   ├── 📂 analytics/          # Executive P&L & chart aggregations
+│   │   │   ├── 📂 auth/               # Registration, login, sessions
+│   │   │   ├── 📂 customers/          # Customer CRM & RFM scoring
+│   │   │   ├── 📂 expenses/           # Expense ledger & surge alerts
+│   │   │   ├── 📂 imports/            # Data import pipeline & preview
+│   │   │   ├── 📂 inventory/          # Stock control & reorder tracking
+│   │   │   ├── 📂 invitations/        # Team invitation system
+│   │   │   ├── 📂 members/            # Team member roles & permissions
+│   │   │   ├── 📂 organizations/      # Multi-tenant organization manager
+│   │   │   ├── 📂 products/           # Product catalogue & margins
+│   │   │   ├── 📂 reports/            # Automated Report Generation & cleanup
+│   │   │   └── 📂 sales/              # Sales transactions with inventory decrements
 │   │   ├── 📂 workers/
-│   │   │   ├── import.worker.js            # BullMQ import queue processor
-│   │   │   ├── report.worker.js            # BullMQ report queue processor
-│   │   │   ├── report.scheduler.js         # 5-minute cron scheduler
-│   │   │   └── 📂 processors/             # Entity batch processors
-│   │   ├── app.js                 # Express app configuration
-│   │   └── server.js              # Server entry & graceful shutdown
+│   │   │   ├── import.worker.js       # BullMQ import queue processor
+│   │   │   ├── report.worker.js       # BullMQ report queue processor
+│   │   │   ├── report.scheduler.js    # 5-minute cron scheduler & daily cleanup
+│   │   │   └── 📂 processors/         # Entity batch processors
+│   │   ├── app.js                     # Express app configuration
+│   │   └── server.js                  # Server entry & graceful shutdown
 │   ├── 📂 test/
-│   │   ├── business_data.test.js  # 19 tests — Business Data Suite
-│   │   ├── import_pipeline.test.js # 13 tests — Import Pipeline & BullMQ
-│   │   ├── ai_engine.test.js      # 14 tests — AI Engine & Anomaly Detection
-│   │   └── reports.test.js        # 17 tests — Automated Report Generation
+│   │   ├── business_data.test.js      # 19 tests — Business Data Suite
+│   │   ├── import_pipeline.test.js    # 13 tests — Import Pipeline & BullMQ
+│   │   ├── ai_engine.test.js          # 14 tests — AI Engine & Anomaly Detection
+│   │   └── reports.test.js            # 17 tests — Automated Report Generation
 │   └── package.json
 │
 ├── 📂 frontend/
-│   └── 📂 src/
-│       ├── 📂 components/
-│       │   ├── 📂 layout/         # AppLayout, Sidebar, Topbar
-│       │   └── 📂 ui/             # StatCard, InsightCard, UI primitives
-│       ├── 📂 context/            # AuthContext, ThemeContext, NotificationContext
-│       ├── 📂 data/               # UI sample datasets
-│       ├── 📂 pages/              # Dashboard, AIInsights, Reports, Imports, etc.
-│       ├── App.jsx
-│       └── index.css              # Global design tokens & CSS custom properties
+│   ├── 📂 src/
+│   │   ├── 📂 components/
+│   │   │   ├── 📂 layout/             # AppLayout, Sidebar, ProtectedRoute
+│   │   │   └── 📂 ui/                 # CustomToast (Dynamic Island HUD), StatCards
+│   │   ├── 📂 context/                # AuthContext, ThemeContext, NotificationContext
+│   │   ├── 📂 lib/                    # Central Axios API instance & custom hooks
+│   │   │   ├── api.js                 # Base Axios configuration
+│   │   │   └── 📂 hooks/              # useApi, useDashboard, useAI, useReports
+│   │   ├── 📂 pages/                  # 10 production pages + Auth suite
+│   │   ├── App.jsx                    # Routing & global providers
+│   │   └── index.css                  # Global design system & theme tokens
+│   └── package.json
 │
 └── README.md
 ```
@@ -321,16 +349,14 @@ STORAGE_BUCKET=decisionos-files
 
 # Email (Resend SMTP)
 RESEND_API_KEY=re_xxxxxxxxxxxx
-EMAIL_FROM=onboarding@resend.dev
+EMAIL_FROM=decisionos@resend.dev
 
 # AI Engine
 AI_PROVIDER=gemini
 GEMINI_API_KEY=<your-gemini-api-key>
 
-# Billing & Admin
-STRIPE_SECRET_KEY=sk_test_xxx
-STRIPE_WEBHOOK_SECRET=whsec_xxx
-SUPER_ADMIN_EMAIL=admin@decisionos.com
+# Retention & Export Settings
+REPORT_FILE_RETENTION_DAYS=30
 ```
 
 ### 3. Initialize the Database
@@ -372,15 +398,17 @@ All endpoints are versioned under `/api/v1` and use session-cookie authenticatio
 ### Authentication (`/auth`)
 | Method | Endpoint | Access | Description |
 |---|---|:---:|---|
-| `POST` | `/auth/register` | Public | Create a new user account & organization |
-| `POST` | `/auth/login` | Public | Authenticate user & set session cookie |
+| `POST` | `/auth/signup` | Public | Register new user account |
+| `POST` | `/auth/login` | Public | Authenticate user & set HTTP-only session cookie |
 | `POST` | `/auth/logout` | Authenticated | Terminate session & clear cookies |
+| `POST` | `/auth/logout-all` | Authenticated | Terminate all active sessions across devices |
 | `GET` | `/auth/me` | Authenticated | Retrieve current user profile & org list |
+| `POST` | `/auth/change-password` | Authenticated | Change user password |
 
-### Business Data
+### Business Data Suite
 | Method | Endpoint | Required Role | Description |
 |---|---|:---:|---|
-| `GET` | `/customers` | `VIEW_DATA` | List customers (paginated, searchable, segment filter) |
+| `GET` | `/customers` | `VIEW_DATA` | List customers (paginated, searchable, sorted) |
 | `POST` | `/customers` | `MANAGE_DATA` | Create new customer with RFM parameters |
 | `GET` | `/customers/:id` | `VIEW_DATA` | Get customer details + lifetime value |
 | `PATCH` | `/customers/:id` | `MANAGE_DATA` | Update customer details |
@@ -390,6 +418,7 @@ All endpoints are versioned under `/api/v1` and use session-cookie authenticatio
 | `GET` | `/sales` | `VIEW_DATA` | List sales ledger with filtering |
 | `POST` | `/sales` | `MANAGE_DATA` | Record sale (atomic inventory decrement & customer LTV sync) |
 | `GET` | `/expenses` | `VIEW_DATA` | List expense records with category filter |
+| `GET` | `/expenses/categories` | `VIEW_DATA` | Category breakdown totals |
 | `POST` | `/expenses` | `MANAGE_DATA` | Record new expense |
 | `GET` | `/inventory` | `VIEW_DATA` | List inventory with stockout & reorder warnings |
 | `PATCH` | `/inventory/:id/adjust` | `MANAGE_DATA` | Adjust stock quantity |
@@ -411,7 +440,6 @@ All endpoints are versioned under `/api/v1` and use session-cookie authenticatio
 | `PATCH` | `/ai/insights/:id/dismiss` | `VIEW_DATA` | Dismiss insight from active cockpit |
 | `POST` | `/ai/ask` | `VIEW_DATA` | Ask natural language questions against live data |
 | `GET` | `/ai/forecast/revenue` | `VIEW_DATA` | 3-month predictive revenue forecast |
-| `GET` | `/ai/usage` | `VIEW_DATA` | Monthly AI token consumption & quota status |
 
 ### Automated Reports & Schedules (`/reports`)
 | Method | Endpoint | Required Role | Description |

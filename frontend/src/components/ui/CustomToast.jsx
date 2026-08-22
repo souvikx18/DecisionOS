@@ -1,105 +1,135 @@
+// src/components/ui/CustomToast.jsx
 import { toast } from 'react-hot-toast'
-import { CheckCircle2, AlertTriangle, Info, Sparkles, RefreshCw, X } from 'lucide-react'
+import {
+  Check,
+  AlertTriangle,
+  Info,
+  Sparkles,
+  Loader2,
+  X
+} from 'lucide-react'
 import './CustomToast.css'
 
-const TOAST_TYPES = {
+const TOAST_THEMES = {
   success: {
-    icon: CheckCircle2,
-    badgeClass: 'custom-toast__badge--success',
-    barClass: 'custom-toast__bar--success',
+    icon: Check,
+    badgeClass: 'sonner-toast__icon--success',
+    pillClass: 'sonner-toast--success',
     defaultTitle: 'Success',
+    glowColor: 'rgba(16, 185, 129, 0.22)',
   },
   error: {
     icon: AlertTriangle,
-    badgeClass: 'custom-toast__badge--error',
-    barClass: 'custom-toast__bar--error',
-    defaultTitle: 'Attention Needed',
+    badgeClass: 'sonner-toast__icon--error',
+    pillClass: 'sonner-toast--error',
+    defaultTitle: 'Error',
+    glowColor: 'rgba(239, 68, 68, 0.22)',
   },
   info: {
     icon: Info,
-    badgeClass: 'custom-toast__badge--info',
-    barClass: 'custom-toast__bar--info',
-    defaultTitle: 'Notification',
+    badgeClass: 'sonner-toast__icon--info',
+    pillClass: 'sonner-toast--info',
+    defaultTitle: 'Notice',
+    glowColor: 'rgba(59, 130, 246, 0.22)',
   },
   ai: {
     icon: Sparkles,
-    badgeClass: 'custom-toast__badge--ai',
-    barClass: 'custom-toast__bar--ai',
-    defaultTitle: 'AI Intelligence',
+    badgeClass: 'sonner-toast__icon--ai',
+    pillClass: 'sonner-toast--ai',
+    defaultTitle: 'AI Insight',
+    glowColor: 'rgba(139, 92, 246, 0.28)',
   },
   loading: {
-    icon: RefreshCw,
-    badgeClass: 'custom-toast__badge--loading',
-    barClass: 'custom-toast__bar--loading',
-    defaultTitle: 'Processing…',
+    icon: Loader2,
+    badgeClass: 'sonner-toast__icon--loading',
+    pillClass: 'sonner-toast--loading',
+    defaultTitle: 'Processing',
+    glowColor: 'rgba(6, 182, 212, 0.22)',
   },
 }
 
 export function CustomToastCard({ t, type = 'success', title, message }) {
-  const config = TOAST_TYPES[type] || TOAST_TYPES.success
-  const Icon = config.icon
-  const displayTitle = title || config.defaultTitle
+  const theme = TOAST_THEMES[type] || TOAST_THEMES.success
+  const Icon = theme.icon
+  const displayTitle = title || theme.defaultTitle
 
   return (
-    <div className={`custom-toast ${t.visible ? 'custom-toast--show' : 'custom-toast--hide'} custom-toast--${type}`}>
-      {/* Ambient top highlight beam */}
-      <div className="custom-toast__beam" />
+    <div
+      className={`sonner-toast ${t.visible ? 'sonner-toast--enter' : 'sonner-toast--exit'} ${theme.pillClass}`}
+      role="status"
+      aria-live="polite"
+      onClick={() => toast.dismiss(t.id)}
+    >
+      {/* Ambient glass glow */}
+      <div className="sonner-toast__glow" />
 
-      {/* Left Icon Badge */}
-      <div className={`custom-toast__badge ${config.badgeClass}`}>
-        <Icon size={18} strokeWidth={2.2} className={type === 'loading' ? 'custom-toast__spinner' : ''} />
+      {/* Shimmer sweep effect */}
+      <div className="sonner-toast__shimmer" />
+
+      {/* Icon with pulsing status dot container */}
+      <div className={`sonner-toast__icon-box ${theme.badgeClass}`}>
+        <Icon size={14} strokeWidth={2.6} className={type === 'loading' ? 'sonner-toast__spinner' : ''} />
       </div>
 
-      {/* Main Content */}
-      <div className="custom-toast__content">
-        <h4 className="custom-toast__title">{displayTitle}</h4>
-        {message && <p className="custom-toast__message">{message}</p>}
+      {/* Text Hierarchy */}
+      <div className="sonner-toast__content">
+        <div className="sonner-toast__row">
+          <span className="sonner-toast__title">{displayTitle}</span>
+          {type === 'ai' && <span className="sonner-toast__pill-tag">AI</span>}
+        </div>
+        {message && <p className="sonner-toast__message">{message}</p>}
       </div>
 
-      {/* Close button */}
+      {/* Quick Dismiss Button */}
       <button
-        className="custom-toast__close"
-        onClick={() => toast.dismiss(t.id)}
+        type="button"
+        className="sonner-toast__close"
+        onClick={(e) => {
+          e.stopPropagation()
+          toast.dismiss(t.id)
+        }}
         aria-label="Close notification"
       >
-        <X size={14} strokeWidth={2.2} />
+        <X size={13} strokeWidth={2.4} />
       </button>
-
-      {/* Bottom timer animation bar */}
-      {type !== 'loading' && <div className={`custom-toast__timer ${config.barClass}`} />}
     </div>
   )
 }
 
-// ── Convenient helper functions ──────────────────────────────────────────────
+// ── Ergonomic Notification Dispatcher ───────────────────────────────────────────
 export const notify = {
   success: (message, title, options = {}) => {
-    return toast.custom((t) => (
-      <CustomToastCard t={t} type="success" title={title} message={message} />
-    ), { duration: 4000, ...options })
+    return toast.custom(
+      (t) => <CustomToastCard t={t} type="success" title={title} message={message} />,
+      { duration: 4200, ...options }
+    )
   },
 
   error: (message, title, options = {}) => {
-    return toast.custom((t) => (
-      <CustomToastCard t={t} type="error" title={title} message={message} />
-    ), { duration: 5000, ...options })
+    return toast.custom(
+      (t) => <CustomToastCard t={t} type="error" title={title} message={message} />,
+      { duration: 5200, ...options }
+    )
   },
 
   info: (message, title, options = {}) => {
-    return toast.custom((t) => (
-      <CustomToastCard t={t} type="info" title={title} message={message} />
-    ), { duration: 4000, ...options })
+    return toast.custom(
+      (t) => <CustomToastCard t={t} type="info" title={title} message={message} />,
+      { duration: 4200, ...options }
+    )
   },
 
   ai: (message, title = 'AI Insights', options = {}) => {
-    return toast.custom((t) => (
-      <CustomToastCard t={t} type="ai" title={title} message={message} />
-    ), { duration: 4500, ...options })
+    return toast.custom(
+      (t) => <CustomToastCard t={t} type="ai" title={title} message={message} />,
+      { duration: 4800, ...options }
+    )
   },
 
   loading: (message, title = 'Processing', options = {}) => {
-    return toast.custom((t) => (
-      <CustomToastCard t={t} type="loading" title={title} message={message} />
-    ), { duration: Infinity, ...options })
+    return toast.custom(
+      (t) => <CustomToastCard t={t} type="loading" title={title} message={message} />,
+      { duration: Infinity, ...options }
+    )
   },
 }

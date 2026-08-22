@@ -1,16 +1,3 @@
-// src/lib/response.js
-// ============================================================
-// Standard API Response Helpers
-// Every endpoint uses these helpers to ensure a consistent
-// response envelope across the entire API.
-//
-// Success shape:
-// { success: true, data: {...}, meta: { requestId, timestamp } }
-//
-// Error shape:
-// { success: false, error: { code, message, details }, meta: {...} }
-// ============================================================
-
 /**
  * Send a successful response
  * @param {import('express').Response} res

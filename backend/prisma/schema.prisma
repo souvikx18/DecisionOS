@@ -535,17 +535,19 @@ model Report {
 }
 
 model ReportExport {
-  id           String    @id @default(cuid())
-  reportId     String
-  format       String
-  storageKey   String
-  signedUrl    String?
-  urlExpiresAt DateTime?
-  fileSize     Int?
-  createdAt    DateTime  @default(now())
+  id             String    @id @default(cuid())
+  reportId       String
+  format         String
+  storageKey     String
+  signedUrl      String?
+  urlExpiresAt   DateTime?
+  fileSize       Int?
+  fileExpiresAt  DateTime? // 30-day retention — files auto-purged after this date
+  createdAt      DateTime  @default(now())
 
   report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
 
+  @@index([fileExpiresAt])
   @@map("report_exports")
 }
 

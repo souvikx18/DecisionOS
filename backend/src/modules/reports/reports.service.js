@@ -19,6 +19,11 @@ function getStorageClient() {
   return createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_KEY);
 }
 
+// ── Constants ─────────────────────────────────────────────────
+
+/** 30-day file retention: files in Supabase Storage are purged after this window. */
+const FILE_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
+
 // ── Helpers ────────────────────────────────────────────────────
 
 /**
@@ -189,6 +194,7 @@ export async function generateReportService(orgId, userId, payload) {
           format: fmt,
           storageKey,
           fileSize: buffer.length,
+          fileExpiresAt: new Date(Date.now() + FILE_RETENTION_MS), // 30-day retention
         },
       });
       exports.push(exportRecord);
@@ -381,6 +387,43 @@ export async function deleteScheduleService(orgId, scheduleId) {
   if (!schedule) return { notFound: true };
   await prisma.reportSchedule.delete({ where: { id: scheduleId } });
   return { success: true };
+}
+
+// ── Service: Purge Expired Report Files ───────────────────────
+
+/**
+ * Deletes Supabase Storage files whose 30-day retention window has elapsed.
+ * Called by the report scheduler (e.g. nightly). Leaves the DB record intact
+ * but clears storageKey so the client can detect the file is gone.
+ */
+export async function purgeExpiredReportFiles() {
+  const supabase = getStorageClient();
+
+  const expired = await prisma.reportExport.findMany({
+    where: {
+      fileExpiresAt: { lte: new Date() },
+      storageKey: { not: '' },
+    },
+    select: { id: true, storageKey: true },
+  });
+
+  if (expired.length === 0) return { purged: 0 };
+
+  const keys = expired.map((e) => e.storageKey).filter(Boolean);
+  if (keys.length > 0) {
+    await supabase.storage.from(env.STORAGE_BUCKET).remove(keys).catch((err) =>
+      console.warn('[Reports] Storage purge partial error:', err.message)
+    );
+  }
+
+  // Clear storageKey + signedUrl so clients know file is gone
+  await prisma.reportExport.updateMany({
+    where: { id: { in: expired.map((e) => e.id) } },
+    data: { storageKey: '', signedUrl: null, urlExpiresAt: null },
+  });
+
+  console.log(`[Reports] Purged ${expired.length} expired export file(s).`);
+  return { purged: expired.length };
 }
 
 // ── Utility ────────────────────────────────────────────────────

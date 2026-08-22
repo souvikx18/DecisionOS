@@ -1,0 +1,24 @@
+/* Sales.css */
+.sales-page { display: flex; flex-direction: column; gap: 20px; }
+.sales-page__header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.sales-page__title { font-size: 22px; font-weight: 800; color: var(--text-main); letter-spacing: -0.4px; }
+.sales-page__sub { font-size: 13.5px; color: var(--text-muted); margin-top: 2px; }
+.sales-kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.sales-kpi { display: flex; align-items: center; gap: 14px; padding: 18px 20px; }
+.sales-kpi__icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: #EFF6FF; color: #1D4ED8; }
+.sales-kpi__val { font-size: 20px; font-weight: 800; color: var(--text-main); letter-spacing: -0.4px; }
+.sales-kpi__label { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
+.sales-toolbar { padding: 12px 16px; display: flex; align-items: center; gap: 12px; }
+.sales-search { display: flex; align-items: center; gap: 10px; flex: 1; }
+.sales-search input { flex: 1; padding: 9px 12px; border: 1px solid var(--border-subtle); border-radius: 8px; font-size: 13px; font-family: 'Inter', sans-serif; color: var(--text-main); background: var(--bg-canvas); outline: none; }
+.sales-search input:focus { border-color: var(--accent-primary); }
+.sales-table-wrap { padding: 0; overflow-x: auto; }
+.sales-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.sales-tbl th { text-align: left; padding: 12px 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-disabled); border-bottom: 1px solid var(--border-subtle); }
+.sales-tbl td { padding: 11px 16px; border-bottom: 1px solid var(--bg-canvas); color: var(--text-muted); font-weight: 500; }
+.sales-tbl tbody tr:hover td { background: var(--bg-canvas); }
+.sales-tbl__amount { font-weight: 700; color: var(--text-main); }
+.sales-pagination { display: flex; align-items: center; justify-content: center; gap: 16px; padding: 16px; font-size: 13px; color: var(--text-disabled); border-top: 1px solid var(--border-subtle); }
+.sales-loading, .sales-empty { padding: 48px; text-align: center; color: var(--text-disabled); font-size: 13px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+@media (max-width: 900px) { .sales-kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .sales-kpi-grid { grid-template-columns: 1fr; } }

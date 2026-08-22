@@ -15,6 +15,11 @@ import DataImport from './pages/DataImport'
 import AIInsights from './pages/AIInsights'
 import Reports from './pages/Reports'
 import Notifications from './pages/Notifications'
+import Sales from './pages/Sales'
+import Expenses from './pages/Expenses'
+import Inventory from './pages/Inventory'
+import Customers from './pages/Customers'
+import Settings from './pages/Settings'
 
 export default function App() {
   return (
@@ -40,7 +45,12 @@ export default function App() {
               <Route path="/import" element={<DataImport />} />
               <Route path="/insights" element={<AIInsights />} />
               <Route path="/reports" element={<Reports />} />
+              <Route path="/sales" element={<Sales />} />
+              <Route path="/expenses" element={<Expenses />} />
+              <Route path="/inventory" element={<Inventory />} />
+              <Route path="/customers" element={<Customers />} />
               <Route path="/notifications" element={<Notifications />} />
+              <Route path="/settings" element={<Settings />} />
             </Route>
 
             {/* Catch-all */}
@@ -48,25 +58,21 @@ export default function App() {
           </Routes>
 
           <Toaster
-            position="top-right"
+            position="top-center"
+            containerStyle={{
+              top: 24,
+              left: 20,
+              right: 20,
+              bottom: 24,
+            }}
             toastOptions={{
               duration: 4000,
               style: {
-                background: '#fff',
-                color: '#0F172A',
-                fontSize: '13.5px',
-                fontFamily: "'Inter', sans-serif",
-                fontWeight: 500,
-                border: '1px solid #DDE3EA',
-                borderRadius: '10px',
-                boxShadow: '0 4px 24px rgba(15,23,42,0.08)',
-                padding: '12px 16px',
-              },
-              success: {
-                iconTheme: { primary: '#10B981', secondary: '#fff' },
-              },
-              error: {
-                iconTheme: { primary: '#EF4444', secondary: '#fff' },
+                background: 'transparent',
+                boxShadow: 'none',
+                padding: 0,
+                border: 'none',
+                maxWidth: '100%',
               },
             }}
           />

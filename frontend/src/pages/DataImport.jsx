@@ -1,10 +1,16 @@
+// src/pages/DataImport.jsx
+// ============================================================
+// Data Import — wired to real POST /api/v1/imports/upload
+// ============================================================
+
 import { useState, useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
 import {
-  UploadCloud, FileText, CheckCircle, XCircle, Loader, Trash2,
-  FileSpreadsheet, AlertCircle, Info
+  UploadCloud, FileText, CheckCircle, XCircle, Loader2, Trash2,
+  FileSpreadsheet, AlertCircle, Info, History, ChevronRight
 } from 'lucide-react'
-import { toast } from 'react-hot-toast'
+import api from '../lib/api.js'
+import { useApi } from '../lib/hooks/useApi.js'
 import { notify } from '../components/ui/CustomToast'
 import './DataImport.css'
 
@@ -22,10 +28,18 @@ const SAMPLE_HEADERS = {
   customers: ['Name', 'Email', 'Phone', 'Company', 'Last Purchase Date', 'Total Orders'],
 }
 
+const STATUS_BADGE = {
+  PENDING:    'badge-info',
+  PROCESSING: 'badge-info',
+  COMPLETED:  'badge-success',
+  FAILED:     'badge-error',
+  PARTIAL:    'badge-warning',
+}
+
 function FileRow({ file, onRemove }) {
-  const icons = { success: CheckCircle, error: XCircle, uploading: Loader }
-  const StatusIcon = icons[file.status] || Loader
+  const icons  = { success: CheckCircle, error: XCircle, uploading: Loader2 }
   const colors = { success: 'var(--accent-success)', error: 'var(--accent-error)', uploading: 'var(--accent-primary)' }
+  const StatusIcon = icons[file.status] || Loader2
 
   return (
     <div className={`file-row ${file.status}`}>
@@ -36,64 +50,97 @@ function FileRow({ file, onRemove }) {
       </div>
       <div className="file-row__status">
         {file.status === 'uploading' && <span className="file-row__progress-text">Processing…</span>}
-        {file.status === 'success' && <span className="file-row__success-text">Imported successfully</span>}
+        {file.status === 'success'   && (
+          <span className="file-row__success-text">
+            {file.rowsImported != null ? `${file.rowsImported} rows imported` : 'Imported successfully'}
+          </span>
+        )}
         {file.status === 'error' && <span className="file-row__error-text">{file.error}</span>}
       </div>
-      <StatusIcon size={16} style={{ color: colors[file.status], flexShrink: 0, animation: file.status === 'uploading' ? 'spin 1s linear infinite' : 'none' }} />
-      <button className="file-row__remove" onClick={() => onRemove(file.id)}>
-        <Trash2 size={14} />
-      </button>
+      <StatusIcon
+        size={16}
+        style={{ color: colors[file.status], flexShrink: 0, animation: file.status === 'uploading' ? 'spin 1s linear infinite' : 'none' }}
+      />
+      <button className="file-row__remove" onClick={() => onRemove(file.id)}><Trash2 size={14} /></button>
     </div>
   )
 }
 
+const fetchImportHistory = () =>
+  api.get('/imports?limit=10').then(r => r.data?.data ?? r.data)
+
 export default function DataImport() {
   const [activeType, setActiveType] = useState('sales')
-  const [files, setFiles] = useState([])
+  const [files, setFiles]           = useState([])
 
-  const onDrop = useCallback((accepted, rejected) => {
+  const { data: historyData, loading: histLoading, refetch: refetchHistory } = useApi(fetchImportHistory, [])
+  const history = Array.isArray(historyData) ? historyData : (historyData?.imports ?? [])
+
+  // ── Upload handler ─────────────────────────────────────────
+  const onDrop = useCallback(async (accepted, rejected) => {
     if (rejected.length > 0) {
       notify.error('Only .csv, .xlsx, .xls spreadsheet files under 10MB are accepted.', 'Invalid File Format')
       return
     }
+
     const newFiles = accepted.map(f => ({
       id: Math.random().toString(36).slice(2),
       name: f.name,
       size: f.size,
       status: 'uploading',
       error: null,
+      rowsImported: null,
+      _file: f,
     }))
     setFiles(prev => [...prev, ...newFiles])
 
-    // Simulate upload
-    newFiles.forEach(f => {
-      setTimeout(() => {
-        const isSuccess = Math.random() > 0.1
+    for (const fileObj of newFiles) {
+      try {
+        const formData = new FormData()
+        formData.append('file', fileObj._file)
+        formData.append('type', activeType.toUpperCase())
+
+        const res = await api.post('/imports/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        })
+        const result = res.data?.data ?? res.data
+
         setFiles(prev => prev.map(pf =>
-          pf.id === f.id
-            ? { ...pf, status: isSuccess ? 'success' : 'error', error: 'Parse error: column mismatch' }
+          pf.id === fileObj.id
+            ? { ...pf, status: 'success', rowsImported: result?.rowsImported ?? result?.summary?.totalRows }
             : pf
         ))
-        if (isSuccess) {
-          notify.success(`${f.name} processed and merged into your business metrics.`, 'File Imported')
-        } else {
-          notify.error(`${f.name} could not be parsed due to column mismatch.`, 'Import Failed')
-        }
-      }, 1500 + Math.random() * 1000)
-    })
-  }, [])
+        notify.success(
+          `${fileObj.name} — ${result?.rowsImported ?? ''} rows imported successfully.`,
+          'Import Complete'
+        )
+        refetchHistory()
+      } catch (err) {
+        const msg = err?.response?.data?.error?.message || 'Parse error: column mismatch or invalid format'
+        setFiles(prev => prev.map(pf =>
+          pf.id === fileObj.id ? { ...pf, status: 'error', error: msg } : pf
+        ))
+        notify.error(`${fileObj.name}: ${msg}`, 'Import Failed')
+      }
+    }
+  }, [activeType, refetchHistory])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: { 'text/csv': ['.csv'], 'application/vnd.ms-excel': ['.xls'], 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] },
+    accept: {
+      'text/csv': ['.csv'],
+      'application/vnd.ms-excel': ['.xls'],
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+    },
     maxSize: 10 * 1024 * 1024,
   })
 
-  const removeFile = id => setFiles(prev => prev.filter(f => f.id !== id))
-  const clearAll = () => setFiles([])
-
+  const removeFile   = id => setFiles(prev => prev.filter(f => f.id !== id))
+  const clearAll     = ()  => setFiles([])
   const successCount = files.filter(f => f.status === 'success').length
-  const errorCount = files.filter(f => f.status === 'error').length
+  const errorCount   = files.filter(f => f.status === 'error').length
+
+  const fmtDate = d => new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 
   return (
     <div className="import-page">
@@ -139,7 +186,11 @@ export default function DataImport() {
                 </div>
               ))}
             </div>
-            <a href="#" className="import-guide-download" onClick={e => { e.preventDefault(); notify.success('Sample template file downloaded to your system.', 'Download Complete') }}>
+            <a
+              href="#"
+              className="import-guide-download"
+              onClick={e => { e.preventDefault(); notify.success('Sample template file downloaded.', 'Download Complete') }}
+            >
               Download template CSV
             </a>
           </div>
@@ -154,9 +205,7 @@ export default function DataImport() {
             id="import-dropzone"
           >
             <input {...getInputProps()} id="import-file-input" />
-            <div className="import-dropzone__icon">
-              <UploadCloud size={32} strokeWidth={1.5} />
-            </div>
+            <div className="import-dropzone__icon"><UploadCloud size={32} strokeWidth={1.5} /></div>
             <h3 className="import-dropzone__title">
               {isDragActive ? 'Drop your file here…' : 'Drag & drop your file here'}
             </h3>
@@ -171,11 +220,9 @@ export default function DataImport() {
                 <span className="import-files__title">
                   Uploaded Files ({files.length})
                   {successCount > 0 && <span className="badge badge-success" style={{ marginLeft: 8 }}>{successCount} done</span>}
-                  {errorCount > 0 && <span className="badge badge-error" style={{ marginLeft: 6 }}>{errorCount} failed</span>}
+                  {errorCount   > 0 && <span className="badge badge-error"   style={{ marginLeft: 6 }}>{errorCount} failed</span>}
                 </span>
-                <button className="btn-ghost" style={{ padding: '5px 12px', fontSize: 12 }} onClick={clearAll}>
-                  Clear all
-                </button>
+                <button className="btn-ghost" style={{ padding: '5px 12px', fontSize: 12 }} onClick={clearAll}>Clear all</button>
               </div>
               <div className="import-files__list">
                 {files.map(f => <FileRow key={f.id} file={f} onRemove={removeFile} />)}
@@ -188,6 +235,46 @@ export default function DataImport() {
               )}
             </div>
           )}
+
+          {/* Import History */}
+          <div className="glass-card" style={{ marginTop: 16 }}>
+            <div className="dashboard__card-header" style={{ marginBottom: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <History size={16} style={{ color: 'var(--accent-primary)' }} />
+                <h2 className="dashboard__card-title">Import History</h2>
+              </div>
+            </div>
+            {histLoading ? (
+              <div style={{ padding: '12px 0', color: 'var(--text-disabled)', fontSize: 13 }}>Loading…</div>
+            ) : history.length === 0 ? (
+              <p style={{ fontSize: 13, color: 'var(--text-disabled)', padding: '8px 0' }}>No imports yet.</p>
+            ) : (
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--border-default)' }}>
+                    {['File', 'Type', 'Rows', 'Status', 'Date'].map(h => (
+                      <th key={h} style={{ textAlign: 'left', padding: '6px 8px', color: 'var(--text-disabled)', fontWeight: 600 }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {history.map(imp => (
+                    <tr key={imp.id} style={{ borderBottom: '1px solid var(--border-default)' }}>
+                      <td style={{ padding: '8px 8px', color: 'var(--text-primary)', fontWeight: 500, maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {imp.originalFilename ?? imp.fileName ?? 'file'}
+                      </td>
+                      <td style={{ padding: '8px 8px', color: 'var(--text-secondary)' }}>{imp.dataType ?? imp.type}</td>
+                      <td style={{ padding: '8px 8px', color: 'var(--text-secondary)' }}>{imp.rowsImported ?? imp.rowsProcessed ?? '—'}</td>
+                      <td style={{ padding: '8px 8px' }}>
+                        <span className={`badge ${STATUS_BADGE[imp.status] ?? 'badge-info'}`}>{imp.status}</span>
+                      </td>
+                      <td style={{ padding: '8px 8px', color: 'var(--text-disabled)' }}>{fmtDate(imp.createdAt)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
 
           {/* Tips */}
           <div className="glass-card import-tips">

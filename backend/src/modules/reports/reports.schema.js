@@ -25,7 +25,7 @@ export const generateReportSchema = z
       .array(z.enum(VALID_FORMATS))
       .min(1, 'At least one format is required (PDF, CSV, XLSX)')
       .max(3, 'Maximum 3 formats allowed')
-      .default(['PDF', 'CSV']),
+      .default(['XLSX']),
     emailTo: z
       .array(z.string().email('Each emailTo entry must be a valid email'))
       .optional()
@@ -56,7 +56,7 @@ export const createScheduleSchema = z
     formats: z
       .array(z.enum(VALID_FORMATS))
       .min(1, 'At least one format required')
-      .default(['PDF', 'CSV']),
+      .default(['XLSX']),
     emailTo: z
       .array(z.string().email('Each emailTo entry must be a valid email'))
       .min(1, 'At least one recipient email is required'),

@@ -48,11 +48,13 @@ export default function Register() {
     if (form.password !== form.confirm) { notify.error('The passwords you entered do not match.', 'Password Mismatch'); return }
     setLoading(true)
     try {
-      await register(form)
-      notify.success('Your workspace account is ready. Welcome!', 'Account Created 🎉')
-      navigate('/dashboard')
-    } catch {
-      notify.error('Could not complete registration. Please try again.', 'Registration Failed')
+      const res = await register(form)
+      notify.success(res?.message || 'Account created successfully! Please sign in.', 'Account Created 🎉')
+      navigate('/login')
+    } catch (err) {
+      const errData = err.response?.data?.error
+      const msg = errData?.details?.[0]?.message || errData?.message || err.message || 'Could not complete registration. Please try again.'
+      notify.error(msg, 'Registration Failed')
     } finally {
       setLoading(false)
     }
