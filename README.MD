@@ -15,27 +15,27 @@
 
 ---
 
-[Overview](#-overview) • [Key Features](#-key-features) • [System Architecture](#-system-architecture) • [Frontend Suite](#-frontend-suite) • [Tech Stack](#-tech-stack) • [Getting Started](#-getting-started) • [API Reference](#-api-reference) • [Test Suite](#-test-suite) • [Security & Multi-Tenancy](#-security--multi-tenancy)
+[Overview](#-overview) • [Key Features](#-key-features) • [System Architecture](#-system-architecture) • [Frontend Suite](#-frontend-suite) • [Tech Stack](#-tech-stack) • [Quick Start](#-quick-start) • [API Reference](#-api-reference) • [Test Suite](#-test-suite) • [Security & Multi-Tenancy](#-security--multi-tenancy)
 
 ---
 
 </div>
 
 > [!NOTE]
-> **DecisionOS** is a production-grade, full-stack, multi-tenant SaaS platform that unifies operational spreadsheets and ERP data into an executive BI cockpit. Powered by Google Gemini 3.6 Flash with statistical fallback, BullMQ async background queues, and automated PDF/CSV/Excel report builders, DecisionOS delivers real-time anomaly detection, churn prediction, revenue forecasting, automated cron schedules, and a 10-page executive dashboard.
+> **DecisionOS** is an enterprise-grade, full-stack, multi-tenant SaaS platform that unifies fragmented operational spreadsheets, sales logs, and ERP datasets into an executive BI cockpit. Powered by **Google Gemini 3.6 Flash** with statistical heuristic fallbacks, **BullMQ** async background workers, automated **PDF/CSV/Excel** report generation, and a **10-page React 19** executive dashboard with Sonner-inspired **Dynamic Island notifications**.
 
 ---
 
 ## 🌟 Overview
 
-Modern SMEs and enterprises drown in scattered spreadsheets and siloed data. DecisionOS solves this with:
+Modern SMEs and growing enterprises frequently suffer from siloed spreadsheets, missed stockouts, unmonitored customer churn, and delayed financial reporting. **DecisionOS** provides a comprehensive, centralized decision intelligence operating system:
 
-- **Enterprise REST API** — Express.js + Prisma ORM + Supabase PostgreSQL with 60+ fully tested endpoints.
-- **AI-Powered Analytics** — Google Gemini 3.6 Flash paired with internal statistical anomaly models (Z-score, RFM, linear regression).
-- **Automated Report Engine** — Generates styled PDF, multi-sheet CSV, and Excel (`.xlsx`) reports on automated cron schedules (Daily, Weekly, Monthly) with 30-day automatic cloud purging and Resend email delivery.
-- **Resilient Data Import Pipeline** — Multer + BullMQ + Redis background workers with fuzzy header detection and row-level error isolation (`PARTIAL` status).
-- **Multi-Tenant Security** — Complete tenant isolation (`organizationId` scoping), Argon2 session auth, and granular RBAC.
-- **Modern Executive UI** — React 19 + Vite with 10 production pages, responsive Recharts visualizations, and a Sonner-inspired **Dynamic Island floating notification system**.
+- **Full-Stack Enterprise REST API** — Express.js + Prisma ORM + Supabase PostgreSQL with 60+ tested endpoints.
+- **Dual-Engine AI Intelligence** — Google Gemini 3.6 Flash coupled with internal anomaly algorithms (Z-score analysis, RFM customer segmentation, linear regression forecasting).
+- **Automated Multi-Format Report Builder** — Generates styled PDF, multi-sheet Excel (`.xlsx`), and streaming CSV reports on recurring cron schedules (Daily, Weekly, Monthly) with automated 30-day cloud retention and Resend SMTP delivery.
+- **Resilient Data Import Pipeline** — Multer + BullMQ + Redis background workers with fuzzy column detection, row-level error isolation (`PARTIAL` commits), and sample templates.
+- **Multi-Tenant Security** — Complete tenant isolation via `organizationId` database scoping, memory-hard Argon2id session authentication, and granular RBAC.
+- **High-End Executive UI** — React 19 + Vite with 10 production pages, responsive Recharts financial visualizations, and a floating **Dynamic Island HUD notification pill**.
 
 ---
 
@@ -46,21 +46,21 @@ Modern SMEs and enterprises drown in scattered spreadsheets and siloed data. Dec
     <td width="50%">
       <h3>📊 Business Data Suite</h3>
       <ul>
-        <li><b>Customers CRM</b>: RFM segmentation, churn risk scoring, auto-synced revenue.</li>
-        <li><b>Products Catalogue</b>: SKU uniqueness, unit economics, margin tracking.</li>
-        <li><b>Sales Ledger</b>: Atomic inventory decrement & customer revenue rollups.</li>
-        <li><b>Expense Tracking</b>: Multi-category ledger with MoM surge detection.</li>
-        <li><b>Inventory Velocity</b>: Reorder alerts, stockout warnings, days to depletion.</li>
+        <li><b>Customers CRM</b>: RFM segmentation, customer lifetime revenue (LTV), churn risk detection, and search/sort.</li>
+        <li><b>Products Catalogue</b>: SKU uniqueness, unit economics, cost price, and gross margin tracking.</li>
+        <li><b>Sales Ledger</b>: Atomic inventory decrement & customer revenue rollups on transaction commits.</li>
+        <li><b>Expense Tracking</b>: Multi-category ledger with MoM surge detection and category distribution donut charts.</li>
+        <li><b>Inventory Velocity</b>: Reorder alerts, stockout warnings, dynamic progress indicators, and SKU health status.</li>
       </ul>
     </td>
     <td width="50%">
       <h3>🧠 AI Engine (Gemini 3.6 Flash)</h3>
       <ul>
-        <li><b>Anomaly Detection</b>: Real-time alerts for sales drops, expense spikes (>25%), stockouts.</li>
-        <li><b>Churn Risk Matrix</b>: Identifies high-value dormant accounts (>45 days).</li>
-        <li><b>Predictive Forecasting</b>: 3-month linear regression forward curve.</li>
-        <li><b>"Ask DecisionOS"</b>: Natural language Q&A querying live business data.</li>
-        <li><b>Dual-Engine Resiliency</b>: Automatic fallback to internal heuristic engine.</li>
+        <li><b>Anomaly Detection</b>: Real-time alerts for revenue drops, expense spikes (>25%), and stockout risks.</li>
+        <li><b>Churn Risk Matrix</b>: Flags high-value dormant accounts with inactivity >45 days.</li>
+        <li><b>Predictive Forecasting</b>: 3-month linear regression forward revenue trajectory.</li>
+        <li><b>"Ask DecisionOS"</b>: Natural language Q&A querying live business data across all modules.</li>
+        <li><b>Dual-Engine Resiliency</b>: Automatic fallback to internal heuristic statistical engine when offline.</li>
       </ul>
     </td>
   </tr>
@@ -68,12 +68,12 @@ Modern SMEs and enterprises drown in scattered spreadsheets and siloed data. Dec
     <td width="50%">
       <h3>📑 Automated Report Engine</h3>
       <ul>
-        <li><b>PDF Reports (PDFKit)</b>: Vector-rendered executive summaries with KPI cards, charts, and alert badges.</li>
-        <li><b>Excel Spreadsheets (ExcelJS)</b>: Multi-sheet <code>.xlsx</code> workbooks with styled headers & auto-fit columns.</li>
+        <li><b>Vector PDF Reports (PDFKit)</b>: Rendered executive summaries with KPI metric cards, data tables, and alert badges.</li>
+        <li><b>Excel Workbooks (ExcelJS)</b>: Multi-sheet <code>.xlsx</code> spreadsheets with styled headers & auto-fit columns.</li>
         <li><b>Streaming CSV</b>: Multi-section CSV exports for fast data ingestion.</li>
         <li><b>Cron Scheduler</b>: Automated Daily, Weekly, and Monthly background triggers.</li>
-        <li><b>30-Day File Retention</b>: Automated daily cloud file purging for expired exports.</li>
-        <li><b>Email Delivery</b>: Branded HTML notifications via Resend SMTP with 1-hour signed download URLs.</li>
+        <li><b>30-Day Cloud File Retention</b>: Automated daily background purger for expired exports.</li>
+        <li><b>Email Delivery</b>: Branded HTML notifications via Resend SMTP with 1-hour signed cloud download URLs.</li>
       </ul>
     </td>
     <td width="50%">
@@ -81,7 +81,7 @@ Modern SMEs and enterprises drown in scattered spreadsheets and siloed data. Dec
       <ul>
         <li><b>Fuzzy Header Detection</b>: Auto-maps messy column names across all 5 entity types.</li>
         <li><b>Background Ingestion</b>: BullMQ + Redis job worker with exponential backoff.</li>
-        <li><b>Error Isolation</b>: Valid rows commit immediately; invalid rows flagged for review (<code>PARTIAL</code>).</li>
+        <li><b>Error Isolation</b>: Valid rows commit immediately; invalid rows flagged for review (<code>PARTIAL</code> status).</li>
         <li><b>Template Downloads</b>: Pre-formatted CSV sample generators for every model.</li>
       </ul>
     </td>
@@ -90,19 +90,19 @@ Modern SMEs and enterprises drown in scattered spreadsheets and siloed data. Dec
     <td width="50%">
       <h3>🔐 Multi-Tenancy & RBAC</h3>
       <ul>
-        <li><b>Tenant Isolation</b>: Every query hard-scoped by <code>organizationId</code>.</li>
+        <li><b>Strict Tenant Isolation</b>: Every query hard-scoped by <code>organizationId</code>.</li>
         <li><b>Role Permissions</b>: <code>OWNER</code>, <code>ADMIN</code>, <code>ANALYST</code>, <code>VIEWER</code>.</li>
-        <li><b>Secure Auth</b>: Argon2id password hashing + HTTP-only signed cookies.</li>
-        <li><b>Audit Trail</b>: Full event logging for data mutations and exports.</li>
+        <li><b>Secure Auth</b>: Memory-hard Argon2id password hashing + HTTP-only signed cookies.</li>
+        <li><b>Audit Trail</b>: Immutable audit logging for sensitive data mutations and file exports.</li>
       </ul>
     </td>
     <td width="50%">
       <h3>💎 Executive Cockpit UI</h3>
       <ul>
-        <li><b>10 Dedicated Pages</b>: Dashboard, Import, AI Insights, Reports, Sales, Expenses, Inventory, Customers, Notifications, Settings.</li>
-        <li><b>Dynamic Island Toasts</b>: Floating glassmorphic HUD pill notifications with spring physics.</li>
+        <li><b>10 Production Pages</b>: Dashboard, Sales, Expenses, Inventory, Customers, Reports, AI Insights, Data Import, Notifications, Settings.</li>
+        <li><b>Dynamic Island HUD Toasts</b>: Floating glassmorphic pill notifications with spring physics.</li>
         <li><b>Live Visualizations</b>: Responsive Recharts line, area, and stacked bar graphs.</li>
-        <li><b>Dark & Light Theme</b>: Seamless theme engine with system mode detection.</li>
+        <li><b>Theme Engine</b>: Dark and Light modes with automatic OS system preference detection.</li>
       </ul>
     </td>
   </tr>
@@ -114,8 +114,8 @@ Modern SMEs and enterprises drown in scattered spreadsheets and siloed data. Dec
 
 ```mermaid
 flowchart TD
-    subgraph Client["Frontend (React 19 + Vite)"]
-        UI["10 Production Pages\n(Dashboard, Sales, Expenses, Inventory, CRM, Reports, AI, Import, Settings)"]
+    subgraph Client["Frontend (React 19 + Vite 8)"]
+        UI["10 Production Pages\n(Dashboard, Sales, Expenses, Inventory, CRM, Reports, AI, Import, Settings, Auth)"]
         Toast["Dynamic Island Toast HUD"]
         Charts["Recharts Visualizations"]
     end
@@ -123,7 +123,7 @@ flowchart TD
     subgraph API["Backend (Express.js + Node.js)"]
         Auth["Auth & RBAC Middleware"]
         Tenant["Organization Context Middleware"]
-        Modules["12 Business Modules"]
+        Modules["12 Core Business Modules"]
         AIEngine["AI Engine Service"]
         ImportSvc["Data Import Service"]
         ReportSvc["Report Generation Service"]
@@ -164,21 +164,21 @@ flowchart TD
 
 ## 🖥️ Frontend Suite
 
-The frontend is built with React 19 and Vite 8, featuring 10 fully integrated, production-ready pages:
+The frontend is built with **React 19** and **Vite 8**, featuring 10 production-ready, fully responsive pages connected via a central Axios client (`src/lib/api.js`) with session cookie credentials:
 
-| Page | Route | Description |
+| Page | Route | Features & Capabilities |
 |---|---|---|
 | **Dashboard** | `/dashboard` | Executive cockpit with 4 key KPI cards, Revenue Trend chart, Expense Breakdown, Top Customers, and AI quick insights. |
-| **Data Import** | `/import` | Drag-and-drop CSV/XLSX file uploader with fuzzy column detection, 5-row preview, sample templates, and progress polling. |
-| **AI Insights** | `/insights` | Predictive insights dashboard with Business Health Score (0-100), risk filters, and natural language Q&A. |
-| **Reports** | `/reports` | 3-tab report center for on-demand generation (PDF/Excel/CSV), export history with signed downloads, and automated cron schedules. |
 | **Sales** | `/sales` | Paginated sales transactions ledger with total revenue summaries, product search, and status badges. |
 | **Expenses** | `/expenses` | Expense tracking with category donut breakdown, monthly averages, and category filters. |
 | **Inventory** | `/inventory` | SKU stock control, dynamic stock-level progress bars, low-stock warnings, and unit cost rollups. |
 | **Customers** | `/customers` | CRM directory with customer lifetime revenue, order counts, RFM rankings, and search/sort. |
+| **Reports** | `/reports` | 3-tab report center for on-demand generation (PDF/Excel/CSV), export history with signed downloads, and automated cron schedules. |
+| **AI Insights** | `/insights` | Predictive insights dashboard with Business Health Score (0-100), risk filters, and natural language Q&A. |
+| **Data Import** | `/import` | Drag-and-drop CSV/XLSX file uploader with fuzzy column detection, 5-row preview, sample templates, and progress polling. |
 | **Notifications** | `/notifications` | Live notification inbox with unread count badges and filterable alert types. |
 | **Settings** | `/settings` | 5-tab settings console: Profile editing, Organization details, Notification toggles, Theme switcher, and Session termination. |
-| **Auth** | `/login`, `/register` | Multi-step onboarding with profile photo upload, password complexity validation, and animated brand identity. |
+| **Auth Suite** | `/login`, `/register` | Multi-step onboarding with profile photo upload, password complexity validation, and animated brand identity. |
 
 ---
 
@@ -299,7 +299,7 @@ DecisionOS/
 
 ---
 
-## 🚀 Getting Started
+## ⚡ Quick Start
 
 ### Prerequisites
 - **Node.js**: `v18.0.0` or higher (v24 recommended)
@@ -391,9 +391,23 @@ npm run dev
 
 ---
 
+## 🔑 Quick Demo Credentials
+
+For rapid local testing and evaluation:
+
+| Parameter | Demo Value |
+|---|---|
+| **URL** | `http://localhost:5173/login` |
+| **Email** | `test@decisionos.com` |
+| **Password** | `Password123!` |
+| **Organization** | `Acme Test Corp` |
+| **Role** | `OWNER` |
+
+---
+
 ## 📡 API Reference
 
-All endpoints are versioned under `/api/v1` and use session-cookie authentication.
+All endpoints are versioned under `/api/v1` and use session-cookie authentication with credentials.
 
 ### Authentication (`/auth`)
 | Method | Endpoint | Access | Description |
@@ -467,7 +481,7 @@ All endpoints are versioned under `/api/v1` and use session-cookie authenticatio
 
 ## 🧪 Test Suite
 
-DecisionOS includes an extensive end-to-end integration test suite executed against live PostgreSQL, Redis, and Express instances.
+DecisionOS includes an extensive end-to-end integration test suite executed against live PostgreSQL, Redis, and Express instances:
 
 ```bash
 cd backend
@@ -517,12 +531,16 @@ Multi-Tenant Security Architecture:
 │ 4. Service / ORM Layer: Prisma queries enforce         │
 │    `WHERE organizationId = req.org.id`                 │
 │    (Cross-tenant leakage is architecturally impossible)│
+└─────────────────────────┬──────────────────────────────┘
+                          ▼
+┌────────────────────────────────────────────────────────┐
+│ 5. Audit Logger: Non-repudiable logs of mutations     │
 └────────────────────────────────────────────────────────┘
 ```
 
-- **Password Security**: Argon2id with random salts.
+- **Password Security**: Argon2id with random salts (memory-hard, GPU-resistant).
 - **Session Protection**: HTTP-only, SameSite strict signed cookies.
-- **Strict Tenant Boundary**: All database indexes and queries are scoped by `organizationId`.
+- **Strict Tenant Boundary**: All database indexes, unique constraints, and queries are scoped by `organizationId`.
 - **Brute Force Protection**: IP and user-rate limiting on authentication and sensitive endpoints.
 - **Security Headers**: Helmet CSP, HSTS, X-Content-Type-Options, X-Frame-Options.
 - **Audit Trails**: Non-repudiable audit logging for data mutations and file exports.
