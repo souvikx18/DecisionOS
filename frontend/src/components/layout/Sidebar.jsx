@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useNotifications } from '../../context/NotificationContext'
 import {
   LayoutDashboard, UploadCloud, Sparkles, FileText,
-  Bell, LogOut, Settings, ChevronRight, ShoppingCart, CreditCard, Package, Users
+  Bell, LogOut, Settings, ChevronRight, ShoppingCart, CreditCard, Package, Users, Receipt
 } from 'lucide-react'
 import logoFull from '../../assets/logo.png'
 import './Sidebar.css'
@@ -14,9 +14,10 @@ const NAV_ITEMS = [
   { to: '/insights',      icon: Sparkles,        label: 'AI Insights' },
   { to: '/reports',       icon: FileText,        label: 'Reports' },
   { to: '/sales',         icon: ShoppingCart,    label: 'Sales' },
-  { to: '/expenses',      icon: CreditCard,      label: 'Expenses' },
+  { to: '/expenses',      icon: Receipt,         label: 'Expenses' },
   { to: '/inventory',     icon: Package,         label: 'Inventory' },
   { to: '/customers',     icon: Users,           label: 'Customers' },
+  { to: '/billing',       icon: CreditCard,      label: 'Billing' },
   { to: '/notifications', icon: Bell,            label: 'Notifications' },
 ]
 

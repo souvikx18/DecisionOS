@@ -20,7 +20,7 @@ export const deleteReport    = (id) => api.delete(`/reports/${id}`).then(unwrap)
 export const createReport    = (payload) => api.post('/reports', payload).then(unwrap)
 
 export const fetchDownloadUrl = (reportId, exportId) =>
-  api.get(`/reports/${reportId}/exports/${exportId}/download`).then(unwrap)
+  api.get(`/reports/${reportId}/download/${exportId}`).then(unwrap)
 
 export const fetchSchedules  = () => api.get('/reports/schedules').then(unwrap)
 export const createSchedule  = (payload) => api.post('/reports/schedules', payload).then(unwrap)

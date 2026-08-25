@@ -10,6 +10,7 @@ import AppLayout from './components/layout/AppLayout'
 import Landing from './pages/Landing'
 import Login from './pages/Auth/Login'
 import Register from './pages/Auth/Register'
+import AcceptInvitation from './pages/Auth/AcceptInvitation'
 import Dashboard from './pages/Dashboard'
 import DataImport from './pages/DataImport'
 import AIInsights from './pages/AIInsights'
@@ -19,6 +20,7 @@ import Sales from './pages/Sales'
 import Expenses from './pages/Expenses'
 import Inventory from './pages/Inventory'
 import Customers from './pages/Customers'
+import Billing from './pages/Billing'
 import Settings from './pages/Settings'
 
 export default function App() {
@@ -32,6 +34,8 @@ export default function App() {
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/invite/accept" element={<AcceptInvitation />} />
+            <Route path="/accept-invitation" element={<AcceptInvitation />} />
 
             {/* Protected app routes */}
             <Route
@@ -49,6 +53,7 @@ export default function App() {
               <Route path="/expenses" element={<Expenses />} />
               <Route path="/inventory" element={<Inventory />} />
               <Route path="/customers" element={<Customers />} />
+              <Route path="/billing" element={<Billing />} />
               <Route path="/notifications" element={<Notifications />} />
               <Route path="/settings" element={<Settings />} />
             </Route>

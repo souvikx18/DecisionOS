@@ -36,11 +36,13 @@ router.delete( '/schedules/:id', requirePermission('MANAGE_DATA'), authGeneralLi
 
 // ── On-Demand Report Generation ──────────────────────────────
 router.post('/generate', requirePermission('MANAGE_DATA'), authGeneralLimiter, generateReport);
+router.post('/',         requirePermission('MANAGE_DATA'), authGeneralLimiter, generateReport);
 
 // ── Report Listing & Management ───────────────────────────────
 router.get(    '/',                            requirePermission('VIEW_DATA'),   authGeneralLimiter, listReports);
 router.get(    '/:id',                         requirePermission('VIEW_DATA'),   authGeneralLimiter, getReport);
 router.get(    '/:id/download/:exportId',      requirePermission('VIEW_DATA'),   authGeneralLimiter, getReportDownloadUrl);
+router.get(    '/:id/exports/:exportId/download', requirePermission('VIEW_DATA'), authGeneralLimiter, getReportDownloadUrl);
 router.delete( '/:id',                         requirePermission('MANAGE_DATA'), authGeneralLimiter, deleteReport);
 
 export default router;

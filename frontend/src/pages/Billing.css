@@ -1,0 +1,653 @@
+/* ── Clean & Professional Billing Styles (Day & Night Mode) ────────── */
+
+.clean-billing {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Card Foundation */
+.clean-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+/* ── Header ── */
+.clean-billing__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.clean-billing__title {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.5px;
+}
+
+.clean-billing__subtitle {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+.clean-billing__portal-btn {
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Section 1: Current Plan & Quotas ── */
+.clean-billing__plan-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+}
+
+.clean-billing__status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: #10B981;
+  margin-bottom: 6px;
+}
+
+.clean-billing__status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10B981;
+}
+
+.clean-billing__plan-name {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.3px;
+}
+
+.clean-billing__plan-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.clean-billing__plan-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.clean-billing__price-badge {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+}
+
+.clean-billing__price-number {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.clean-billing__price-period {
+  font-size: 12.5px;
+  color: var(--text-disabled);
+}
+
+.clean-billing__change-plan-btn {
+  padding: 9px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Quotas Grid */
+.clean-billing__meters-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.clean-billing__meter-box {
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: var(--bg-canvas);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.clean-billing__meter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.clean-billing__meter-label {
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.clean-billing__meter-stats {
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.clean-billing__meter-max {
+  font-weight: 500;
+  color: var(--text-disabled);
+}
+
+.clean-billing__progress-track {
+  width: 100%;
+  height: 6px;
+  border-radius: 100px;
+  background: var(--border-subtle);
+  overflow: hidden;
+}
+
+.clean-billing__progress-fill {
+  height: 100%;
+  border-radius: 100px;
+  transition: width 0.35s ease;
+}
+
+.clean-billing__meter-foot {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-disabled);
+}
+
+/* ── Section 2: Pricing Matrix ── */
+.clean-billing__section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.clean-billing__section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.clean-billing__section-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.3px;
+}
+
+.clean-billing__section-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.clean-billing__controls-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.clean-billing__toggle-group {
+  display: inline-flex;
+  padding: 3px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  gap: 2px;
+}
+
+.clean-billing__toggle-btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.clean-billing__toggle-btn--active {
+  background: var(--accent-bg);
+  color: var(--accent-primary);
+}
+
+.clean-billing__save-pill {
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 100px;
+  background: #10B981;
+  color: #fff;
+}
+
+/* Plans Grid */
+.clean-billing__plans-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  align-items: stretch;
+}
+
+.clean-billing__plan-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 28px 24px;
+  transition: transform 0.15s ease;
+}
+
+.clean-billing__plan-card--popular {
+  border: 2px solid var(--accent-primary);
+  background: radial-gradient(circle at 50% 0%, var(--accent-bg), transparent 60%),
+              var(--bg-card);
+}
+
+.clean-billing__popular-pill {
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent-primary);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  padding: 3px 12px;
+  border-radius: 100px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.clean-billing__card-header {
+  margin-bottom: 16px;
+}
+
+.clean-billing__card-name {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.clean-billing__card-tagline {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  line-height: 1.45;
+  min-height: 34px;
+}
+
+.clean-billing__card-pricing {
+  margin-bottom: 20px;
+}
+
+.clean-billing__price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.clean-billing__currency-sign {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.clean-billing__price-digits {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.5px;
+}
+
+.clean-billing__price-interval {
+  font-size: 12.5px;
+  color: var(--text-disabled);
+  font-weight: 500;
+  margin-left: 3px;
+}
+
+.clean-billing__yearly-billed {
+  font-size: 11.5px;
+  color: #10B981;
+  font-weight: 600;
+  margin-top: 3px;
+}
+
+.clean-billing__cta-button {
+  width: 100%;
+  padding: 10px 16px;
+  justify-content: center;
+  font-size: 13.5px;
+  font-weight: 700;
+  margin-bottom: 22px;
+}
+
+.clean-billing__features-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 18px;
+}
+
+.clean-billing__features-heading {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-disabled);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.clean-billing__features-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.clean-billing__feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.clean-billing__feature-check {
+  color: #10B981;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ── Section 3: Bottom Grid ── */
+.clean-billing__bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 20px;
+}
+
+.clean-billing__card-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.clean-billing__box-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.clean-billing__box-icon {
+  color: var(--accent-primary);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.clean-billing__box-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.clean-billing__box-sub {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+/* Payment Card */
+.clean-billing__payment-card {
+  padding: 16px;
+  border-radius: 10px;
+  background: var(--bg-canvas);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.clean-billing__payment-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.clean-billing__card-badge {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: 0.8px;
+}
+
+.clean-billing__card-digits {
+  font-size: 15px;
+  font-weight: 700;
+  font-family: monospace;
+  letter-spacing: 2px;
+  color: var(--text-main);
+}
+
+.clean-billing__card-details {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.clean-billing__meta-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: var(--bg-canvas);
+  border: 1px solid var(--border-subtle);
+  font-size: 12px;
+  margin-bottom: 16px;
+}
+
+.clean-billing__meta-row {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-muted);
+}
+
+.clean-billing__meta-row strong {
+  color: var(--text-main);
+}
+
+.clean-billing__update-card-btn {
+  margin-top: auto;
+  font-size: 12.5px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* Invoices Clean List */
+.clean-billing__invoices-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.clean-billing__invoice-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: var(--bg-canvas);
+  border: 1px solid var(--border-subtle);
+}
+
+.clean-billing__invoice-id {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.clean-billing__invoice-meta {
+  font-size: 11.5px;
+  color: var(--text-disabled);
+  margin-top: 1px;
+}
+
+.clean-billing__invoice-action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.clean-billing__invoice-price {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.clean-billing__download-icon-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-card);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.clean-billing__download-icon-btn:hover {
+  color: var(--accent-primary);
+  border-color: var(--accent-primary);
+}
+
+.clean-billing__invoice-note {
+  margin-top: 14px;
+  font-size: 11.5px;
+  color: var(--text-disabled);
+  text-align: center;
+}
+
+/* ── Section 4: FAQs ── */
+.clean-billing__faqs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.clean-billing__faq-item {
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  background: var(--bg-canvas);
+  overflow: hidden;
+}
+
+.clean-billing__faq-trigger {
+  width: 100%;
+  padding: 13px 16px;
+  background: transparent;
+  border: none;
+  text-align: left;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.clean-billing__faq-body {
+  padding: 0 16px 13px 16px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.clean-billing__spin {
+  animation: cleanSpin 0.9s linear infinite;
+}
+
+@keyframes cleanSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .clean-billing__meters-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .clean-billing__plans-grid {
+    grid-template-columns: 1fr;
+  }
+  .clean-billing__bottom-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .clean-billing__meters-grid {
+    grid-template-columns: 1fr;
+  }
+  .clean-billing__section-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .clean-billing__plan-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
