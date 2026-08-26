@@ -58,6 +58,21 @@ export function AuthProvider({ children }) {
     return data;
   };
 
+  // ── Refresh User Session ──────────────────────────────────
+  const refreshUser = async () => {
+    try {
+      const res = await api.get('/auth/me');
+      const data = res.data?.data ?? res.data;
+      if (data?.user || data?.id) {
+        setUser(data.user ?? data);
+        return data.user ?? data;
+      }
+    } catch {
+      // ignore
+    }
+    return null;
+  };
+
   // ── Logout ────────────────────────────────────────────────
   const logout = async () => {
     try {
@@ -69,7 +84,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, refreshUser, setUser }}>
       {children}
     </AuthContext.Provider>
   );

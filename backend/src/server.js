@@ -15,6 +15,7 @@ import { prisma } from './lib/prisma.js';
 import { startImportWorker, closeImportWorker } from './workers/import.worker.js';
 import { startReportWorker, closeReportWorker } from './workers/report.worker.js';
 import { startReportScheduler, stopReportScheduler } from './workers/report.scheduler.js';
+import { initRealtime, closeRealtime } from './lib/realtime.js';
 
 const server = http.createServer(app);
 
@@ -29,12 +30,15 @@ async function startServer() {
     await redis.ping();
     console.log('✅ Redis connected');
 
-    // 3. Start BullMQ background workers
+    // 3. Initialize Realtime WebSocket Hub
+    initRealtime(server);
+
+    // 4. Start BullMQ background workers
     startImportWorker();
     startReportWorker();
     startReportScheduler();
 
-    // 4. Start HTTP server
+    // 5. Start HTTP server
     server.listen(env.PORT, () => {
       console.log('');
       console.log('╔══════════════════════════════════════════════════╗');
@@ -42,6 +46,7 @@ async function startServer() {
       console.log('║        AI-Powered Business Intelligence SaaS     ║');
       console.log('╠══════════════════════════════════════════════════╣');
       console.log(`║  🌐 API:      http://localhost:${env.PORT}/api/v1     ║`);
+      console.log(`║  ⚡ WS:       ws://localhost:${env.PORT}/ws          ║`);
       console.log(`║  ❤️  Health:  http://localhost:${env.PORT}/health      ║`);
       console.log(`║  🔧 Mode:     ${env.NODE_ENV.padEnd(36)}║`);
       console.log('╚══════════════════════════════════════════════════╝');
@@ -62,6 +67,9 @@ async function shutdown(signal) {
     try {
       await prisma.$disconnect();
       console.log('[Server] ✅ Database disconnected');
+
+      await closeRealtime();
+      console.log('[Server] ✅ Realtime WebSocket server closed');
 
       await closeImportWorker();
       console.log('[Server] ✅ Import worker stopped');

@@ -5,7 +5,7 @@ import api from '../lib/api.js'
 import {
   User, Building2, Bell, Shield, Palette, Save, CheckCircle,
   AlertCircle, Users, UserPlus, Trash2, Mail, Copy, Check,
-  LogOut, Loader2, ShieldCheck, ShieldAlert
+  LogOut, Loader2, ShieldCheck, ShieldAlert, Globe, DollarSign
 } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext.jsx'
 import { notify } from '../components/ui/CustomToast.jsx'
@@ -26,8 +26,46 @@ const ROLES = [
   { id: 'VIEWER',  label: 'Viewer',  desc: 'Read-only access to dashboards and insights' },
 ]
 
+const CURRENCIES = [
+  { code: 'INR', symbol: '₹', label: 'Indian Rupee (INR ₹)' },
+  { code: 'USD', symbol: '$', label: 'US Dollar (USD $)' },
+  { code: 'EUR', symbol: '€', label: 'Euro (EUR €)' },
+  { code: 'GBP', symbol: '£', label: 'British Pound (GBP £)' },
+  { code: 'AED', symbol: 'AED', label: 'UAE Dirham (AED)' },
+  { code: 'SGD', symbol: 'S$', label: 'Singapore Dollar (SGD S$)' },
+  { code: 'CAD', symbol: 'C$', label: 'Canadian Dollar (CAD C$)' },
+  { code: 'AUD', symbol: 'A$', label: 'Australian Dollar (AUD A$)' },
+  { code: 'JPY', symbol: '¥', label: 'Japanese Yen (JPY ¥)' },
+]
+
+const TIMEZONES = [
+  { value: 'Asia/Kolkata', label: 'Asia/Kolkata (IST — UTC+05:30)' },
+  { value: 'UTC', label: 'UTC (Coordinated Universal Time — UTC+00:00)' },
+  { value: 'America/New_York', label: 'America/New_York (EST/EDT — UTC-05:00)' },
+  { value: 'America/Chicago', label: 'America/Chicago (CST/CDT — UTC-06:00)' },
+  { value: 'America/Los_Angeles', label: 'America/Los_Angeles (PST/PDT — UTC-08:00)' },
+  { value: 'Europe/London', label: 'Europe/London (GMT/BST — UTC+00:00)' },
+  { value: 'Europe/Berlin', label: 'Europe/Berlin (CET/CEST — UTC+01:00)' },
+  { value: 'Asia/Dubai', label: 'Asia/Dubai (GST — UTC+04:00)' },
+  { value: 'Asia/Singapore', label: 'Asia/Singapore (SGT — UTC+08:00)' },
+  { value: 'Asia/Tokyo', label: 'Asia/Tokyo (JST — UTC+09:00)' },
+  { value: 'Australia/Sydney', label: 'Australia/Sydney (AEST/AEDT — UTC+10:00)' },
+]
+
+const INDUSTRIES = [
+  'Manufacturing',
+  'Retail & E-commerce',
+  'Distribution & Logistics',
+  'SaaS & Technology',
+  'Services & Consulting',
+  'Pharmaceuticals & Healthcare',
+  'Food & Beverage',
+  'Finance & Banking',
+  'Other',
+]
+
 export default function Settings() {
-  const { user, logout } = useAuth()
+  const { user, logout, refreshUser } = useAuth()
   const { theme, setTheme } = useTheme()
   const [activeTab, setActiveTab] = useState('profile')
 
@@ -38,6 +76,26 @@ export default function Settings() {
     email:     user?.email     ?? '',
   })
   const [profileSaving, setProfileSaving] = useState(false)
+
+  // Organization form state
+  const [orgForm, setOrgForm] = useState({
+    name: user?.org?.name ?? '',
+    industry: user?.org?.industry ?? 'Manufacturing',
+    currency: user?.org?.currency ?? 'INR',
+    timezone: user?.org?.timezone ?? 'Asia/Kolkata',
+  })
+  const [orgSaving, setOrgSaving] = useState(false)
+
+  useEffect(() => {
+    if (user?.org) {
+      setOrgForm({
+        name: user.org.name ?? '',
+        industry: user.org.industry ?? 'Manufacturing',
+        currency: user.org.currency ?? 'INR',
+        timezone: user.org.timezone ?? 'Asia/Kolkata',
+      })
+    }
+  }, [user])
 
   // Password state
   const [passwords, setPasswords] = useState({ currentPassword: '', newPassword: '', confirm: '' })
@@ -94,10 +152,34 @@ export default function Settings() {
     try {
       await api.patch('/users/me', { firstName: profile.firstName, lastName: profile.lastName })
       notify.success('Profile updated successfully.', 'Saved ✓')
+      if (refreshUser) await refreshUser()
     } catch (err) {
       notify.error(err.response?.data?.error?.message || 'Failed to update profile.', 'Error')
     } finally {
       setProfileSaving(false)
+    }
+  }
+
+  const saveOrg = async (e) => {
+    e.preventDefault()
+    if (!orgForm.name.trim() || orgForm.name.trim().length < 2) {
+      notify.error('Organization name must be at least 2 characters.', 'Invalid Name')
+      return
+    }
+    setOrgSaving(true)
+    try {
+      await api.patch('/organizations/me', {
+        name: orgForm.name.trim(),
+        industry: orgForm.industry,
+        currency: orgForm.currency,
+        timezone: orgForm.timezone,
+      })
+      notify.success('Organization profile updated.', 'Settings Saved ✓')
+      if (refreshUser) await refreshUser()
+    } catch (err) {
+      notify.error(err.response?.data?.error?.message || 'Failed to update organization.', 'Error')
+    } finally {
+      setOrgSaving(false)
     }
   }
 
@@ -199,11 +281,13 @@ export default function Settings() {
     }
   }
 
+  const isOrgManager = user?.role === 'OWNER' || user?.role === 'ADMIN'
+
   return (
     <div className="settings-page">
       <div className="settings-page__header">
         <h1 className="settings-page__title">Settings</h1>
-        <p className="settings-page__sub">Manage your account, organization, team, and preferences.</p>
+        <p className="settings-page__sub">Manage your account, organization profile, team members, and preferences.</p>
       </div>
 
       <div className="settings-layout">
@@ -258,29 +342,132 @@ export default function Settings() {
             </div>
           )}
 
-          {/* ── Organization ── */}
+          {/* ── Organization Settings (Editable) ── */}
           {activeTab === 'organization' && (
             <div className="glass-card settings-panel">
-              <h2 className="settings-panel__title">Organization Settings</h2>
-              <p className="settings-panel__sub">Manage your organization details and preferences.</p>
-              <div className="settings-info-grid">
-                {[
-                  { label: 'Organization Name', value: user?.org?.name ?? 'Not set' },
-                  { label: 'Industry', value: user?.org?.industry ?? 'Not set' },
-                  { label: 'Currency', value: user?.org?.currency ?? 'INR' },
-                  { label: 'Timezone', value: user?.org?.timezone ?? 'Asia/Kolkata' },
-                  { label: 'Plan', value: 'Starter (Free)' },
-                  { label: 'Status', value: 'Active' },
-                ].map((r) => (
-                  <div key={r.label} className="settings-info-row">
-                    <span className="settings-info-row__label">{r.label}</span>
-                    <span className="settings-info-row__value">{r.value}</span>
-                  </div>
-                ))}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                <h2 className="settings-panel__title">Organization Profile</h2>
+                {isOrgManager ? (
+                  <span className="badge badge-primary">
+                    <ShieldCheck size={12} style={{ marginRight: 4 }} /> {user?.role} Access
+                  </span>
+                ) : (
+                  <span className="badge badge-info">View Only</span>
+                )}
               </div>
-              <p className="settings-panel__hint">
-                Organization settings can be updated by the <strong>Owner</strong>.
-              </p>
+              <p className="settings-panel__sub">Configure your company name, industry sector, base currency, and operating timezone.</p>
+
+              <form className="settings-form" onSubmit={saveOrg}>
+                <div className="settings-form-row">
+                  <div className="settings-field">
+                    <label htmlFor="s-org-name">Organization / Company Name</label>
+                    <input
+                      id="s-org-name"
+                      type="text"
+                      className="input-field"
+                      placeholder="e.g. Acme Corporation"
+                      value={orgForm.name}
+                      disabled={!isOrgManager || orgSaving}
+                      onChange={(e) => setOrgForm((p) => ({ ...p, name: e.target.value }))}
+                      required
+                    />
+                  </div>
+
+                  <div className="settings-field">
+                    <label htmlFor="s-org-industry">Industry Sector</label>
+                    <select
+                      id="s-org-industry"
+                      className="team-role-select"
+                      style={{ padding: '10px 14px', borderRadius: 8 }}
+                      value={orgForm.industry}
+                      disabled={!isOrgManager || orgSaving}
+                      onChange={(e) => setOrgForm((p) => ({ ...p, industry: e.target.value }))}
+                    >
+                      {INDUSTRIES.map((ind) => (
+                        <option key={ind} value={ind}>
+                          {ind}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="settings-form-row">
+                  <div className="settings-field">
+                    <label htmlFor="s-org-currency">
+                      <DollarSign size={13} style={{ display: 'inline', verticalAlign: 'text-bottom', marginRight: 4 }} />
+                      Base Reporting Currency
+                    </label>
+                    <select
+                      id="s-org-currency"
+                      className="team-role-select"
+                      style={{ padding: '10px 14px', borderRadius: 8 }}
+                      value={orgForm.currency}
+                      disabled={!isOrgManager || orgSaving}
+                      onChange={(e) => setOrgForm((p) => ({ ...p, currency: e.target.value }))}
+                    >
+                      {CURRENCIES.map((c) => (
+                        <option key={c.code} value={c.code}>
+                          {c.label}
+                        </option>
+                      ))}
+                    </select>
+                    <span className="settings-field__hint">Used across sales ledgers, expense charts, and financial KPIs.</span>
+                  </div>
+
+                  <div className="settings-field">
+                    <label htmlFor="s-org-timezone">
+                      <Globe size={13} style={{ display: 'inline', verticalAlign: 'text-bottom', marginRight: 4 }} />
+                      Operating Timezone
+                    </label>
+                    <select
+                      id="s-org-timezone"
+                      className="team-role-select"
+                      style={{ padding: '10px 14px', borderRadius: 8 }}
+                      value={orgForm.timezone}
+                      disabled={!isOrgManager || orgSaving}
+                      onChange={(e) => setOrgForm((p) => ({ ...p, timezone: e.target.value }))}
+                    >
+                      {TIMEZONES.map((tz) => (
+                        <option key={tz.value} value={tz.value}>
+                          {tz.label}
+                        </option>
+                      ))}
+                    </select>
+                    <span className="settings-field__hint">Used for automated report cron triggers and anomaly timestamps.</span>
+                  </div>
+                </div>
+
+                {/* Metadata Overview summary */}
+                <div className="settings-info-grid" style={{ marginTop: 8 }}>
+                  {[
+                    { label: 'Current Plan', value: 'Starter (Free Tier)' },
+                    { label: 'Workspace Status', value: 'Active & Verified' },
+                    { label: 'Data Retention', value: '30 Days with automated purger' },
+                  ].map((r) => (
+                    <div key={r.label} className="settings-info-row">
+                      <span className="settings-info-row__label">{r.label}</span>
+                      <span className="settings-info-row__value">{r.value}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {isOrgManager && (
+                  <div className="settings-form-actions">
+                    <button type="submit" className="btn-primary" disabled={orgSaving} id="save-org-btn">
+                      {orgSaving ? (
+                        <>
+                          <Loader2 size={14} className="invite-spin" /> Saving Changes…
+                        </>
+                      ) : (
+                        <>
+                          <Save size={14} /> Save Organization Profile
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
+              </form>
             </div>
           )}
 

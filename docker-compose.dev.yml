@@ -1,0 +1,64 @@
+# ============================================================
+# DecisionOS — Development Docker Compose Stack (Hot Reload)
+# ============================================================
+# Usage:
+#   docker compose -f docker-compose.dev.yml up --build
+# ============================================================
+
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: decisionos-postgres-dev
+    environment:
+      POSTGRES_USER: decisionos
+      POSTGRES_PASSWORD: dev_password
+      POSTGRES_DB: decisionos
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    networks:
+      - decisionos-dev-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: decisionos-redis-dev
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - decisionos-dev-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: decisionos-backend-dev
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: development
+      PORT: 5000
+      DATABASE_URL: postgresql://decisionos:dev_password@postgres:5432/decisionos?schema=public
+      REDIS_URL: redis://redis:6379
+      COOKIE_SECRET: dev_cookie_secret_super_long_hex_key_for_testing_12345
+      ALLOWED_ORIGINS: http://localhost:5173,http://localhost:3000,http://localhost:80
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/prisma:/app/prisma
+    networks:
+      - decisionos-dev-network
+
+volumes:
+  postgres_dev_data:
+  redis_dev_data:
+
+networks:
+  decisionos-dev-network:
+    driver: bridge

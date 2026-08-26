@@ -11,11 +11,12 @@
 [![Redis](https://img.shields.io/badge/Redis-Upstash-DC382D?style=for-the-badge&logo=redis&logoColor=white)](https://upstash.com/)
 [![Google Gemini](https://img.shields.io/badge/Google_Gemini-3.6_Flash-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev/)
 [![BullMQ](https://img.shields.io/badge/BullMQ-Background_Workers-FF6B6B?style=for-the-badge)](https://bullmq.io/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 ---
 
-[Overview](#-overview) • [Key Features](#-key-features) • [System Architecture](#-system-architecture) • [Frontend Suite](#-frontend-suite) • [Tech Stack](#-tech-stack) • [Quick Start](#-quick-start) • [API Reference](#-api-reference) • [Test Suite](#-test-suite) • [Security & Multi-Tenancy](#-security--multi-tenancy)
+[Overview](#-overview) • [Key Features](#-key-features) • [Docker Deployment](#-docker--production-deployment-one-click) • [System Architecture](#-system-architecture) • [Frontend Suite](#-frontend-suite) • [Tech Stack](#-tech-stack) • [Quick Start](#-quick-start-local-development) • [API Reference](#-api-reference) • [Test Suite](#-test-suite)
 
 ---
 
@@ -299,7 +300,64 @@ DecisionOS/
 
 ---
 
-## ⚡ Quick Start
+## 🐳 Docker & Production Deployment (One-Click)
+
+DecisionOS includes complete multi-stage Dockerfiles, Nginx reverse proxy configurations, and Docker Compose orchestration for one-command production deployments on any cloud VM (AWS EC2, DigitalOcean, Hetzner, GCP, Azure) or local Docker Desktop.
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                        DecisionOS Docker Stack                         │
+│                                                                        │
+│  ┌───────────────────────┐             ┌────────────────────────────┐  │
+│  │   decisionos-frontend │             │    decisionos-backend      │  │
+│  │   (Nginx 1.27 Alpine) │ ──/api/v1─> │   (Node.js 20 Alpine)      │  │
+│  │   Port: 80 / 443      │             │   Port: 5000               │  │
+│  └───────────────────────┘             └─────────────┬──────────────┘  │
+│                                                      │                 │
+│                                        ┌─────────────┴──────────────┐  │
+│                                        │                            │  │
+│                            ┌───────────▼──────────┐   ┌─────────────▼┐ │
+│                            │ decisionos-postgres  │   │ decisionos-  │ │
+│                            │ (PostgreSQL 16)      │   │ redis (v7)   │ │
+│                            │ Volume: pg_data      │   │ Volume: r_data │
+│                            └──────────────────────┘   └──────────────┘ │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+### 🚀 One-Command Launch
+
+#### Option A: Using the Automated Deployment Script
+```bash
+# On Linux / macOS / Cloud VMs:
+chmod +x deploy.sh
+./deploy.sh
+
+# On Windows (PowerShell):
+powershell -ExecutionPolicy Bypass -File .\deploy.ps1
+```
+
+#### Option B: Using Docker Compose Directly
+```bash
+# 1. Copy the production environment template
+cp .env.docker.example .env
+
+# 2. Build and launch all 4 services in detached mode
+docker compose up -d --build
+
+# 3. View real-time container logs
+docker compose logs -f
+```
+
+### 🌐 Container Service Endpoints
+- **Frontend Web App**: `http://localhost` (Port 80)
+- **Backend API & Swagger**: `http://localhost:5000/api/v1` (Port 5000)
+- **Health Check Endpoint**: `http://localhost/health`
+- **PostgreSQL Database**: `localhost:5432` (Internal Docker network)
+- **Redis Cache & BullMQ Queue**: `localhost:6379` (Internal Docker network)
+
+---
+
+## ⚡ Quick Start (Local Development)
 
 ### Prerequisites
 - **Node.js**: `v18.0.0` or higher (v24 recommended)

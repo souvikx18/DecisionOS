@@ -220,7 +220,20 @@ export async function generateReportService(orgId, userId, payload) {
       }).catch((err) => console.error('[Reports] Email send failed:', err.message));
     }
 
-    // 7. Audit log (best-effort)
+    // 7. Emit Real-Time WebSocket event to Organization
+    try {
+      const { broadcastToOrg } = await import('../../lib/realtime.js');
+      broadcastToOrg(orgId, 'REPORT_READY', {
+        reportId: readyReport.id,
+        title: readyReport.title,
+        type: readyReport.type,
+        status: readyReport.status,
+        createdAt: readyReport.createdAt,
+        exportsCount: readyReport.exports?.length || 0,
+      });
+    } catch (_) { /* non-fatal */ }
+
+    // 8. Audit log (best-effort)
     try {
       const { logAudit } = await import('../../lib/audit.js');
       await logAudit({ orgId, userId, action: 'DATA_EXPORTED', entityType: 'Report', entityId: report.id });

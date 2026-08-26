@@ -1,0 +1,128 @@
+# ============================================================
+# DecisionOS — Complete Production Docker Compose Stack
+# ============================================================
+# Usage:
+#   1. cp .env.docker.example .env
+#   2. docker compose up -d --build
+# ============================================================
+
+version: '3.8'
+
+services:
+  # ── 1. PostgreSQL Database ─────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: decisionos-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-decisionos}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-decisionos_secure_password_2026}
+      POSTGRES_DB: ${POSTGRES_DB:-decisionos}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - decisionos-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-decisionos} -d ${POSTGRES_DB:-decisionos}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ── 2. Redis Cache & Job Queue ─────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: decisionos-redis
+    restart: unless-stopped
+    command: >
+      redis-server 
+      --requirepass "${REDIS_PASSWORD:-decisionos_redis_secret_2026}"
+      --appendonly yes
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    networks:
+      - decisionos-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-decisionos_redis_secret_2026}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  # ── 3. Backend API & Workers (Node.js + Prisma) ────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: decisionos-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      API_URL: ${API_URL:-http://localhost:5000}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost,http://localhost:80,http://127.0.0.1}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://decisionos:decisionos_secure_password_2026@postgres:5432/decisionos?schema=public}
+      REDIS_URL: ${REDIS_URL:-redis://:decisionos_redis_secret_2026@redis:6379}
+      COOKIE_SECRET: ${COOKIE_SECRET:-e8dc996f7125723f049eedbb0c9d678ebb03be4fbae8fbf99fc8bb25bb12bdd6}
+      SESSION_TTL_SECONDS: ${SESSION_TTL_SECONDS:-604800}
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY}
+      STORAGE_BUCKET: ${STORAGE_BUCKET:-decisionos-files}
+      AI_PROVIDER: ${AI_PROVIDER:-gemini}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      EMAIL_FROM: ${EMAIL_FROM:-decisionos@resend.dev}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      SUPER_ADMIN_EMAIL: ${SUPER_ADMIN_EMAIL:-admin@decisionos.com}
+      SEED_DATABASE: ${SEED_DATABASE:-false}
+    networks:
+      - decisionos-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # ── 4. Frontend SPA & Reverse Proxy (Nginx) ────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: decisionos-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "80:80"
+    networks:
+      - decisionos-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+# ── Persistent Storage Volumes ───────────────────────────────
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+# ── Isolated Internal Network ────────────────────────────────
+networks:
+  decisionos-network:
+    driver: bridge

@@ -9,6 +9,7 @@ import { IMPORT_QUEUE_NAME, bullRedisConnection } from '../config/queue.js';
 import { prisma } from '../lib/prisma.js';
 import { parseFullFile } from '../lib/fileParser.js';
 import { logAudit } from '../lib/audit.js';
+import { broadcastToOrg } from '../lib/realtime.js';
 
 import { processSalesRows } from './processors/sales.processor.js';
 import { processExpensesRows } from './processors/expenses.processor.js';
@@ -132,6 +133,17 @@ async function processImportJob(job) {
         validRows: result.validCount,
         errorRows: result.errorCount,
       },
+    });
+
+    // 7. Emit Real-Time WebSocket event to Organization
+    broadcastToOrg(organizationId, 'IMPORT_COMPLETED', {
+      importId: dataImportId,
+      type,
+      status: finalStatus,
+      totalRows: rows.length,
+      validRows: result.validCount,
+      errorRows: result.errorCount,
+      completedAt: new Date().toISOString(),
     });
 
     await job.updateProgress(100);
