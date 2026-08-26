@@ -2,7 +2,7 @@
 
 # 🚀 DecisionOS
 
-### *AI-Powered Business Intelligence & Predictive Analytics Platform for Enterprise & SMEs*
+### *Enterprise AI-Powered Business Intelligence & Predictive Analytics Operating System*
 
 [![Node.js](https://img.shields.io/badge/Node.js-v24-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
@@ -10,20 +10,21 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://supabase.com/)
 [![Redis](https://img.shields.io/badge/Redis-Upstash-DC382D?style=for-the-badge&logo=redis&logoColor=white)](https://upstash.com/)
 [![Google Gemini](https://img.shields.io/badge/Google_Gemini-3.6_Flash-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev/)
+[![Stripe](https://img.shields.io/badge/Stripe-Billing-635BFF?style=for-the-badge&logo=stripe&logoColor=white)](https://stripe.com/)
 [![BullMQ](https://img.shields.io/badge/BullMQ-Background_Workers-FF6B6B?style=for-the-badge)](https://bullmq.io/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 ---
 
-[Overview](#-overview) • [Key Features](#-key-features) • [Docker Deployment](#-docker--production-deployment-one-click) • [System Architecture](#-system-architecture) • [Frontend Suite](#-frontend-suite) • [Tech Stack](#-tech-stack) • [Quick Start](#-quick-start-local-development) • [API Reference](#-api-reference) • [Test Suite](#-test-suite)
+[Overview](#-overview) • [Key Capabilities](#-key-capabilities) • [System Architecture](#-system-architecture) • [Frontend Suite](#-frontend-suite) • [Billing & Monetization](#-billing--subscription-engine) • [Real-Time Event Engine](#-real-time-events--websockets) • [Tech Stack](#-tech-stack) • [Docker Deployment](#-docker--production-deployment-one-click) • [Quick Start](#-quick-start-local-development) • [API Reference](#-api-reference) • [Test Suite](#-test-suite)
 
 ---
 
 </div>
 
 > [!NOTE]
-> **DecisionOS** is an enterprise-grade, full-stack, multi-tenant SaaS platform that unifies fragmented operational spreadsheets, sales logs, and ERP datasets into an executive BI cockpit. Powered by **Google Gemini 3.6 Flash** with statistical heuristic fallbacks, **BullMQ** async background workers, automated **PDF/CSV/Excel** report generation, and a **10-page React 19** executive dashboard with Sonner-inspired **Dynamic Island notifications**.
+> **DecisionOS** is an enterprise-grade, full-stack, multi-tenant SaaS platform that unifies fragmented operational spreadsheets, sales logs, and ERP datasets into an executive decision intelligence cockpit. Engineered with **React 19**, **Express.js**, **Supabase PostgreSQL**, **Google Gemini 3.6 Flash**, **BullMQ async workers**, **WebSocket real-time streaming**, **AES-256-GCM encryption**, **Stripe & Razorpay multi-gateway billing**, and automated **PDF/CSV/Excel** reporting.
 
 ---
 
@@ -31,16 +32,18 @@
 
 Modern SMEs and growing enterprises frequently suffer from siloed spreadsheets, missed stockouts, unmonitored customer churn, and delayed financial reporting. **DecisionOS** provides a comprehensive, centralized decision intelligence operating system:
 
-- **Full-Stack Enterprise REST API** — Express.js + Prisma ORM + Supabase PostgreSQL with 60+ tested endpoints.
+- **Full-Stack Enterprise REST API** — Express.js + Prisma ORM + Supabase PostgreSQL with 70+ tested endpoints.
 - **Dual-Engine AI Intelligence** — Google Gemini 3.6 Flash coupled with internal anomaly algorithms (Z-score analysis, RFM customer segmentation, linear regression forecasting).
+- **Multi-Gateway Billing & Quotas** — Stripe & Razorpay billing engine with automated tier gating (FREE, PRO, ENTERPRISE), customer portal, encrypted secrets, and HMAC webhook verification.
+- **Real-Time Multi-Tenant WebSocket Engine** — Sub-second event broadcasting for stock alerts, background job completions, and live notification pushes with strict tenant isolation.
 - **Automated Multi-Format Report Builder** — Generates styled PDF, multi-sheet Excel (`.xlsx`), and streaming CSV reports on recurring cron schedules (Daily, Weekly, Monthly) with automated 30-day cloud retention and Resend SMTP delivery.
 - **Resilient Data Import Pipeline** — Multer + BullMQ + Redis background workers with fuzzy column detection, row-level error isolation (`PARTIAL` commits), and sample templates.
-- **Multi-Tenant Security** — Complete tenant isolation via `organizationId` database scoping, memory-hard Argon2id session authentication, and granular RBAC.
-- **High-End Executive UI** — React 19 + Vite with 10 production pages, responsive Recharts financial visualizations, and a floating **Dynamic Island HUD notification pill**.
+- **Multi-Tenant Security & AES-256-GCM** — Complete tenant isolation via `organizationId` database scoping, memory-hard Argon2id session authentication, zero-knowledge verification, and granular RBAC.
+- **High-End Executive UI** — React 19 + Vite 8 with 12+ production pages, responsive Recharts financial visualizations, and a floating **Dynamic Island HUD notification pill**.
 
 ---
 
-## 🚀 Key Features
+## 🚀 Key Capabilities
 
 <table>
   <tr>
@@ -62,6 +65,28 @@ Modern SMEs and growing enterprises frequently suffer from siloed spreadsheets, 
         <li><b>Predictive Forecasting</b>: 3-month linear regression forward revenue trajectory.</li>
         <li><b>"Ask DecisionOS"</b>: Natural language Q&A querying live business data across all modules.</li>
         <li><b>Dual-Engine Resiliency</b>: Automatic fallback to internal heuristic statistical engine when offline.</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <h3>💳 Billing & Subscription Engine</h3>
+      <ul>
+        <li><b>Multi-Gateway Support</b>: Built-in support for Stripe & Razorpay checkouts.</li>
+        <li><b>Tiered Plans Matrix</b>: FREE, STARTER, PRO, and ENTERPRISE tiers with monthly & yearly billing.</li>
+        <li><b>Dynamic Quota Tracking</b>: Real-time meters for team seats, AI queries, import jobs, and storage usage.</li>
+        <li><b>Customer Billing Portal</b>: Self-service credit card updates, subscription management, and cancellation.</li>
+        <li><b>Invoices & Receipts Ledger</b>: Comprehensive downloadable transaction ledger.</li>
+        <li><b>HMAC Webhook Security</b>: Cryptographically verified webhook handling for instant provisioning.</li>
+      </ul>
+    </td>
+    <td width="50%">
+      <h3>⚡ Real-Time WebSocket Streaming</h3>
+      <ul>
+        <li><b>Multi-Tenant Channels</b>: Isolated WebSocket channels (`/ws`) ensuring zero cross-tenant data leakage.</li>
+        <li><b>Live Background Notifications</b>: Instant UI toast alerts when BullMQ import or report jobs complete.</li>
+        <li><b>Stock & Health Triggers</b>: Immediate push broadcasts when inventory breaches reorder safety levels.</li>
+        <li><b>Heartbeat & Auto-Reconnect</b>: Resilient connection lifecycles with client-side exponential reconnect.</li>
       </ul>
     </td>
   </tr>
@@ -89,10 +114,12 @@ Modern SMEs and growing enterprises frequently suffer from siloed spreadsheets, 
   </tr>
   <tr>
     <td width="50%">
-      <h3>🔐 Multi-Tenancy & RBAC</h3>
+      <h3>🔐 Multi-Tenancy & Cryptography</h3>
       <ul>
         <li><b>Strict Tenant Isolation</b>: Every query hard-scoped by <code>organizationId</code>.</li>
+        <li><b>AES-256-GCM Encryption</b>: Database field encryption for sensitive payment tokens and secrets.</li>
         <li><b>Role Permissions</b>: <code>OWNER</code>, <code>ADMIN</code>, <code>ANALYST</code>, <code>VIEWER</code>.</li>
+        <li><b>Team Invitations</b>: Expiring cryptographically secure invite tokens with email dispatch.</li>
         <li><b>Secure Auth</b>: Memory-hard Argon2id password hashing + HTTP-only signed cookies.</li>
         <li><b>Audit Trail</b>: Immutable audit logging for sensitive data mutations and file exports.</li>
       </ul>
@@ -100,7 +127,7 @@ Modern SMEs and growing enterprises frequently suffer from siloed spreadsheets, 
     <td width="50%">
       <h3>💎 Executive Cockpit UI</h3>
       <ul>
-        <li><b>10 Production Pages</b>: Dashboard, Sales, Expenses, Inventory, Customers, Reports, AI Insights, Data Import, Notifications, Settings.</li>
+        <li><b>12+ Production Pages</b>: Landing, Dashboard, Sales, Expenses, Inventory, Customers, Reports, AI Insights, Data Import, Billing, Notifications, Settings, and Auth.</li>
         <li><b>Dynamic Island HUD Toasts</b>: Floating glassmorphic pill notifications with spring physics.</li>
         <li><b>Live Visualizations</b>: Responsive Recharts line, area, and stacked bar graphs.</li>
         <li><b>Theme Engine</b>: Dark and Light modes with automatic OS system preference detection.</li>
@@ -116,18 +143,23 @@ Modern SMEs and growing enterprises frequently suffer from siloed spreadsheets, 
 ```mermaid
 flowchart TD
     subgraph Client["Frontend (React 19 + Vite 8)"]
-        UI["10 Production Pages\n(Dashboard, Sales, Expenses, Inventory, CRM, Reports, AI, Import, Settings, Auth)"]
+        Landing["Marketing Landing Page"]
+        UI["Executive Cockpit (12+ Pages)\n(Dashboard, Sales, Expenses, Inventory, CRM, Reports, AI, Import, Billing, Settings)"]
         Toast["Dynamic Island Toast HUD"]
         Charts["Recharts Visualizations"]
+        RealtimeHook["useRealtime Hook\n(WebSocket /ws)"]
     end
 
-    subgraph API["Backend (Express.js + Node.js)"]
-        Auth["Auth & RBAC Middleware"]
+    subgraph API["Backend (Express.js + Node.js v24)"]
+        Auth["Auth & RBAC Middleware\n(Argon2id + Session Tokens)"]
         Tenant["Organization Context Middleware"]
-        Modules["12 Core Business Modules"]
-        AIEngine["AI Engine Service"]
+        Crypto["AES-256-GCM & ZK Encryption Engine"]
+        Modules["15 Core Business & Billing Modules"]
+        AIEngine["AI Engine Service\n(Context Aggregator)"]
         ImportSvc["Data Import Service"]
         ReportSvc["Report Generation Service"]
+        BillingSvc["Billing & Stripe/Razorpay Service"]
+        WSHandler["WebSocket Event Broadcaster (/ws)"]
     end
 
     subgraph Workers["Background Workers (BullMQ + Redis)"]
@@ -137,27 +169,32 @@ flowchart TD
         Purger["30-Day Storage Purger"]
     end
 
-    subgraph AI["AI Reasoning Layer"]
+    subgraph External["External Cloud & AI Services"]
         Gemini["Google Gemini 3.6 Flash"]
         Fallback["Statistical Heuristic Engine"]
-    end
-
-    subgraph Infra["Cloud Infrastructure"]
-        PG[("PostgreSQL - Supabase")]
-        Redis[("Redis - Upstash")]
+        StripeGateway["Stripe / Razorpay Payment Gateways"]
         Storage["Supabase Cloud Storage"]
         Email["Resend SMTP Email"]
     end
 
+    subgraph Infra["Data Tier"]
+        PG[("PostgreSQL - Supabase")]
+        Redis[("Redis - Upstash")]
+    end
+
     UI --> Auth --> Tenant --> Modules
-    Modules --> PG
+    RealtimeHook <--> WSHandler
+    Modules --> Crypto --> PG
     Modules --> AIEngine
     AIEngine --> Gemini
     AIEngine --> Fallback
+    Modules --> BillingSvc --> StripeGateway
     ImportSvc --> Redis --> ImportWorker --> PG
+    ImportWorker --> WSHandler
     ReportSvc --> Storage
     ReportScheduler --> Redis --> ReportWorker --> ReportSvc
     ReportWorker --> Email
+    ReportWorker --> WSHandler
     Purger --> Storage
 ```
 
@@ -165,10 +202,11 @@ flowchart TD
 
 ## 🖥️ Frontend Suite
 
-The frontend is built with **React 19** and **Vite 8**, featuring 10 production-ready, fully responsive pages connected via a central Axios client (`src/lib/api.js`) with session cookie credentials:
+The frontend is built with **React 19** and **Vite 8**, featuring 12+ production-ready pages with custom CSS design tokens, dynamic dark/light theme switching, and real-time WebSocket state management:
 
 | Page | Route | Features & Capabilities |
 |---|---|---|
+| **Landing** | `/` | High-converting marketing landing page with feature deep-dives, interactive architecture preview, live pricing tiers, and direct onboarding triggers. |
 | **Dashboard** | `/dashboard` | Executive cockpit with 4 key KPI cards, Revenue Trend chart, Expense Breakdown, Top Customers, and AI quick insights. |
 | **Sales** | `/sales` | Paginated sales transactions ledger with total revenue summaries, product search, and status badges. |
 | **Expenses** | `/expenses` | Expense tracking with category donut breakdown, monthly averages, and category filters. |
@@ -176,10 +214,58 @@ The frontend is built with **React 19** and **Vite 8**, featuring 10 production-
 | **Customers** | `/customers` | CRM directory with customer lifetime revenue, order counts, RFM rankings, and search/sort. |
 | **Reports** | `/reports` | 3-tab report center for on-demand generation (PDF/Excel/CSV), export history with signed downloads, and automated cron schedules. |
 | **AI Insights** | `/insights` | Predictive insights dashboard with Business Health Score (0-100), risk filters, and natural language Q&A. |
-| **Data Import** | `/import` | Drag-and-drop CSV/XLSX file uploader with fuzzy column detection, 5-row preview, sample templates, and progress polling. |
-| **Notifications** | `/notifications` | Live notification inbox with unread count badges and filterable alert types. |
-| **Settings** | `/settings` | 5-tab settings console: Profile editing, Organization details, Notification toggles, Theme switcher, and Session termination. |
+| **Data Import** | `/import` | Drag-and-drop CSV/XLSX file uploader with fuzzy column detection, 5-row preview, sample templates, and live progress streaming. |
+| **Billing & Plans** | `/billing` | Subscription plan management (FREE, PRO, ENTERPRISE), checkout redirects, live usage quota progress bars (Seats, AI Calls, Imports, Storage), customer portal launcher, and invoice ledger. |
+| **Notifications** | `/notifications` | Live notification inbox with unread count badges, real-time push ingestion, and filterable alert types. |
+| **Settings** | `/settings` | 5-tab settings console: Profile editing, Organization details, Team member roles & invite modal, Notification toggles, Theme switcher, and Session termination. |
+| **Accept Invitation** | `/invite/accept`, `/accept-invitation` | Team invitation acceptance flow with role preview and organization onboarding. |
 | **Auth Suite** | `/login`, `/register` | Multi-step onboarding with profile photo upload, password complexity validation, and animated brand identity. |
+
+---
+
+## 💳 Billing & Subscription Engine
+
+DecisionOS features a complete subscription and billing architecture with Stripe & Razorpay support:
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                        DecisionOS Billing Matrix                       │
+├─────────────────┬──────────────┬──────────────┬────────────────────────┤
+│ Plan Tier       │ Monthly Price│ Yearly Price │ Included Quotas        │
+├─────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ 🆓 FREE         │ $0 / month   │ $0 / year    │ 1 Seat, 50 AI Calls,   │
+│                 │              │              │ 5 Imports, 100MB Store │
+├─────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ 🚀 STARTER      │ $29 / month  │ $290 / year  │ 3 Seats, 500 AI Calls, │
+│                 │              │              │ 25 Imports, 1GB Store  │
+├─────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ 💼 PRO          │ $79 / month  │ $790 / year  │ 10 Seats, 2,500 Calls, │
+│                 │              │              │ 100 Imports, 5GB Store │
+├─────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ 🏢 ENTERPRISE   │ $199 / month │ $1,990 / year│ Unlimited Seats/Calls, │
+│                 │              │              │ 50GB Encrypted Storage │
+└─────────────────┴──────────────┴──────────────┴────────────────────────┘
+```
+
+- **Live Quotas Engine**: Automatically monitors resource utilization against plan limits (Team seats, Monthly AI calls, Data imports, Cloud storage).
+- **AES-256-GCM Encrypted Storage**: All sensitive customer tokens (`stripeCustomerId`, payment gateway references) are encrypted before persisting.
+- **HMAC Signature Verification**: Webhook endpoints securely verify cryptographic signatures against tampering.
+- **Self-Service Customer Portal**: One-click generation of billing portal sessions for updating payment methods and downloading invoices.
+
+---
+
+## ⚡ Real-Time Events & WebSockets
+
+DecisionOS integrates a zero-configuration, multi-tenant WebSocket architecture:
+
+- **Route**: `ws://<host>:<port>/ws?token=<sessionToken>`
+- **Strict Isolation**: WebSocket connections are registered under the authenticated user's `organizationId`. Messages sent via `broadcastToOrg(orgId, event, data)` only reach clients in that organization.
+- **Event Types**:
+  - `CONNECTED` — Initial handshake confirmation.
+  - `IMPORT_COMPLETED` / `IMPORT_FAILED` — BullMQ data import queue state updates.
+  - `REPORT_READY` — Automated/on-demand report generation completion.
+  - `STOCK_ALERT` — Real-time warning when inventory levels dip below threshold.
+  - `INSIGHT_GENERATED` — New AI anomaly or risk detected.
 
 ---
 
@@ -194,12 +280,14 @@ The frontend is built with **React 19** and **Vite 8**, featuring 10 production-
 | **Primary Database** | PostgreSQL (Supabase) | 15+ | Relational multi-tenant data store |
 | **Queue / Cache** | Redis (Upstash) | — | BullMQ job queue & distributed locks |
 | **Background Jobs** | BullMQ | 6.x | Async worker queues for imports, reports, & file purging |
+| **Realtime Engine** | WebSocket (`ws`) | 8.x | Multi-tenant live event streaming |
+| **Payments & Billing** | Stripe SDK + Razorpay | 16.x | Checkout sessions, billing portal, & webhook verification |
+| **Cryptography** | AES-256-GCM + Argon2id | 0.45 | Data-at-rest encryption & memory-hard password hashing |
 | **AI LLM** | Google Gemini | 3.6 Flash | Predictive analytics & natural language Q&A |
 | **PDF Generation** | PDFKit | 0.19 | Programmatic vector PDF reports |
 | **Excel Generation** | ExcelJS | 4.4 | Formatted multi-sheet spreadsheets (`.xlsx`) |
 | **CSV Generation** | @fast-csv/format | 5.0 | Streaming CSV serialization |
 | **Email Delivery** | Nodemailer + Resend | 9.x | Branded HTML transactional emails |
-| **Password Hashing**| Argon2 | 0.45 | Memory-hard Argon2id password hashing |
 | **Validation** | Zod | 4.x | Strict runtime request schema validation |
 | **Security** | Helmet + RateLimit | — | Secure HTTP headers & brute-force protection |
 
@@ -211,6 +299,7 @@ The frontend is built with **React 19** and **Vite 8**, featuring 10 production-
 | **Styling** | Vanilla CSS + Design Tokens | — | Custom glassmorphism, responsive grid, & CSS custom properties |
 | **Charts** | Recharts | 3.x | Financial charts, revenue trends, & expense distributions |
 | **HTTP Client** | Axios | 1.x | REST API integration with `withCredentials: true` |
+| **Realtime Client** | Native WebSocket Hook | — | Auto-reconnecting real-time state synchronizer |
 | **Icons** | Lucide React | — | Modern SVG iconography |
 | **Notifications** | react-hot-toast + Custom HUD | — | Sonner-inspired floating Dynamic Island pill toasts |
 
@@ -222,8 +311,8 @@ The frontend is built with **React 19** and **Vite 8**, featuring 10 production-
 DecisionOS/
 ├── 📂 backend/
 │   ├── 📂 prisma/
-│   │   ├── schema.prisma              # Database schema (8 modules, 20+ models)
-│   │   ├── migrations/                # Schema migrations (including file retention)
+│   │   ├── schema.prisma              # Database schema (10 modules, 25+ models)
+│   │   ├── migrations/                # Schema migrations (file retention, billing)
 │   │   └── seed.js                    # Plan tiers & super-admin seed script
 │   ├── 📂 src/
 │   │   ├── 📂 config/
@@ -237,9 +326,11 @@ DecisionOS/
 │   │   │   ├── columnDetector.js      # Fuzzy header matcher for imports
 │   │   │   ├── crypto.js              # Secure token generator
 │   │   │   ├── email.js               # Resend SMTP email delivery
+│   │   │   ├── encryption.js          # AES-256-GCM encryption & masking
 │   │   │   ├── fileParser.js          # CSV & Excel streaming parser
 │   │   │   ├── forecaster.js          # Linear regression revenue forecaster
 │   │   │   ├── prisma.js              # Prisma client singleton
+│   │   │   ├── realtime.js            # WebSocket server & org broadcaster
 │   │   │   ├── 📂 reportBuilder/      # Report generation engine
 │   │   │   │   ├── csvBuilder.js      # Multi-section CSV builder
 │   │   │   │   ├── pdfBuilder.js      # PDFKit vector PDF builder
@@ -257,14 +348,16 @@ DecisionOS/
 │   │   │   ├── 📂 ai/                 # AI Engine (insights, forecasting, ask)
 │   │   │   ├── 📂 analytics/          # Executive P&L & chart aggregations
 │   │   │   ├── 📂 auth/               # Registration, login, sessions
+│   │   │   ├── 📂 billing/            # Plans, Stripe checkout, portal, quotas
 │   │   │   ├── 📂 customers/          # Customer CRM & RFM scoring
 │   │   │   ├── 📂 expenses/           # Expense ledger & surge alerts
 │   │   │   ├── 📂 imports/            # Data import pipeline & preview
 │   │   │   ├── 📂 inventory/          # Stock control & reorder tracking
-│   │   │   ├── 📂 invitations/        # Team invitation system
+│   │   │   ├── 📂 invitations/        # Team invitation tokens & dispatch
 │   │   │   ├── 📂 members/            # Team member roles & permissions
 │   │   │   ├── 📂 organizations/      # Multi-tenant organization manager
 │   │   │   ├── 📂 products/           # Product catalogue & margins
+│   │   │   ├── 📂 realtime/           # WebSocket broadcast endpoints
 │   │   │   ├── 📂 reports/            # Automated Report Generation & cleanup
 │   │   │   └── 📂 sales/              # Sales transactions with inventory decrements
 │   │   ├── 📂 workers/
@@ -273,12 +366,17 @@ DecisionOS/
 │   │   │   ├── report.scheduler.js    # 5-minute cron scheduler & daily cleanup
 │   │   │   └── 📂 processors/         # Entity batch processors
 │   │   ├── app.js                     # Express app configuration
-│   │   └── server.js                  # Server entry & graceful shutdown
+│   │   └── server.js                  # Server entry, HTTP + WS & graceful shutdown
 │   ├── 📂 test/
 │   │   ├── business_data.test.js      # 19 tests — Business Data Suite
 │   │   ├── import_pipeline.test.js    # 13 tests — Import Pipeline & BullMQ
 │   │   ├── ai_engine.test.js          # 14 tests — AI Engine & Anomaly Detection
-│   │   └── reports.test.js            # 17 tests — Automated Report Generation
+│   │   ├── reports.test.js            # 17 tests — Automated Report Generation
+│   │   ├── billing.test.js            # 19 tests — Stripe/Razorpay Billing & Quotas
+│   │   ├── realtime.test.js           # 8 tests  — Multi-Tenant WebSocket Engine
+│   │   └── e2ee.test.js               # 4 tests  — Cryptographic & Zero-Knowledge Suite
+│   ├── Dockerfile                     # Multi-stage production backend container
+│   ├── docker-entrypoint.sh           # DB migration & startup runner
 │   └── package.json
 │
 ├── 📂 frontend/
@@ -289,12 +387,32 @@ DecisionOS/
 │   │   ├── 📂 context/                # AuthContext, ThemeContext, NotificationContext
 │   │   ├── 📂 lib/                    # Central Axios API instance & custom hooks
 │   │   │   ├── api.js                 # Base Axios configuration
-│   │   │   └── 📂 hooks/              # useApi, useDashboard, useAI, useReports
-│   │   ├── 📂 pages/                  # 10 production pages + Auth suite
+│   │   │   └── 📂 hooks/              # useApi, useDashboard, useAI, useReports, useRealtime
+│   │   ├── 📂 pages/                  # 12+ production pages + Auth suite
+│   │   │   ├── 📂 Auth/               # Login, Register, AcceptInvitation, AnimatedLogo
+│   │   │   ├── AIInsights.jsx         # Predictive insights & Q&A
+│   │   │   ├── Billing.jsx            # Subscription plans, quotas, invoices
+│   │   │   ├── Customers.jsx          # CRM & RFM directory
+│   │   │   ├── Dashboard.jsx          # Main executive cockpit
+│   │   │   ├── DataImport.jsx         # Drag-and-drop CSV/XLSX pipeline
+│   │   │   ├── Expenses.jsx           # Expense ledger & surge charts
+│   │   │   ├── Inventory.jsx          # Stock control & reorder tracking
+│   │   │   ├── Landing.jsx            # Marketing landing page
+│   │   │   ├── Notifications.jsx      # Real-time alert inbox
+│   │   │   ├── Reports.jsx            # Multi-format report builder
+│   │   │   ├── Sales.jsx              # Sales transaction ledger
+│   │   │   └── Settings.jsx           # 5-tab settings & team management
 │   │   ├── App.jsx                    # Routing & global providers
 │   │   └── index.css                  # Global design system & theme tokens
+│   ├── Dockerfile                     # Production Nginx frontend container
+│   ├── nginx.conf                     # Nginx reverse proxy configuration
 │   └── package.json
 │
+├── docker-compose.yml                 # Production Docker orchestration (4 services)
+├── docker-compose.dev.yml             # Local dev Docker orchestration
+├── deploy.sh                          # One-click Linux / macOS / Cloud VM deployment
+├── deploy.ps1                         # One-click Windows PowerShell deployment
+├── .env.docker.example                # Docker environment configuration template
 └── README.md
 ```
 
@@ -310,8 +428,8 @@ DecisionOS includes complete multi-stage Dockerfiles, Nginx reverse proxy config
 │                                                                        │
 │  ┌───────────────────────┐             ┌────────────────────────────┐  │
 │  │   decisionos-frontend │             │    decisionos-backend      │  │
-│  │   (Nginx 1.27 Alpine) │ ──/api/v1─> │   (Node.js 20 Alpine)      │  │
-│  │   Port: 80 / 443      │             │   Port: 5000               │  │
+│  │   (Nginx 1.27 Alpine) │ ──/api/v1─> │   (Node.js 24 Alpine)      │  │
+│  │   Port: 80 / 443      │ ───/ws────> │   Port: 5000               │  │
 │  └───────────────────────┘             └─────────────┬──────────────┘  │
 │                                                      │                 │
 │                                        ┌─────────────┴──────────────┐  │
@@ -350,8 +468,8 @@ docker compose logs -f
 
 ### 🌐 Container Service Endpoints
 - **Frontend Web App**: `http://localhost` (Port 80)
-- **Backend API & Swagger**: `http://localhost:5000/api/v1` (Port 5000)
-- **Health Check Endpoint**: `http://localhost/health`
+- **Backend API & Health Check**: `http://localhost:5000/api/v1` & `http://localhost:5000/health`
+- **WebSocket Streaming**: `ws://localhost:5000/ws` (or proxied via `ws://localhost/ws`)
 - **PostgreSQL Database**: `localhost:5432` (Internal Docker network)
 - **Redis Cache & BullMQ Queue**: `localhost:6379` (Internal Docker network)
 
@@ -360,7 +478,7 @@ docker compose logs -f
 ## ⚡ Quick Start (Local Development)
 
 ### Prerequisites
-- **Node.js**: `v18.0.0` or higher (v24 recommended)
+- **Node.js**: `v18.0.0` or higher (`v24` recommended)
 - **PostgreSQL**: PostgreSQL 15+ (or free [Supabase](https://supabase.com) instance)
 - **Redis**: Redis 6+ (or free [Upstash](https://upstash.com) Redis)
 - **Google Gemini API Key**: Free from [Google AI Studio](https://aistudio.google.com/app/apikey)
@@ -395,8 +513,9 @@ DATABASE_URL="postgresql://postgres:<password>@db.<ref>.supabase.co:5432/postgre
 # Redis (Upstash)
 REDIS_URL="rediss://default:<password>@<host>.upstash.io:6379"
 
-# Auth
+# Auth & Cryptography
 COOKIE_SECRET="super-secret-random-32-byte-hex-string-here"
+ENCRYPTION_KEY="0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
 SESSION_TTL_SECONDS=604800
 
 # Supabase Storage
@@ -412,6 +531,13 @@ EMAIL_FROM=decisionos@resend.dev
 # AI Engine
 AI_PROVIDER=gemini
 GEMINI_API_KEY=<your-gemini-api-key>
+
+# Billing (Stripe / Razorpay)
+STRIPE_SECRET_KEY=sk_test_xxxxxxxxxxxx
+STRIPE_WEBHOOK_SECRET=whsec_xxxxxxxxxxxx
+RAZORPAY_KEY_ID=rzp_test_xxxxxxxxxxxx
+RAZORPAY_KEY_SECRET=xxxxxxxxxxxx
+RAZORPAY_WEBHOOK_SECRET=xxxxxxxxxxxx
 
 # Retention & Export Settings
 REPORT_FILE_RETENTION_DAYS=30
@@ -435,6 +561,7 @@ npm run db:seed
 ```bash
 npm run dev
 # Server listening on http://localhost:3001
+# WebSocket server active on ws://localhost:3001/ws
 # BullMQ Import & Report Workers + Schedulers automatically initialize
 ```
 
@@ -476,6 +603,28 @@ All endpoints are versioned under `/api/v1` and use session-cookie authenticatio
 | `POST` | `/auth/logout-all` | Authenticated | Terminate all active sessions across devices |
 | `GET` | `/auth/me` | Authenticated | Retrieve current user profile & org list |
 | `POST` | `/auth/change-password` | Authenticated | Change user password |
+
+### Billing & Subscriptions (`/billing`)
+| Method | Endpoint | Required Role | Description |
+|---|---|:---:|---|
+| `GET` | `/billing/plans` | `VIEW_DATA` | List plans catalog & active organization tier |
+| `GET` | `/billing/subscription` | `VIEW_DATA` | Current subscription status & live quota meters |
+| `POST` | `/billing/checkout` | `OWNER` | Create Stripe / Razorpay checkout session |
+| `POST` | `/billing/portal` | `OWNER` | Generate customer billing management portal URL |
+| `GET` | `/billing/invoices` | `VIEW_DATA` | List payment ledger and invoices |
+| `POST` | `/billing/webhook/stripe` | Public | Process cryptographically signed Stripe webhooks |
+| `POST` | `/billing/webhook/razorpay`| Public | Process HMAC SHA-256 signed Razorpay webhooks |
+
+### Team Invitations & Members (`/invitations`, `/members`)
+| Method | Endpoint | Required Role | Description |
+|---|---|:---:|---|
+| `POST` | `/invitations` | `MANAGE_ORG` | Send team invitation email with role assignment |
+| `GET` | `/invitations` | `VIEW_DATA` | List pending invitations for active organization |
+| `DELETE` | `/invitations/:id` | `MANAGE_ORG` | Revoke pending invitation |
+| `POST` | `/invitations/accept` | Authenticated | Accept invitation token and join organization |
+| `GET` | `/members` | `VIEW_DATA` | List organization team members |
+| `PATCH` | `/members/:id/role` | `MANAGE_ORG` | Update member role (`ADMIN`, `ANALYST`, `VIEWER`) |
+| `DELETE` | `/members/:id` | `MANAGE_ORG` | Remove member from organization |
 
 ### Business Data Suite
 | Method | Endpoint | Required Role | Description |
@@ -535,11 +684,18 @@ All endpoints are versioned under `/api/v1` and use session-cookie authenticatio
 | `GET` | `/imports/:id/status` | `VIEW_DATA` | Poll import progress & valid/error row counts |
 | `GET` | `/imports/templates/:type` | `VIEW_DATA` | Download pre-formatted CSV sample template |
 
+### Real-Time Streaming (`/ws`)
+| Channel | Direction | Protocol | Description |
+|---|---|:---:|---|
+| `/ws?token=<session>` | Client ↔ Server | WebSocket | Multi-tenant bidirectional event streaming |
+| `broadcastToOrg(orgId)`| Server → Org | Internal | Broadcast job status, stock triggers, and report readiness |
+| `sendToUser(userId)` | Server → User | Internal | Push direct user alerts and notification badges |
+
 ---
 
 ## 🧪 Test Suite
 
-DecisionOS includes an extensive end-to-end integration test suite executed against live PostgreSQL, Redis, and Express instances:
+DecisionOS includes an extensive end-to-end integration and cryptographic test suite executed against live PostgreSQL, Redis, Express, and WebSocket instances:
 
 ```bash
 cd backend
@@ -549,6 +705,9 @@ node test/business_data.test.js      # Business Data Suite (19 tests)
 node test/import_pipeline.test.js    # Data Import Pipeline (13 tests)
 node test/ai_engine.test.js          # AI Engine & Anomaly Detection (14 tests)
 node test/reports.test.js            # Automated Report Generation (17 tests)
+node test/billing.test.js            # Stripe / Razorpay & Quotas (19 tests)
+node test/realtime.test.js           # Multi-Tenant WebSocket Engine (8 tests)
+node test/e2ee.test.js               # Cryptographic & Zero-Knowledge (4 tests)
 ```
 
 ### Test Verification Summary
@@ -559,7 +718,10 @@ node test/reports.test.js            # Automated Report Generation (17 tests)
 | **Data Import Pipeline** | `test/import_pipeline.test.js` | 13 / 13 | 13 | ✅ **100% PASSED** |
 | **AI Engine & Analytics** | `test/ai_engine.test.js` | 14 / 14 | 14 | ✅ **100% PASSED** |
 | **Automated Report Engine** | `test/reports.test.js` | 17 / 17 | 43 | ✅ **100% PASSED** |
-| **Total Integration Coverage** | **All Modules** | **63 / 63** | **89** | ✅ **100% PASSED** |
+| **Billing & Quota Engine** | `test/billing.test.js` | 19 / 19 | 19 | ✅ **100% PASSED** |
+| **Real-Time WebSockets** | `test/realtime.test.js` | 8 / 8 | 8 | ✅ **100% PASSED** |
+| **Cryptographic & E2EE** | `test/e2ee.test.js` | 4 / 4 | 7 | ✅ **100% PASSED** |
+| **Total Test Coverage** | **All 7 Test Suites** | **94 / 94** | **123** | ✅ **100% PASSED** |
 
 ---
 
@@ -592,16 +754,22 @@ Multi-Tenant Security Architecture:
 └─────────────────────────┬──────────────────────────────┘
                           ▼
 ┌────────────────────────────────────────────────────────┐
-│ 5. Audit Logger: Non-repudiable logs of mutations     │
+│ 5. AES-256-GCM Layer: Field-level encryption for       │
+│    sensitive payment tokens and credentials            │
+└─────────────────────────┬──────────────────────────────┘
+                          ▼
+┌────────────────────────────────────────────────────────┐
+│ 6. Audit Logger: Non-repudiable logs of mutations     │
 └────────────────────────────────────────────────────────┘
 ```
 
 - **Password Security**: Argon2id with random salts (memory-hard, GPU-resistant).
 - **Session Protection**: HTTP-only, SameSite strict signed cookies.
+- **Data-at-Rest Encryption**: AES-256-GCM field encryption for customer references and credentials.
 - **Strict Tenant Boundary**: All database indexes, unique constraints, and queries are scoped by `organizationId`.
 - **Brute Force Protection**: IP and user-rate limiting on authentication and sensitive endpoints.
 - **Security Headers**: Helmet CSP, HSTS, X-Content-Type-Options, X-Frame-Options.
-- **Audit Trails**: Non-repudiable audit logging for data mutations and file exports.
+- **Audit Trails**: Non-repudiable audit logging for data mutations, role changes, and file exports.
 
 ---
 
