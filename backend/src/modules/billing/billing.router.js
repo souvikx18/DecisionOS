@@ -15,14 +15,14 @@ import {
   createCheckout,
   createPortalSession,
   listInvoices,
-  stripeWebhook,
   razorpayWebhook,
 } from './billing.controller.js';
 
 const router = Router();
 
 // ── Webhook endpoints (Raw payload, no session auth) ──────────
-router.post('/webhook/stripe',   stripeWebhook);
+// NOTE: /webhook/stripe is registered directly in app.js (before express.json)
+//       so Stripe's raw body signature verification works correctly.
 router.post('/webhook/razorpay', razorpayWebhook);
 
 // ── Authenticated & Org-Scoped Routes ─────────────────────────

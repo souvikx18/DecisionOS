@@ -125,6 +125,7 @@ export default function Billing() {
 
   const [billingCycle, setBillingCycle] = useState('yearly') // 'monthly' | 'yearly'
   const [currency, setCurrency] = useState('INR') // 'INR' | 'USD'
+  const [loadingPlan, setLoadingPlan] = useState(null)
   const [portalLoading, setPortalLoading] = useState(false)
   const [openFaq, setOpenFaq] = useState(null)
 
@@ -187,19 +188,32 @@ export default function Billing() {
 
   const currentTier = subscription?.tier || 'FREE'
 
-  // Open Checkout Modal when clicking Upgrade
-  const handleOpenCheckoutModal = (plan) => {
+  // Direct Checkout with Stripe
+  const handleDirectCheckout = async (plan) => {
     if (plan.tier === currentTier) return
-    setCheckoutModal({
-      isOpen: true,
-      plan,
-      paymentMethod: currency === 'INR' ? 'upi' : 'card',
-      cardNumber: '4242 •••• •••• 4242',
-      cardExpiry: '12/28',
-      cardCvc: '•••',
-      upiId: 'company@okhdfcbank',
-      isProcessing: false,
-    })
+    setLoadingPlan(plan.tier)
+    notify.info(`Opening secure checkout for ${plan.name}…`, 'Stripe Checkout 💳')
+
+    try {
+      const res = await api.post('/billing/checkout', {
+        planTier: plan.tier,
+        interval: billingCycle,
+        currency,
+        gateway: 'stripe',
+      })
+
+      const checkoutUrl = res.data?.data?.checkoutUrl
+      if (checkoutUrl) {
+        window.location.href = checkoutUrl
+      } else {
+        notify.success(`Subscribed to ${plan.name}!`, 'Plan Active ✓')
+        fetchBillingData()
+        setLoadingPlan(null)
+      }
+    } catch (err) {
+      notify.error(err.response?.data?.error?.message || 'Failed to open Stripe Checkout.', 'Checkout Error')
+      setLoadingPlan(null)
+    }
   }
 
   // Execute Payment in Modal
@@ -216,17 +230,13 @@ export default function Billing() {
       })
 
       const checkoutUrl = res.data?.data?.checkoutUrl
-
-      setTimeout(() => {
+      if (checkoutUrl) {
+        window.location.href = checkoutUrl
+      } else {
+        notify.success(`Payment successful! Subscribed to ${checkoutModal.plan.name}.`, 'Payment Verified ✓')
+        fetchBillingData()
         setCheckoutModal({ isOpen: false, plan: null, paymentMethod: 'card', cardNumber: '', cardExpiry: '', cardCvc: '', upiId: '', isProcessing: false })
-        if (checkoutUrl && !checkoutUrl.includes('simulated=true')) {
-          notify.success('Redirecting to secure gateway…', 'Secured Checkout 💳')
-          window.location.href = checkoutUrl
-        } else {
-          notify.success(`Payment successful! Subscribed to ${checkoutModal.plan.name}.`, 'Payment Verified ✓')
-          fetchBillingData()
-        }
-      }, 1000)
+      }
     } catch (err) {
       notify.error(err.response?.data?.error?.message || 'Payment failed. Please check details.', 'Payment Error')
       setCheckoutModal((prev) => ({ ...prev, isProcessing: false }))
@@ -424,10 +434,12 @@ export default function Billing() {
 
                 <button
                   className={`clean-billing__cta-button ${p.isPopular ? 'btn-primary' : 'btn-ghost'}`}
-                  disabled={isCurrent}
-                  onClick={() => handleOpenCheckoutModal(p)}
+                  disabled={isCurrent || loadingPlan === p.tier}
+                  onClick={() => handleDirectCheckout(p)}
                 >
-                  {isCurrent ? (
+                  {loadingPlan === p.tier ? (
+                    <Loader2 size={14} className="clean-billing__spin" />
+                  ) : isCurrent ? (
                     'Current Plan'
                   ) : (
                     <>
@@ -566,7 +578,7 @@ export default function Billing() {
         </div>
       </div>
 
-      {/* ── Interactive Payment Checkout Modal (Payment Mode ON) ── */}
+      {/* ── Interactive Payment Checkout Modal ── */}
       {checkoutModal.isOpen && checkoutModal.plan && (
         <div className="payment-modal-backdrop" onClick={() => setCheckoutModal((prev) => ({ ...prev, isOpen: false }))}>
           <div className="payment-modal" onClick={(e) => e.stopPropagation()}>
@@ -607,83 +619,6 @@ export default function Billing() {
               </div>
             </div>
 
-            {/* Payment Method Selector */}
-            <div className="payment-modal__tabs">
-              <button
-                className={`payment-modal__tab ${checkoutModal.paymentMethod === 'card' ? 'payment-modal__tab--active' : ''}`}
-                onClick={() => setCheckoutModal((prev) => ({ ...prev, paymentMethod: 'card' }))}
-              >
-                <CreditCard size={15} /> Credit / Debit Card
-              </button>
-              <button
-                className={`payment-modal__tab ${checkoutModal.paymentMethod === 'upi' ? 'payment-modal__tab--active' : ''}`}
-                onClick={() => setCheckoutModal((prev) => ({ ...prev, paymentMethod: 'upi' }))}
-              >
-                <Zap size={15} /> UPI / NetBanking
-              </button>
-            </div>
-
-            {/* Payment Inputs */}
-            {checkoutModal.paymentMethod === 'card' ? (
-              <div className="payment-modal__form">
-                <div className="payment-modal__field">
-                  <label>Card Number</label>
-                  <div className="payment-modal__input-icon-wrap">
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={checkoutModal.cardNumber}
-                      onChange={(e) => setCheckoutModal((prev) => ({ ...prev, cardNumber: e.target.value }))}
-                      placeholder="4242 4242 4242 4242"
-                    />
-                    <span className="payment-modal__input-badge">VISA</span>
-                  </div>
-                </div>
-
-                <div className="payment-modal__row">
-                  <div className="payment-modal__field">
-                    <label>Expires</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={checkoutModal.cardExpiry}
-                      onChange={(e) => setCheckoutModal((prev) => ({ ...prev, cardExpiry: e.target.value }))}
-                      placeholder="MM / YY"
-                    />
-                  </div>
-                  <div className="payment-modal__field">
-                    <label>CVC / CVV</label>
-                    <input
-                      type="password"
-                      className="form-input"
-                      value={checkoutModal.cardCvc}
-                      onChange={(e) => setCheckoutModal((prev) => ({ ...prev, cardCvc: e.target.value }))}
-                      placeholder="•••"
-                    />
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="payment-modal__form">
-                <div className="payment-modal__field">
-                  <label>UPI ID / VPA</label>
-                  <div className="payment-modal__input-icon-wrap">
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={checkoutModal.upiId}
-                      onChange={(e) => setCheckoutModal((prev) => ({ ...prev, upiId: e.target.value }))}
-                      placeholder="business@okhdfcbank"
-                    />
-                    <QrCode size={16} style={{ color: 'var(--text-muted)' }} />
-                  </div>
-                </div>
-                <p className="payment-modal__hint">
-                  Supports Google Pay, PhonePe, Paytm, BHIM, and all major Indian UPI applications.
-                </p>
-              </div>
-            )}
-
             {/* Pay Button */}
             <div className="payment-modal__foot">
               <button
@@ -693,11 +628,11 @@ export default function Billing() {
               >
                 {checkoutModal.isProcessing ? (
                   <>
-                    <Loader2 size={16} className="clean-billing__spin" /> Processing Secure Payment…
+                    <Loader2 size={16} className="clean-billing__spin" /> Redirecting to Stripe…
                   </>
                 ) : (
                   <>
-                    <ShieldCheck size={16} /> Confirm & Pay{' '}
+                    <ShieldCheck size={16} /> Pay via Stripe{' '}
                     {CURRENCY_SYMBOLS[currency]}
                     {(billingCycle === 'yearly'
                       ? checkoutModal.plan.priceYearly[currency] * 12
@@ -708,7 +643,7 @@ export default function Billing() {
               </button>
 
               <div className="payment-modal__guarantee">
-                <Lock size={12} /> 256-Bit SSL Encrypted. Instant Activation & 14-Day Money-Back Guarantee.
+                <Lock size={12} /> Redirects securely to official Stripe Hosted Checkout.
               </div>
             </div>
           </div>

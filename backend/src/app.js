@@ -65,13 +65,13 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-// ── 3. Body Parser ────────────────────────────────────────────
-app.use(express.json({
-  limit: '1mb',
-  verify: (req, res, buf) => {
-    req.rawBody = buf;
-  },
-}));
+// ── 3a. Stripe Webhook raw-body capture (MUST be before express.json) ────
+// Stripe signature verification requires the exact raw request body bytes.
+import { stripeWebhook } from './modules/billing/billing.controller.js';
+app.post('/api/v1/billing/webhook/stripe', express.raw({ type: 'application/json' }), stripeWebhook);
+
+// ── 3b. Body Parser ────────────────────────────────────────────
+app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // ── 4. Cookie Parser ──────────────────────────────────────────

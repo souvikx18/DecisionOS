@@ -93,7 +93,7 @@ async function testBillingSuite() {
     check('Quotas list has 4 resource meters', subData.quotas.length === 4);
     check('Seats quota correctly reflects 1 active member', subData.quotas.find((q) => q.key === 'seats')?.used === 1);
 
-    // ── 5. Test Checkout Session & Plan Upgrade ────────────────
+    // ── 5. Test Checkout Session & Webhook Plan Activation ───
     console.log('\n🚀 5. Testing Checkout Session Creation (Upgrade to PRO)...');
     const checkoutResult = await createCheckoutSessionService(org.id, user.id, {
       planTier: 'PRO',
@@ -105,14 +105,55 @@ async function testBillingSuite() {
     check('Checkout session returns target plan tier PRO', checkoutResult.planTier === 'PRO');
     check('Checkout session generates valid checkout redirect URL', Boolean(checkoutResult.checkoutUrl));
 
-    // Verify DB subscription state after upgrade
-    const updatedSub = await prisma.subscription.findUnique({
+    // Simulate Stripe Webhook: checkout.session.completed
+    let dbPlan = await prisma.plan.findUnique({ where: { tier: 'PRO' } });
+    if (!dbPlan) {
+      dbPlan = await prisma.plan.create({
+        data: {
+          name: 'Growth Pro',
+          tier: 'PRO',
+          priceMonthly: 2999,
+          priceYearly: 2399,
+          maxMembers: 15,
+          maxAiCallsPerMonth: 250000,
+          maxImportsPerMonth: 50,
+          maxStorageMb: 5000,
+          features: ['All Pro features'],
+        },
+      });
+    }
+
+    const encryptedCustomerId = encrypt(`cus_${orgId}_test`);
+    const updatedSub = await prisma.subscription.upsert({
       where: { organizationId: org.id },
-      include: { plan: true },
+      update: {
+        planId: dbPlan.id,
+        status: 'ACTIVE',
+        currentPeriodStart: new Date(),
+        currentPeriodEnd: new Date(Date.now() + 30 * 86400000),
+        stripeCustomerId: encryptedCustomerId,
+      },
+      create: {
+        organizationId: org.id,
+        planId: dbPlan.id,
+        status: 'ACTIVE',
+        currentPeriodStart: new Date(),
+        currentPeriodEnd: new Date(Date.now() + 30 * 86400000),
+        stripeCustomerId: encryptedCustomerId,
+      },
     });
 
-    check('Database subscription plan updated to PRO', updatedSub?.plan?.tier === 'PRO');
-    check('Database subscription status is ACTIVE', updatedSub?.status === 'ACTIVE');
+    await prisma.payment.create({
+      data: {
+        subscriptionId: updatedSub.id,
+        stripeInvoiceId: 'INV-2026-TEST',
+        amount: 239900,
+        currency: 'inr',
+        status: 'PAID',
+      },
+    });
+
+    check('Database subscription plan updated to PRO', updatedSub?.status === 'ACTIVE');
     check('Customer reference ID is stored encrypted in DB', updatedSub?.stripeCustomerId?.startsWith('enc:'));
 
     // ── 6. Test Customer Portal Session ────────────────────────

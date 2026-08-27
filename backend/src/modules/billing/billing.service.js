@@ -83,7 +83,6 @@ export async function getSubscriptionService(orgId) {
   ]);
 
   const ingestedRows = importAggregation._sum.validRows || 0;
-  // Approximation for AI reasoning token estimation based on AI job executions
   const estimatedTokens = Math.max(aiJobCount * 2500, 12500);
 
   const quotas = [
@@ -133,7 +132,7 @@ export async function getSubscriptionService(orgId) {
     currentPeriodStart: sub?.currentPeriodStart || startOfMonth,
     currentPeriodEnd: sub?.currentPeriodEnd || new Date(now.getFullYear(), now.getMonth() + 1, 1),
     cancelAtPeriodEnd: sub?.cancelAtPeriodEnd || false,
-    hasActiveSubscription: Boolean(sub && sub.status === 'ACTIVE'),
+    hasActiveSubscription: Boolean(sub && sub.status === 'ACTIVE' && tier !== 'FREE'),
     customerReference: sub?.stripeCustomerId ? maskIdentifier(decrypt(sub.stripeCustomerId) || 'cus_live') : null,
     quotas,
   };
@@ -149,62 +148,61 @@ export async function createCheckoutSessionService(orgId, userId, { planTier, in
   }
 
   const amount = interval === 'yearly' ? targetPlanConfig.priceYearly[currency] : targetPlanConfig.priceMonthly[currency];
-  const origin = env.FRONTEND_URL || 'http://localhost';
+  const origin = env.FRONTEND_URL || 'http://localhost:5173';
   const finalSuccessUrl = successUrl || `${origin}/billing?session_id={CHECKOUT_SESSION_ID}&success=true`;
   const finalCancelUrl = cancelUrl || `${origin}/billing?canceled=true`;
 
   let checkoutUrl = '';
   let sessionId = 'cs_' + crypto.randomBytes(16).toString('hex');
 
-  // Gateway logic: If live Stripe credentials exist
+  // Gateway logic: Live Stripe Checkout Session
   if (gateway === 'stripe' && GATEWAY_CONFIG.stripe.isConfigured) {
-    try {
-      const Stripe = (await import('stripe')).default;
-      const stripe = new Stripe(GATEWAY_CONFIG.stripe.secretKey);
+    const Stripe = (await import('stripe')).default;
+    const stripe = new Stripe(GATEWAY_CONFIG.stripe.secretKey);
 
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
-        mode: 'subscription',
-        line_items: [
-          {
-            price_data: {
-              currency: currency.toLowerCase(),
-              product_data: {
-                name: `DecisionOS ${targetPlanConfig.name}`,
-                description: targetPlanConfig.tagline,
-              },
-              unit_amount: amount * 100, // smallest currency unit (cents/paise)
-              recurring: {
-                interval: interval === 'yearly' ? 'year' : 'month',
-              },
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      mode: 'subscription',
+      line_items: [
+        {
+          price_data: {
+            currency: currency.toLowerCase(),
+            product_data: {
+              name: `DecisionOS ${targetPlanConfig.name}`,
+              description: targetPlanConfig.tagline,
             },
-            quantity: 1,
+            unit_amount: amount * 100, // smallest currency unit (cents/paise)
+            recurring: {
+              interval: interval === 'yearly' ? 'year' : 'month',
+            },
           },
-        ],
-        metadata: {
-          orgId,
-          userId,
-          planTier,
-          interval,
-          currency,
+          quantity: 1,
         },
-        success_url: finalSuccessUrl,
-        cancel_url: finalCancelUrl,
-      });
+      ],
+      metadata: {
+        orgId,
+        userId,
+        planTier,
+        interval,
+        currency,
+      },
+      success_url: finalSuccessUrl,
+      cancel_url: finalCancelUrl,
+    });
 
-      checkoutUrl = session.url;
-      sessionId = session.id;
-    } catch (err) {
-      console.error('[Billing] Stripe checkout creation error:', err.message);
-      // Fallback to secure checkout redirect link if live API key was restricted
-      checkoutUrl = `${origin}/billing?upgraded=${planTier}&success=true`;
-    }
-  } else {
-    // Development / Test mode: Secure simulation redirect
-    checkoutUrl = `${origin}/billing?upgraded=${planTier}&simulated=true`;
+    checkoutUrl = session.url;
+    sessionId = session.id;
+
+    return {
+      sessionId,
+      checkoutUrl,
+      planTier,
+    };
   }
 
-  // Ensure Plan record exists in DB
+  // Development / Test fallback when Stripe keys are unconfigured
+  checkoutUrl = `${origin}/billing?upgraded=${planTier}&simulated=true`;
+
   let dbPlan = await prisma.plan.findUnique({ where: { tier: planTier } });
   if (!dbPlan) {
     dbPlan = await prisma.plan.create({
@@ -222,7 +220,6 @@ export async function createCheckoutSessionService(orgId, userId, { planTier, in
     });
   }
 
-  // Update or create subscription with encrypted customer reference
   const periodStart = new Date();
   const periodEnd = new Date(periodStart);
   if (interval === 'yearly') periodEnd.setFullYear(periodEnd.getFullYear() + 1);
@@ -249,36 +246,6 @@ export async function createCheckoutSessionService(orgId, userId, { planTier, in
     },
   });
 
-  // Create an initial invoice payment record
-  await prisma.payment.create({
-    data: {
-      subscriptionId: updatedSub.id,
-      stripeInvoiceId: 'INV-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000),
-      amount: amount * 100,
-      currency: currency.toLowerCase(),
-      status: 'PAID',
-      paidAt: new Date(),
-    },
-  });
-
-  // Audit Log
-  await logAudit({
-    orgId,
-    userId,
-    action: 'PLAN_UPGRADED',
-    entityType: 'Subscription',
-    entityId: updatedSub.id,
-    metadata: { planTier, interval, currency, gateway },
-  });
-
-  // Real-time broadcast to organization members
-  broadcastToOrg(orgId, 'SUBSCRIPTION_UPDATED', {
-    planTier,
-    planName: targetPlanConfig.name,
-    status: 'ACTIVE',
-    updatedAt: new Date().toISOString(),
-  });
-
   return {
     sessionId,
     checkoutUrl,
@@ -294,7 +261,7 @@ export async function createPortalSessionService(orgId, returnUrl) {
     where: { organizationId: orgId },
   });
 
-  const origin = returnUrl || env.FRONTEND_URL || 'http://localhost';
+  const origin = returnUrl || env.FRONTEND_URL || 'http://localhost:5173';
 
   if (GATEWAY_CONFIG.stripe.isConfigured && sub?.stripeCustomerId) {
     try {
@@ -313,7 +280,6 @@ export async function createPortalSessionService(orgId, returnUrl) {
     }
   }
 
-  // Fallback portal simulation
   return { portalUrl: `${origin}/billing?portal_simulated=true` };
 }
 
@@ -333,7 +299,6 @@ export async function listInvoicesService(orgId) {
   });
 
   if (!sub || sub.payments.length === 0) {
-    // Return sample privacy-safe receipts if empty
     return [
       {
         id: 'INV-2026-0881',
@@ -381,9 +346,88 @@ export async function handleStripeWebhookService(rawBody, signatureHeader) {
   switch (event.type) {
     case 'checkout.session.completed': {
       const session = event.data.object;
-      const { orgId, planTier } = session.metadata || {};
+      const { orgId, userId, planTier, interval, currency } = session.metadata || {};
+
       if (orgId && planTier) {
-        broadcastToOrg(orgId, 'SUBSCRIPTION_UPDATED', { planTier, status: 'ACTIVE' });
+        const targetPlanConfig = PLANS_CATALOG[planTier] || PLANS_CATALOG.PRO;
+
+        // Ensure Plan exists in DB
+        let dbPlan = await prisma.plan.findUnique({ where: { tier: planTier } });
+        if (!dbPlan) {
+          dbPlan = await prisma.plan.create({
+            data: {
+              name: targetPlanConfig.name,
+              tier: planTier,
+              priceMonthly: targetPlanConfig.priceMonthly.INR,
+              priceYearly: targetPlanConfig.priceYearly.INR,
+              maxMembers: targetPlanConfig.limits.maxMembers,
+              maxAiCallsPerMonth: targetPlanConfig.limits.maxAiCallsPerMonth,
+              maxImportsPerMonth: targetPlanConfig.limits.maxImportsPerMonth,
+              maxStorageMb: targetPlanConfig.limits.maxStorageMb,
+              features: targetPlanConfig.features,
+            },
+          });
+        }
+
+        const periodStart = new Date();
+        const periodEnd = new Date(periodStart);
+        if (interval === 'yearly') periodEnd.setFullYear(periodEnd.getFullYear() + 1);
+        else periodEnd.setMonth(periodEnd.getMonth() + 1);
+
+        const encryptedCustomerId = encrypt(session.customer ? String(session.customer) : `cus_${orgId}`);
+
+        const updatedSub = await prisma.subscription.upsert({
+          where: { organizationId: orgId },
+          update: {
+            planId: dbPlan.id,
+            status: 'ACTIVE',
+            currentPeriodStart: periodStart,
+            currentPeriodEnd: periodEnd,
+            stripeCustomerId: encryptedCustomerId,
+            stripeSubscriptionId: session.subscription ? String(session.subscription) : null,
+          },
+          create: {
+            organizationId: orgId,
+            planId: dbPlan.id,
+            status: 'ACTIVE',
+            currentPeriodStart: periodStart,
+            currentPeriodEnd: periodEnd,
+            stripeCustomerId: encryptedCustomerId,
+            stripeSubscriptionId: session.subscription ? String(session.subscription) : null,
+          },
+        });
+
+        // Record Invoice / Payment
+        await prisma.payment.create({
+          data: {
+            subscriptionId: updatedSub.id,
+            stripeInvoiceId: session.invoice ? String(session.invoice) : ('INV-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000)),
+            stripePaymentIntentId: session.payment_intent ? String(session.payment_intent) : null,
+            amount: session.amount_total || (targetPlanConfig.priceMonthly.INR * 100),
+            currency: session.currency || (currency ? currency.toLowerCase() : 'inr'),
+            status: 'PAID',
+            paidAt: new Date(),
+          },
+        });
+
+        if (userId) {
+          await logAudit({
+            orgId,
+            userId,
+            action: 'PLAN_UPGRADED',
+            entityType: 'Subscription',
+            entityId: updatedSub.id,
+            metadata: { planTier, interval, currency, gateway: 'stripe' },
+          });
+        }
+
+        // Emit real-time WebSocket broadcast to organization
+        broadcastToOrg(orgId, 'SUBSCRIPTION_UPDATED', {
+          planTier,
+          planName: targetPlanConfig.name,
+          status: 'ACTIVE',
+          updatedAt: new Date().toISOString(),
+        });
       }
       break;
     }

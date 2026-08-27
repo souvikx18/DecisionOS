@@ -71,9 +71,8 @@ export async function listInvoices(req, res) {
 export async function stripeWebhook(req, res) {
   try {
     const signature = req.headers['stripe-signature'];
-    const rawBody = req.body; // Buffer or raw string
-
-    const result = await handleStripeWebhookService(rawBody, signature);
+    // req.body here is a raw Buffer (thanks to express.raw() middleware)
+    const result = await handleStripeWebhookService(req.body, signature);
     return res.status(200).json(result);
   } catch (err) {
     console.error('[Billing Controller] Stripe webhook error:', err.message);

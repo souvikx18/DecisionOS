@@ -17,6 +17,8 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 
-# Build output
+# Build output & binaries
 dist/
 build/
+*.exe
+stripe.exe
