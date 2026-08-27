@@ -223,36 +223,47 @@ The frontend is built with **React 19** and **Vite 8**, featuring 12+ production
 
 ---
 
-## 💳 Billing & Subscription Engine
+## 💳 Stripe Billing & Subscription Integration
 
-DecisionOS features a complete subscription and billing architecture with Stripe & Razorpay support:
+DecisionOS features an enterprise-grade Stripe billing architecture supporting multi-currency payments, automated plan provisioning, and subscription lifecycle management:
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
-│                        DecisionOS Billing Matrix                       │
+│                        DecisionOS Pricing Tiers                        │
 ├─────────────────┬──────────────┬──────────────┬────────────────────────┤
 │ Plan Tier       │ Monthly Price│ Yearly Price │ Included Quotas        │
 ├─────────────────┼──────────────┼──────────────┼────────────────────────┤
-│ 🆓 FREE         │ $0 / month   │ $0 / year    │ 1 Seat, 50 AI Calls,   │
+│ 🆓 FREE         │ ₹0 / $0      │ ₹0 / $0      │ 3 Seats, 10,000 AI,    │
 │                 │              │              │ 5 Imports, 100MB Store │
 ├─────────────────┼──────────────┼──────────────┼────────────────────────┤
-│ 🚀 STARTER      │ $29 / month  │ $290 / year  │ 3 Seats, 500 AI Calls, │
-│                 │              │              │ 25 Imports, 1GB Store  │
+│ 🚀 GROWTH PRO   │ ₹2,999 / $39 │ ₹2,399 / $29 │ 15 Seats, 250,000 AI,  │
+│                 │              │ (20% Off)    │ 50 Imports, 5GB Store  │
 ├─────────────────┼──────────────┼──────────────┼────────────────────────┤
-│ 💼 PRO          │ $79 / month  │ $790 / year  │ 10 Seats, 2,500 Calls, │
-│                 │              │              │ 100 Imports, 5GB Store │
-├─────────────────┼──────────────┼──────────────┼────────────────────────┤
-│ 🏢 ENTERPRISE   │ $199 / month │ $1,990 / year│ Unlimited Seats/Calls, │
-│                 │              │              │ 50GB Encrypted Storage │
+│ 🏢 ENTERPRISE   │ ₹8,999 / $119│ ₹7,199 / $95 │ Unlimited Seats/Calls, │
+│                 │              │              │ 100GB Encrypted Store  │
 └─────────────────┴──────────────┴──────────────┴────────────────────────┘
 ```
 
-- **Live Quotas Engine**: Automatically monitors resource utilization against plan limits (Team seats, Monthly AI calls, Data imports, Cloud storage).
-- **AES-256-GCM Encrypted Storage**: All sensitive customer tokens (`stripeCustomerId`, payment gateway references) are encrypted before persisting.
-- **HMAC Signature Verification**: Webhook endpoints securely verify cryptographic signatures against tampering.
-- **Self-Service Customer Portal**: One-click generation of billing portal sessions for updating payment methods and downloading invoices.
+### 🔐 Stripe Architecture & Security Specifications
+- **Hosted Checkout**: Direct redirect to official Stripe Checkout with dynamic line items, automatic promotion codes, and DecisionOS branding.
+- **Raw Buffer HMAC Verification**: Webhook payloads are captured as raw bytes via `express.raw()` before JSON parsing and cryptographically verified against `STRIPE_WEBHOOK_SECRET`.
+- **Atomic DB Transactions**: All database updates (`subscription.upsert`, `payment.create`, and `auditLog.create`) execute inside `prisma.$transaction`.
+- **Replay & Idempotency Protection**: Duplicate webhook deliveries are detected by invoice ID to prevent redundant payment records.
+- **AES-256-GCM Encryption**: Customer identifiers (`cus_...`) are encrypted at rest with authentication tags for tamper detection and privacy masking (`•••• 4242`).
+- **Customer Reuse**: Existing Stripe customers are mapped to avoid creating duplicate customer records in Stripe.
+- **Customer Billing Portal**: One-click session generation for self-service payment method updates, invoice downloads, and plan changes.
+
+### ⚡ Supported Stripe Webhook Events
+| Event | Action Taken |
+|---|---|
+| `checkout.session.completed` | Provisions plan tier, stores customer ID, and records initial invoice |
+| `invoice.payment_succeeded` | Records recurring renewals and extends subscription period |
+| `invoice.payment_failed` | Transitions subscription to `PAST_DUE` and alerts team via WebSocket |
+| `customer.subscription.updated` | Synchronizes portal-driven plan upgrades/downgrades |
+| `customer.subscription.deleted` | Automatically reverts organization to `FREE` tier on cancellation |
 
 ---
+
 
 ## ⚡ Real-Time Events & WebSockets
 
@@ -372,7 +383,7 @@ DecisionOS/
 │   │   ├── import_pipeline.test.js    # 13 tests — Import Pipeline & BullMQ
 │   │   ├── ai_engine.test.js          # 14 tests — AI Engine & Anomaly Detection
 │   │   ├── reports.test.js            # 17 tests — Automated Report Generation
-│   │   ├── billing.test.js            # 19 tests — Stripe/Razorpay Billing & Quotas
+│   │   ├── billing.test.js            # 28 tests — Stripe Billing, Quotas & Crypto
 │   │   ├── realtime.test.js           # 8 tests  — Multi-Tenant WebSocket Engine
 │   │   └── e2ee.test.js               # 4 tests  — Cryptographic & Zero-Knowledge Suite
 │   ├── Dockerfile                     # Multi-stage production backend container
