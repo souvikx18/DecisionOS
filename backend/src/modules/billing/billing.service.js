@@ -158,11 +158,32 @@ export async function createCheckoutSessionService(orgId, userId, { planTier, in
   // Gateway logic: Live Stripe Checkout Session
   if (gateway === 'stripe' && GATEWAY_CONFIG.stripe.isConfigured) {
     const Stripe = (await import('stripe')).default;
-    const stripe = new Stripe(GATEWAY_CONFIG.stripe.secretKey);
+    const stripe = new Stripe(GATEWAY_CONFIG.stripe.secretKey, { apiVersion: '2023-10-16' });
 
-    const session = await stripe.checkout.sessions.create({
+    // Fetch existing customer ID & user details to reuse customer in Stripe
+    const [sub, user] = await Promise.all([
+      prisma.subscription.findUnique({ where: { organizationId: orgId } }),
+      prisma.user.findUnique({ where: { id: userId }, select: { email: true, firstName: true, lastName: true } }),
+    ]);
+
+    let existingStripeCustomerId = null;
+    if (sub?.stripeCustomerId) {
+      try {
+        const decrypted = decrypt(sub.stripeCustomerId);
+        if (decrypted && decrypted.startsWith('cus_')) {
+          existingStripeCustomerId = decrypted;
+        }
+      } catch {
+        // Fallback to fresh creation if decryption fails
+      }
+    }
+
+    const sessionParams = {
       payment_method_types: ['card'],
       mode: 'subscription',
+      billing_address_collection: 'auto',
+      allow_promotion_codes: true,
+      client_reference_id: orgId,
       line_items: [
         {
           price_data: {
@@ -186,9 +207,27 @@ export async function createCheckoutSessionService(orgId, userId, { planTier, in
         interval,
         currency,
       },
+      subscription_data: {
+        metadata: {
+          orgId,
+          userId,
+          planTier,
+          interval,
+          currency,
+        },
+      },
       success_url: finalSuccessUrl,
       cancel_url: finalCancelUrl,
-    });
+    };
+
+    if (existingStripeCustomerId) {
+      sessionParams.customer = existingStripeCustomerId;
+      sessionParams.customer_update = { address: 'auto' };
+    } else if (user?.email) {
+      sessionParams.customer_email = user.email;
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionParams);
 
     checkoutUrl = session.url;
     sessionId = session.id;
@@ -227,7 +266,7 @@ export async function createCheckoutSessionService(orgId, userId, { planTier, in
 
   const encryptedCustomerId = encrypt(`cus_${orgId}_${Date.now()}`);
 
-  const updatedSub = await prisma.subscription.upsert({
+  await prisma.subscription.upsert({
     where: { organizationId: orgId },
     update: {
       planId: dbPlan.id,
@@ -266,15 +305,17 @@ export async function createPortalSessionService(orgId, returnUrl) {
   if (GATEWAY_CONFIG.stripe.isConfigured && sub?.stripeCustomerId) {
     try {
       const Stripe = (await import('stripe')).default;
-      const stripe = new Stripe(GATEWAY_CONFIG.stripe.secretKey);
+      const stripe = new Stripe(GATEWAY_CONFIG.stripe.secretKey, { apiVersion: '2023-10-16' });
       const rawCustomerId = decrypt(sub.stripeCustomerId);
 
-      const portalSession = await stripe.billingPortal.sessions.create({
-        customer: rawCustomerId,
-        return_url: `${origin}/billing`,
-      });
+      if (rawCustomerId && rawCustomerId.startsWith('cus_')) {
+        const portalSession = await stripe.billingPortal.sessions.create({
+          customer: rawCustomerId,
+          return_url: `${origin}/billing`,
+        });
 
-      return { portalUrl: portalSession.url };
+        return { portalUrl: portalSession.url };
+      }
     } catch (err) {
       console.warn('[Billing] Stripe portal creation warning:', err.message);
     }
@@ -325,7 +366,7 @@ export async function listInvoicesService(orgId) {
 }
 
 /**
- * 6. Cryptographic Stripe Webhook Handler
+ * 6. Cryptographic Stripe Webhook Handler (Enterprise & Production-Hardened)
  */
 export async function handleStripeWebhookService(rawBody, signatureHeader) {
   if (!GATEWAY_CONFIG.stripe.isConfigured || !GATEWAY_CONFIG.stripe.webhookSecret) {
@@ -333,7 +374,7 @@ export async function handleStripeWebhookService(rawBody, signatureHeader) {
   }
 
   const Stripe = (await import('stripe')).default;
-  const stripe = new Stripe(GATEWAY_CONFIG.stripe.secretKey);
+  const stripe = new Stripe(GATEWAY_CONFIG.stripe.secretKey, { apiVersion: '2023-10-16' });
 
   let event;
   try {
@@ -351,75 +392,97 @@ export async function handleStripeWebhookService(rawBody, signatureHeader) {
       if (orgId && planTier) {
         const targetPlanConfig = PLANS_CATALOG[planTier] || PLANS_CATALOG.PRO;
 
-        // Ensure Plan exists in DB
-        let dbPlan = await prisma.plan.findUnique({ where: { tier: planTier } });
-        if (!dbPlan) {
-          dbPlan = await prisma.plan.create({
-            data: {
-              name: targetPlanConfig.name,
-              tier: planTier,
-              priceMonthly: targetPlanConfig.priceMonthly.INR,
-              priceYearly: targetPlanConfig.priceYearly.INR,
-              maxMembers: targetPlanConfig.limits.maxMembers,
-              maxAiCallsPerMonth: targetPlanConfig.limits.maxAiCallsPerMonth,
-              maxImportsPerMonth: targetPlanConfig.limits.maxImportsPerMonth,
-              maxStorageMb: targetPlanConfig.limits.maxStorageMb,
-              features: targetPlanConfig.features,
+        // Idempotency check: Check if this invoice/intent was already processed
+        const existingInvoiceId = session.invoice ? String(session.invoice) : null;
+        const existingPaymentIntentId = session.payment_intent ? String(session.payment_intent) : null;
+
+        if (existingInvoiceId) {
+          const existingPayment = await prisma.payment.findFirst({
+            where: { stripeInvoiceId: existingInvoiceId },
+          });
+          if (existingPayment) {
+            console.log('[Billing] ℹ️ Idempotent ignore: checkout session already recorded for invoice:', existingInvoiceId);
+            return { received: true, idempotent: true };
+          }
+        }
+
+        // Execute all state changes inside an atomic database transaction
+        await prisma.$transaction(async (tx) => {
+          // Ensure Plan exists in DB
+          let dbPlan = await tx.plan.findUnique({ where: { tier: planTier } });
+          if (!dbPlan) {
+            dbPlan = await tx.plan.create({
+              data: {
+                name: targetPlanConfig.name,
+                tier: planTier,
+                priceMonthly: targetPlanConfig.priceMonthly.INR,
+                priceYearly: targetPlanConfig.priceYearly.INR,
+                maxMembers: targetPlanConfig.limits.maxMembers,
+                maxAiCallsPerMonth: targetPlanConfig.limits.maxAiCallsPerMonth,
+                maxImportsPerMonth: targetPlanConfig.limits.maxImportsPerMonth,
+                maxStorageMb: targetPlanConfig.limits.maxStorageMb,
+                features: targetPlanConfig.features,
+              },
+            });
+          }
+
+          const periodStart = new Date();
+          const periodEnd = new Date(periodStart);
+          if (interval === 'yearly') periodEnd.setFullYear(periodEnd.getFullYear() + 1);
+          else periodEnd.setMonth(periodEnd.getMonth() + 1);
+
+          const encryptedCustomerId = encrypt(session.customer ? String(session.customer) : `cus_${orgId}`);
+
+          const updatedSub = await tx.subscription.upsert({
+            where: { organizationId: orgId },
+            update: {
+              planId: dbPlan.id,
+              status: 'ACTIVE',
+              currentPeriodStart: periodStart,
+              currentPeriodEnd: periodEnd,
+              stripeCustomerId: encryptedCustomerId,
+              stripeSubscriptionId: session.subscription ? String(session.subscription) : null,
+              canceledAt: null,
+              cancelAtPeriodEnd: false,
+            },
+            create: {
+              organizationId: orgId,
+              planId: dbPlan.id,
+              status: 'ACTIVE',
+              currentPeriodStart: periodStart,
+              currentPeriodEnd: periodEnd,
+              stripeCustomerId: encryptedCustomerId,
+              stripeSubscriptionId: session.subscription ? String(session.subscription) : null,
             },
           });
-        }
 
-        const periodStart = new Date();
-        const periodEnd = new Date(periodStart);
-        if (interval === 'yearly') periodEnd.setFullYear(periodEnd.getFullYear() + 1);
-        else periodEnd.setMonth(periodEnd.getMonth() + 1);
-
-        const encryptedCustomerId = encrypt(session.customer ? String(session.customer) : `cus_${orgId}`);
-
-        const updatedSub = await prisma.subscription.upsert({
-          where: { organizationId: orgId },
-          update: {
-            planId: dbPlan.id,
-            status: 'ACTIVE',
-            currentPeriodStart: periodStart,
-            currentPeriodEnd: periodEnd,
-            stripeCustomerId: encryptedCustomerId,
-            stripeSubscriptionId: session.subscription ? String(session.subscription) : null,
-          },
-          create: {
-            organizationId: orgId,
-            planId: dbPlan.id,
-            status: 'ACTIVE',
-            currentPeriodStart: periodStart,
-            currentPeriodEnd: periodEnd,
-            stripeCustomerId: encryptedCustomerId,
-            stripeSubscriptionId: session.subscription ? String(session.subscription) : null,
-          },
-        });
-
-        // Record Invoice / Payment
-        await prisma.payment.create({
-          data: {
-            subscriptionId: updatedSub.id,
-            stripeInvoiceId: session.invoice ? String(session.invoice) : ('INV-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000)),
-            stripePaymentIntentId: session.payment_intent ? String(session.payment_intent) : null,
-            amount: session.amount_total || (targetPlanConfig.priceMonthly.INR * 100),
-            currency: session.currency || (currency ? currency.toLowerCase() : 'inr'),
-            status: 'PAID',
-            paidAt: new Date(),
-          },
-        });
-
-        if (userId) {
-          await logAudit({
-            orgId,
-            userId,
-            action: 'PLAN_UPGRADED',
-            entityType: 'Subscription',
-            entityId: updatedSub.id,
-            metadata: { planTier, interval, currency, gateway: 'stripe' },
+          // Record Invoice / Payment
+          const invoiceId = existingInvoiceId || ('INV-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000));
+          await tx.payment.create({
+            data: {
+              subscriptionId: updatedSub.id,
+              stripeInvoiceId: invoiceId,
+              stripePaymentIntentId: existingPaymentIntentId,
+              amount: session.amount_total || (targetPlanConfig.priceMonthly.INR * 100),
+              currency: session.currency || (currency ? currency.toLowerCase() : 'inr'),
+              status: 'PAID',
+              paidAt: new Date(),
+            },
           });
-        }
+
+          if (userId) {
+            await tx.auditLog.create({
+              data: {
+                organizationId: orgId,
+                userId,
+                action: 'PLAN_UPGRADED',
+                entityType: 'Subscription',
+                entityId: updatedSub.id,
+                metadata: { planTier, interval, currency, gateway: 'stripe' },
+              },
+            });
+          }
+        });
 
         // Emit real-time WebSocket broadcast to organization
         broadcastToOrg(orgId, 'SUBSCRIPTION_UPDATED', {
@@ -428,11 +491,14 @@ export async function handleStripeWebhookService(rawBody, signatureHeader) {
           status: 'ACTIVE',
           updatedAt: new Date().toISOString(),
         });
+
+        console.log(`[Billing] 🚀 Successfully upgraded org ${orgId} to ${planTier} via Stripe`);
       }
       break;
     }
+
     case 'invoice.payment_succeeded': {
-      // Fires on every successful renewal — record the payment
+      // Fires on every successful renewal charge — record the payment & extend period
       const invoice = event.data.object;
       const stripeSubId = invoice.subscription ? String(invoice.subscription) : null;
 
@@ -443,38 +509,39 @@ export async function handleStripeWebhookService(rawBody, signatureHeader) {
         });
 
         if (sub) {
-          // Extend the subscription period based on the new invoice period
           const periodEnd = invoice.lines?.data?.[0]?.period?.end
             ? new Date(invoice.lines.data[0].period.end * 1000)
             : new Date(Date.now() + 30 * 86400000);
 
-          await prisma.subscription.update({
-            where: { id: sub.id },
-            data: {
-              status: 'ACTIVE',
-              currentPeriodEnd: periodEnd,
-            },
-          });
-
-          // Check for duplicate invoice before creating payment record
-          const existing = await prisma.payment.findFirst({
-            where: { stripeInvoiceId: String(invoice.id) },
-          });
-
-          if (!existing) {
-            await prisma.payment.create({
+          await prisma.$transaction(async (tx) => {
+            await tx.subscription.update({
+              where: { id: sub.id },
               data: {
-                subscriptionId: sub.id,
-                stripeInvoiceId: String(invoice.id),
-                stripePaymentIntentId: invoice.payment_intent ? String(invoice.payment_intent) : null,
-                amount: invoice.amount_paid || 0,
-                currency: invoice.currency || 'inr',
-                status: 'PAID',
-                paidAt: new Date(),
-                invoiceUrl: invoice.hosted_invoice_url || null,
+                status: 'ACTIVE',
+                currentPeriodEnd: periodEnd,
               },
             });
-          }
+
+            // Idempotency: Check if invoice already exists
+            const existing = await tx.payment.findFirst({
+              where: { stripeInvoiceId: String(invoice.id) },
+            });
+
+            if (!existing) {
+              await tx.payment.create({
+                data: {
+                  subscriptionId: sub.id,
+                  stripeInvoiceId: String(invoice.id),
+                  stripePaymentIntentId: invoice.payment_intent ? String(invoice.payment_intent) : null,
+                  amount: invoice.amount_paid || 0,
+                  currency: invoice.currency || 'inr',
+                  status: 'PAID',
+                  paidAt: new Date(),
+                  invoiceUrl: invoice.hosted_invoice_url || null,
+                },
+              });
+            }
+          });
 
           broadcastToOrg(sub.organizationId, 'SUBSCRIPTION_UPDATED', {
             planTier: sub.plan?.tier || 'PRO',
@@ -490,7 +557,7 @@ export async function handleStripeWebhookService(rawBody, signatureHeader) {
     }
 
     case 'invoice.payment_failed': {
-      // Fires when a renewal charge fails — mark subscription as past due
+      // Fires when a renewal charge fails — mark subscription as PAST_DUE
       const invoice = event.data.object;
       const stripeSubId = invoice.subscription ? String(invoice.subscription) : null;
 
@@ -518,7 +585,7 @@ export async function handleStripeWebhookService(rawBody, signatureHeader) {
     }
 
     case 'customer.subscription.updated': {
-      // Fires when plan changes via Customer Portal
+      // Fires when subscription changes via Customer Portal
       const stripeSub = event.data.object;
       const sub = await prisma.subscription.findFirst({
         where: { stripeSubscriptionId: String(stripeSub.id) },

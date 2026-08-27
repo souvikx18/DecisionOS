@@ -69,26 +69,36 @@ export async function listInvoices(req, res) {
 }
 
 export async function stripeWebhook(req, res) {
+  const signature = req.headers['stripe-signature'];
+  if (!signature) {
+    console.warn('[Billing Controller] ❌ Stripe webhook rejected: Missing stripe-signature header.');
+    return res.status(400).json({ error: 'Missing stripe-signature header' });
+  }
+
   try {
-    const signature = req.headers['stripe-signature'];
     // req.body here is a raw Buffer (thanks to express.raw() middleware)
     const result = await handleStripeWebhookService(req.body, signature);
     return res.status(200).json(result);
   } catch (err) {
-    console.error('[Billing Controller] Stripe webhook error:', err.message);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
+    console.error('[Billing Controller] ❌ Stripe webhook processing error:', err.message);
+    return res.status(400).json({ error: `Webhook Error: ${err.message}` });
   }
 }
 
 export async function razorpayWebhook(req, res) {
-  try {
-    const signature = req.headers['x-razorpay-signature'];
-    const rawBody = req.body;
+  const signature = req.headers['x-razorpay-signature'];
+  if (!signature) {
+    console.warn('[Billing Controller] ❌ Razorpay webhook rejected: Missing x-razorpay-signature header.');
+    return res.status(400).json({ error: 'Missing x-razorpay-signature header' });
+  }
 
+  try {
+    const rawBody = req.body;
     const result = handleRazorpayWebhookService(rawBody, signature);
     return res.status(200).json(result);
   } catch (err) {
-    console.error('[Billing Controller] Razorpay webhook error:', err.message);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
+    console.error('[Billing Controller] ❌ Razorpay webhook processing error:', err.message);
+    return res.status(400).json({ error: `Webhook Error: ${err.message}` });
   }
 }
+

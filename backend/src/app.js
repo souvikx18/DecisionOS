@@ -32,6 +32,7 @@ import aiRouter          from './modules/ai/ai.router.js';
 import reportsRouter     from './modules/reports/reports.router.js';
 import realtimeRouter    from './modules/realtime/realtime.router.js';
 import billingRouter     from './modules/billing/billing.router.js';
+import { stripeWebhook } from './modules/billing/billing.controller.js';
 
 const app = express();
 
@@ -66,11 +67,14 @@ app.use(cors({
 }));
 
 // ── 3a. Stripe Webhook raw-body capture (MUST be before express.json) ────
-// Stripe signature verification requires the exact raw request body bytes.
-import { stripeWebhook } from './modules/billing/billing.controller.js';
-app.post('/api/v1/billing/webhook/stripe', express.raw({ type: 'application/json' }), stripeWebhook);
+// Stripe cryptographic HMAC signature verification requires the exact raw request bytes.
+app.post(
+  '/api/v1/billing/webhook/stripe',
+  express.raw({ type: 'application/json', limit: '2mb' }),
+  stripeWebhook
+);
 
-// ── 3b. Body Parser ────────────────────────────────────────────
+// ── 3b. Body Parser (Standard JSON for all other API endpoints) ──
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
