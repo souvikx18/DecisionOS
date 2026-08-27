@@ -174,6 +174,24 @@ export default function Billing() {
 
   useEffect(() => {
     fetchBillingData()
+
+    // Handle Stripe redirect back with success/cancel params
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('success') === 'true') {
+      notify.success('Payment successful! Your plan is now being activated.', 'Payment Complete 🎉')
+      // Poll for subscription update (webhook may take a few seconds)
+      let retries = 0
+      const poll = setInterval(() => {
+        fetchBillingData()
+        retries++
+        if (retries >= 6) clearInterval(poll) // stop after 12 seconds
+      }, 2000)
+      // Clean the URL without page reload
+      window.history.replaceState({}, '', '/billing')
+    } else if (params.get('canceled') === 'true') {
+      notify.info('Checkout was cancelled. You can upgrade anytime.', 'Checkout Cancelled')
+      window.history.replaceState({}, '', '/billing')
+    }
   }, [fetchBillingData])
 
   // Listen for real-time subscription update via WebSocket

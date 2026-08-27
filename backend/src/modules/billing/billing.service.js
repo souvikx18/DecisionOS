@@ -431,11 +431,174 @@ export async function handleStripeWebhookService(rawBody, signatureHeader) {
       }
       break;
     }
-    case 'customer.subscription.deleted': {
-      const subscription = event.data.object;
-      console.log('[Billing] Subscription cancelled via Stripe:', subscription.id);
+    case 'invoice.payment_succeeded': {
+      // Fires on every successful renewal — record the payment
+      const invoice = event.data.object;
+      const stripeSubId = invoice.subscription ? String(invoice.subscription) : null;
+
+      if (stripeSubId) {
+        const sub = await prisma.subscription.findFirst({
+          where: { stripeSubscriptionId: stripeSubId },
+          include: { plan: true },
+        });
+
+        if (sub) {
+          // Extend the subscription period based on the new invoice period
+          const periodEnd = invoice.lines?.data?.[0]?.period?.end
+            ? new Date(invoice.lines.data[0].period.end * 1000)
+            : new Date(Date.now() + 30 * 86400000);
+
+          await prisma.subscription.update({
+            where: { id: sub.id },
+            data: {
+              status: 'ACTIVE',
+              currentPeriodEnd: periodEnd,
+            },
+          });
+
+          // Check for duplicate invoice before creating payment record
+          const existing = await prisma.payment.findFirst({
+            where: { stripeInvoiceId: String(invoice.id) },
+          });
+
+          if (!existing) {
+            await prisma.payment.create({
+              data: {
+                subscriptionId: sub.id,
+                stripeInvoiceId: String(invoice.id),
+                stripePaymentIntentId: invoice.payment_intent ? String(invoice.payment_intent) : null,
+                amount: invoice.amount_paid || 0,
+                currency: invoice.currency || 'inr',
+                status: 'PAID',
+                paidAt: new Date(),
+                invoiceUrl: invoice.hosted_invoice_url || null,
+              },
+            });
+          }
+
+          broadcastToOrg(sub.organizationId, 'SUBSCRIPTION_UPDATED', {
+            planTier: sub.plan?.tier || 'PRO',
+            planName: sub.plan?.name || 'Active Plan',
+            status: 'ACTIVE',
+            updatedAt: new Date().toISOString(),
+          });
+
+          console.log('[Billing] ✅ Renewal payment recorded for subscription:', stripeSubId);
+        }
+      }
       break;
     }
+
+    case 'invoice.payment_failed': {
+      // Fires when a renewal charge fails — mark subscription as past due
+      const invoice = event.data.object;
+      const stripeSubId = invoice.subscription ? String(invoice.subscription) : null;
+
+      if (stripeSubId) {
+        const sub = await prisma.subscription.findFirst({
+          where: { stripeSubscriptionId: stripeSubId },
+        });
+
+        if (sub) {
+          await prisma.subscription.update({
+            where: { id: sub.id },
+            data: { status: 'PAST_DUE' },
+          });
+
+          broadcastToOrg(sub.organizationId, 'SUBSCRIPTION_UPDATED', {
+            planTier: 'FREE',
+            status: 'PAST_DUE',
+            updatedAt: new Date().toISOString(),
+          });
+
+          console.warn('[Billing] ⚠️ Payment failed for subscription:', stripeSubId);
+        }
+      }
+      break;
+    }
+
+    case 'customer.subscription.updated': {
+      // Fires when plan changes via Customer Portal
+      const stripeSub = event.data.object;
+      const sub = await prisma.subscription.findFirst({
+        where: { stripeSubscriptionId: String(stripeSub.id) },
+      });
+
+      if (sub) {
+        const newStatus = stripeSub.status === 'active' ? 'ACTIVE'
+          : stripeSub.status === 'past_due' ? 'PAST_DUE'
+          : stripeSub.cancel_at_period_end ? 'ACTIVE'
+          : 'CANCELED';
+
+        await prisma.subscription.update({
+          where: { id: sub.id },
+          data: {
+            status: newStatus,
+            cancelAtPeriodEnd: stripeSub.cancel_at_period_end || false,
+            currentPeriodEnd: new Date(stripeSub.current_period_end * 1000),
+          },
+        });
+
+        broadcastToOrg(sub.organizationId, 'SUBSCRIPTION_UPDATED', {
+          status: newStatus,
+          cancelAtPeriodEnd: stripeSub.cancel_at_period_end,
+          updatedAt: new Date().toISOString(),
+        });
+
+        console.log('[Billing] 🔄 Subscription updated via portal:', stripeSub.id);
+      }
+      break;
+    }
+
+    case 'customer.subscription.deleted': {
+      // Fires when subscription is fully cancelled
+      const stripeSub = event.data.object;
+      const sub = await prisma.subscription.findFirst({
+        where: { stripeSubscriptionId: String(stripeSub.id) },
+        include: { plan: true },
+      });
+
+      if (sub) {
+        // Revert to FREE plan
+        let freePlan = await prisma.plan.findUnique({ where: { tier: 'FREE' } });
+        if (!freePlan) {
+          freePlan = await prisma.plan.create({
+            data: {
+              name: 'Starter Free',
+              tier: 'FREE',
+              priceMonthly: 0,
+              priceYearly: 0,
+              maxMembers: 3,
+              maxAiCallsPerMonth: 10000,
+              maxImportsPerMonth: 5,
+              maxStorageMb: 500,
+              features: ['Basic features'],
+            },
+          });
+        }
+
+        await prisma.subscription.update({
+          where: { id: sub.id },
+          data: {
+            planId: freePlan.id,
+            status: 'CANCELED',
+            canceledAt: new Date(),
+            cancelAtPeriodEnd: false,
+          },
+        });
+
+        broadcastToOrg(sub.organizationId, 'SUBSCRIPTION_UPDATED', {
+          planTier: 'FREE',
+          planName: 'Starter Free',
+          status: 'CANCELED',
+          updatedAt: new Date().toISOString(),
+        });
+
+        console.log('[Billing] ❌ Subscription cancelled, reverted to FREE:', stripeSub.id);
+      }
+      break;
+    }
+
     default:
       break;
   }
