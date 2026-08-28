@@ -173,7 +173,7 @@
 }
 
 .dos-btn-primary {
-  background: linear-gradient(135deg, #4F46E5 0%, #3B82F6 100%);
+  background: linear-gradient(135deg, #4338CA 0%, #3B82F6 100%);
   color: #FFFFFF;
   border: none;
   border-radius: 10px;
@@ -185,15 +185,16 @@
   gap: 8px;
   cursor: pointer;
   text-decoration: none;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .dos-btn-primary:hover {
   opacity: 0.95;
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.45);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
+
 
 .dos-btn-outline {
   background: rgba(255, 255, 255, 0.03);
@@ -569,9 +570,9 @@
 }
 
 .dos-billing__plan-card--popular {
-  border: 2px solid #3B82F6;
-  background: linear-gradient(180deg, rgba(59, 130, 246, 0.08) 0%, #0B101B 60%);
-  box-shadow: 0 0 35px rgba(59, 130, 246, 0.18);
+  border: 1.5px solid #3B82F6;
+  background: linear-gradient(180deg, #111B30 0%, #0B101B 100%);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .dos-billing__popular-tag {
@@ -579,14 +580,14 @@
   top: -12px;
   left: 50%;
   transform: translateX(-50%);
-  background: linear-gradient(135deg, #4F46E5 0%, #3B82F6 100%);
+  background: linear-gradient(135deg, #4338CA 0%, #3B82F6 100%);
   color: #FFFFFF;
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.8px;
   padding: 4px 14px;
   border-radius: 100px;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 .dos-billing__plan-card-header {
@@ -694,16 +695,17 @@
 }
 
 .dos-billing__plan-cta-btn--pro {
-  background: linear-gradient(135deg, #4F46E5 0%, #3B82F6 100%);
+  background: linear-gradient(135deg, #4338CA 0%, #3B82F6 100%);
   border: none;
   color: #FFFFFF;
-  box-shadow: 0 4px 18px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .dos-billing__plan-cta-btn--pro:hover {
   opacity: 0.95;
-  box-shadow: 0 6px 24px rgba(59, 130, 246, 0.55);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
+
 
 .dos-billing__plan-cta-btn--enterprise {
   background: rgba(255, 255, 255, 0.05);

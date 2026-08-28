@@ -141,8 +141,19 @@ const PLANS = [
   },
 ]
 
+// Official Razorpay Vector Logo Component
+function RazorpayLogo({ width = 100, height = 24, textFill = '#0284C7' }) {
+  return (
+    <svg width={width} height={height} viewBox="0 0 120 26" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+      <path d="M12.5 0L3.5 13H10.5L0 26L18.5 8H11.5L12.5 0Z" fill="#0284C7" />
+      <text x="22" y="19" fill={textFill} fontFamily="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" fontWeight="800" fontSize="17" letterSpacing="-0.4">Razorpay</text>
+    </svg>
+  )
+}
+
 // Helper to dynamically load Razorpay script
 const loadRazorpayScript = () => {
+
   return new Promise((resolve) => {
     if (window.Razorpay) {
       resolve(true)
@@ -443,8 +454,8 @@ export default function Billing() {
 
             <div className="dos-billing__current-payment-meta">
               <span className="dos-billing__payment-label">PAYMENT METHOD</span>
-              <div className="dos-billing__payment-row">
-                <strong style={{ color: '#38BDF8', letterSpacing: 0.3 }}>Razorpay</strong>
+              <div className="dos-billing__payment-row" style={{ marginTop: 2 }}>
+                <RazorpayLogo width={92} height={20} textFill="#38BDF8" />
               </div>
               <div className="dos-billing__payment-row" style={{ marginTop: 2 }}>
                 <span>Visa • • • • {subscription?.customerReference ? subscription.customerReference.slice(-4) : '4242'}</span>
@@ -456,6 +467,7 @@ export default function Billing() {
                 </button>
               </div>
             </div>
+
           </div>
 
           {/* 3D Visual Card Illustration */}
@@ -644,12 +656,13 @@ export default function Billing() {
 
           <div className="dos-billing__gateway-header-row">
             <span className="dos-billing__gateway-name">
-              Razorpay
+              <RazorpayLogo width={110} height={23} textFill="#38BDF8" />
             </span>
             <span className="dos-billing__gateway-channels-pill">
               UPI / CARDS / NETBANKING
             </span>
           </div>
+
 
           <div className="dos-billing__payment-icons-strip">
             <span className="dos-billing__pay-logo-badge" style={{ color: '#F43F5E' }}>UPI</span>
