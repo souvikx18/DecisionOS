@@ -151,8 +151,89 @@ function RazorpayLogo({ width = 100, height = 24, textFill = '#0284C7' }) {
   )
 }
 
+// 3D Credit Card with Shield & Concentric Pedestal Rings (Matching User Mockup)
+function SecurityCard3D() {
+  return (
+    <div className="dos-billing__3d-card-stage">
+      <svg width="210" height="145" viewBox="0 0 220 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          {/* Card Gradient */}
+          <linearGradient id="cardGrad" x1="15" y1="15" x2="180" y2="110" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#6366F1" />
+            <stop offset="50%" stopColor="#4F46E5" />
+            <stop offset="100%" stopColor="#3B82F6" />
+          </linearGradient>
+          <linearGradient id="cardBevel" x1="20" y1="15" x2="20" y2="110" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="rgba(255,255,255,0.4)" />
+            <stop offset="100%" stopColor="rgba(0,0,0,0.3)" />
+          </linearGradient>
+          {/* Shield Gradients */}
+          <linearGradient id="shieldRim" x1="130" y1="50" x2="190" y2="130" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#60A5FA" />
+            <stop offset="60%" stopColor="#3B82F6" />
+            <stop offset="100%" stopColor="#1D4ED8" />
+          </linearGradient>
+          <linearGradient id="shieldFace" x1="135" y1="55" x2="185" y2="125" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#38BDF8" />
+            <stop offset="100%" stopColor="#2563EB" />
+          </linearGradient>
+          {/* Shadows */}
+          <filter id="cardDropShadow" x="0" y="5" width="200" height="135" filterUnits="userSpaceOnUse">
+            <feDropShadow dx="0" dy="10" stdDeviation="8" floodColor="#000000" floodOpacity="0.55" />
+          </filter>
+          <filter id="shieldDropShadow" x="110" y="45" width="90" height="100" filterUnits="userSpaceOnUse">
+            <feDropShadow dx="-2" dy="6" stdDeviation="6" floodColor="#000000" floodOpacity="0.6" />
+          </filter>
+        </defs>
+
+        {/* 1. Pedestal Concentric Glowing Rings */}
+        <ellipse cx="100" cy="120" rx="80" ry="20" stroke="#4338CA" strokeWidth="1.2" opacity="0.35" fill="none" />
+        <ellipse cx="100" cy="120" rx="60" ry="15" stroke="#6366F1" strokeWidth="1.5" opacity="0.5" fill="none" />
+        <ellipse cx="100" cy="120" rx="38" ry="10" stroke="#38BDF8" strokeWidth="1.8" opacity="0.7" fill="none" />
+
+        {/* 2. 3D Isometric Tilted Credit Card */}
+        <g transform="rotate(-6 90 65)" filter="url(#cardDropShadow)">
+          {/* Card Body */}
+          <rect x="18" y="18" width="144" height="90" rx="12" fill="url(#cardGrad)" />
+          <rect x="18" y="18" width="144" height="90" rx="12" stroke="url(#cardBevel)" strokeWidth="1.2" fill="none" />
+
+          {/* Dark Magnetic Stripe */}
+          <rect x="18" y="32" width="144" height="20" fill="#0E1322" opacity="0.9" />
+
+          {/* White Embossed Chip Bar */}
+          <rect x="32" y="62" width="42" height="10" rx="3" fill="#FFFFFF" opacity="0.95" />
+          <rect x="32" y="62" width="42" height="10" rx="3" stroke="#E2E8F0" strokeWidth="0.8" fill="none" />
+        </g>
+
+        {/* 3. 3D Security Shield in Foreground */}
+        <g filter="url(#shieldDropShadow)">
+          {/* Outer Shield Bevel Rim */}
+          <path
+            d="M158 55C158 55 174 59 184 53C184 80 181 106 158 123C135 106 132 80 132 53C142 59 158 55 158 55Z"
+            fill="url(#shieldRim)"
+          />
+          {/* Inner Shield Cavity */}
+          <path
+            d="M158 61C158 61 170 64 178 59C178 79 175 100 158 114C141 100 138 79 138 59C146 64 158 61 158 61Z"
+            fill="url(#shieldFace)"
+          />
+          {/* Bold White 3D Checkmark */}
+          <path
+            d="M148 85L155 92L169 76"
+            stroke="#FFFFFF"
+            strokeWidth="4.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </g>
+      </svg>
+    </div>
+  )
+}
+
 // Helper to dynamically load Razorpay script
 const loadRazorpayScript = () => {
+
 
   return new Promise((resolve) => {
     if (window.Razorpay) {
@@ -471,14 +552,8 @@ export default function Billing() {
           </div>
 
           {/* 3D Visual Card Illustration */}
-          <div className="dos-billing__3d-card-wrap">
-            <div className="dos-billing__3d-card">
-              <div className="dos-billing__3d-card-chip" />
-              <div className="dos-billing__3d-card-shield">
-                <Check size={18} strokeWidth={3} />
-              </div>
-            </div>
-          </div>
+          <SecurityCard3D />
+
         </div>
       </div>
 
