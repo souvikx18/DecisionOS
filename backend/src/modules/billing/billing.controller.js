@@ -37,7 +37,8 @@ export async function createCheckout(req, res) {
   try {
     const parsed = checkoutSchema.safeParse(req.body);
     if (!parsed.success) {
-      return sendError(res, 400, 'VALIDATION_ERROR', parsed.error.errors[0]?.message);
+      const errMsg = parsed.error?.errors?.[0]?.message || parsed.error?.issues?.[0]?.message || 'Invalid checkout parameters.';
+      return sendError(res, 400, 'VALIDATION_ERROR', errMsg);
     }
 
     const data = await createCheckoutSessionService(req.org.id, req.user.id, parsed.data);
@@ -51,7 +52,8 @@ export async function verifyPayment(req, res) {
   try {
     const parsed = verifyPaymentSchema.safeParse(req.body);
     if (!parsed.success) {
-      return sendError(res, 400, 'VALIDATION_ERROR', parsed.error.errors[0]?.message);
+      const errMsg = parsed.error?.errors?.[0]?.message || parsed.error?.issues?.[0]?.message || 'Invalid payment verification parameters.';
+      return sendError(res, 400, 'VALIDATION_ERROR', errMsg);
     }
 
     const data = await verifyRazorpayPaymentService(req.org.id, req.user.id, parsed.data);
@@ -60,6 +62,7 @@ export async function verifyPayment(req, res) {
     return sendError(res, 400, 'VERIFICATION_ERROR', err.message);
   }
 }
+
 
 export async function createPortalSession(req, res) {
   try {

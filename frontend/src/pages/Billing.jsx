@@ -199,9 +199,17 @@ export default function Billing() {
 
   // Direct Checkout with Razorpay
   const handleDirectCheckout = async (plan) => {
-    if (plan.tier === currentTier) return
+    if (plan.tier === 'FREE') {
+      notify.info('You are currently on the Starter Free tier. Select Growth Pro or Enterprise to upgrade.', 'Starter Plan 🚀')
+      return
+    }
+    if (plan.tier === currentTier) {
+      notify.info(`You are already subscribed to the ${plan.name} plan.`, 'Current Plan')
+      return
+    }
     setLoadingPlan(plan.tier)
     notify.info(`Opening secure Razorpay checkout for ${plan.name}…`, 'Razorpay Checkout 💳')
+
 
     try {
       const isLoaded = await loadRazorpayScript()
@@ -250,8 +258,10 @@ export default function Billing() {
         order_id: orderData.orderId,
         prefill: {
           name: `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'DecisionOS Admin',
-          email: user?.email || '',
+          email: user?.email || 'admin@decisionos.com',
+          contact: '9999999999',
         },
+
         notes: {
           planTier: plan.tier,
           interval: billingCycle,
