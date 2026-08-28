@@ -1,565 +1,917 @@
-/* ── Clean & Professional Billing Styles (Day & Night Mode) ────────── */
+/* src/pages/Billing.css — DecisionOS Executive Billing & Subscription Styling */
 
-.clean-billing {
+.dos-billing {
   display: flex;
   flex-direction: column;
-  gap: 28px;
-  max-width: 1200px;
+  gap: 32px;
+  max-width: 1280px;
   margin: 0 auto;
   width: 100%;
+  padding-bottom: 60px;
+  color: #F8FAFC;
+  font-family: inherit;
 }
 
-/* Card Foundation */
-.clean-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: 14px;
-  padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+/* ── Card Foundation ── */
+.dos-card {
+  background: #0B101B;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 24px 28px;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
 }
 
 /* ── Header ── */
-.clean-billing__header {
+.dos-billing__header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
 }
 
-.clean-billing__title {
-  font-size: 24px;
-  font-weight: 800;
-  color: var(--text-main);
-  letter-spacing: -0.5px;
+.dos-billing__title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.clean-billing__subtitle {
-  font-size: 13.5px;
-  color: var(--text-muted);
-  margin-top: 3px;
-}
-
-.clean-billing__portal-btn {
-  font-size: 13px;
-  font-weight: 600;
+.dos-billing__title-row {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-/* ── Section 1: Current Plan & Quotas ── */
-.clean-billing__plan-banner {
+.dos-billing__title {
+  font-size: 26px;
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: -0.5px;
+  margin: 0;
+}
+
+.dos-billing__title-badge {
+  color: #10B981;
+  display: inline-flex;
+  align-items: center;
+}
+
+.dos-billing__subtitle {
+  font-size: 14px;
+  color: #94A3B8;
+  margin: 0;
+}
+
+.dos-billing__refresh-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #F1F5F9;
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dos-billing__refresh-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+/* ── Section 1: Current Plan Cockpit ── */
+.dos-billing__current-plan-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid var(--border-subtle);
-  flex-wrap: wrap;
+  gap: 32px;
+  padding: 28px 32px;
+  background: linear-gradient(145deg, #0D1527 0%, #0B101E 100%);
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  position: relative;
+  overflow: hidden;
 }
 
-.clean-billing__status-tag {
+.dos-billing__current-plan-card::after {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: 120px;
+  width: 250px;
+  height: 250px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.dos-billing__current-plan-left {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 480px;
+  z-index: 1;
+}
+
+.dos-billing__current-tag {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.6px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
   color: #10B981;
-  margin-bottom: 6px;
 }
 
-.clean-billing__status-dot {
-  width: 7px;
-  height: 7px;
+.dos-billing__status-dot {
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: #10B981;
+  box-shadow: 0 0 8px #10B981;
 }
 
-.clean-billing__plan-name {
-  font-size: 20px;
+.dos-billing__current-plan-name-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dos-billing__current-plan-title {
+  font-size: 26px;
   font-weight: 800;
-  color: var(--text-main);
-  letter-spacing: -0.3px;
+  color: #FFFFFF;
+  margin: 0;
+  letter-spacing: -0.5px;
 }
 
-.clean-billing__plan-desc {
-  font-size: 13px;
-  color: var(--text-muted);
+.dos-billing__active-pill {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #34D399;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 100px;
+}
+
+.dos-billing__current-plan-desc {
+  font-size: 13.5px;
+  color: #94A3B8;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.dos-billing__current-plan-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.dos-btn-primary {
+  background: linear-gradient(135deg, #4F46E5 0%, #3B82F6 100%);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 13.5px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+}
+
+.dos-btn-primary:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.45);
+}
+
+.dos-btn-outline {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #F8FAFC;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-size: 13.5px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dos-btn-outline:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.dos-billing__current-plan-right {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  z-index: 1;
+}
+
+.dos-billing__current-plan-pricing-box {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dos-billing__current-plan-price-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.dos-billing__current-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.dos-billing__current-price-num {
+  font-size: 32px;
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: -0.5px;
+}
+
+.dos-billing__current-price-period {
+  font-size: 14px;
+  color: #94A3B8;
+  font-weight: 500;
+}
+
+.dos-billing__current-price-sub {
+  font-size: 12px;
+  color: #64748B;
   margin-top: 2px;
 }
 
-.clean-billing__plan-actions {
+.dos-billing__current-payment-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 10px;
+}
+
+.dos-billing__payment-label {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  color: #64748B;
+  text-transform: uppercase;
+}
+
+.dos-billing__payment-row {
   display: flex;
   align-items: center;
-  gap: 18px;
-}
-
-.clean-billing__price-badge {
-  display: flex;
-  align-items: baseline;
-  gap: 3px;
-}
-
-.clean-billing__price-number {
-  font-size: 24px;
-  font-weight: 800;
-  color: var(--text-main);
-}
-
-.clean-billing__price-period {
-  font-size: 12.5px;
-  color: var(--text-disabled);
-}
-
-.clean-billing__change-plan-btn {
-  padding: 9px 16px;
+  gap: 8px;
   font-size: 13px;
+  color: #CBD5E1;
+}
+
+.dos-billing__update-badge {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #94A3B8;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dos-billing__update-badge:hover {
+  color: #FFFFFF;
+  border-color: #3B82F6;
+}
+
+/* 3D Visual Card Illustration */
+.dos-billing__3d-card-wrap {
+  position: relative;
+  width: 140px;
+  height: 95px;
+  perspective: 600px;
+}
+
+.dos-billing__3d-card {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #4338CA 0%, #3B82F6 100%);
+  border-radius: 12px;
+  box-shadow: 0 16px 32px rgba(59, 130, 246, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  transform: rotateY(-18deg) rotateX(10deg);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 12px 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+.dos-billing__3d-card-chip {
+  width: 24px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 3px;
+}
+
+.dos-billing__3d-card-shield {
+  position: absolute;
+  right: -8px;
+  bottom: -8px;
+  background: #3B82F6;
+  border: 2px solid #0B101E;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* ── Section 2: Usage Overview ── */
+.dos-billing__usage-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dos-billing__section-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.dos-billing__section-title {
+  font-size: 19px;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.dos-billing__timeframe-select {
+  background: #0B101B;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #CBD5E1;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.dos-billing__usage-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.dos-billing__quota-card {
+  background: #0D1322;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.dos-billing__quota-card:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.dos-billing__quota-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.dos-billing__quota-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #F1F5F9;
+}
+
+.dos-billing__quota-icon-wrap {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dos-billing__quota-numbers {
+  font-size: 18px;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
+.dos-billing__quota-max {
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748B;
+}
+
+.dos-billing__progress-bar {
+  width: 100%;
+  height: 5px;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.dos-billing__progress-fill {
+  height: 100%;
+  border-radius: 100px;
+  transition: width 0.4s ease;
+}
+
+.dos-billing__quota-footer {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #64748B;
+}
+
+.dos-billing__usage-info-banner {
+  background: rgba(59, 130, 246, 0.06);
+  border: 1px solid rgba(59, 130, 246, 0.18);
+  border-radius: 12px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #94A3B8;
+  gap: 12px;
+}
+
+.dos-billing__usage-info-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dos-billing__usage-guide-link {
+  color: #3B82F6;
   font-weight: 700;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
+  cursor: pointer;
+  transition: color 0.15s ease;
 }
 
-/* Quotas Grid */
-.clean-billing__meters-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-top: 20px;
+.dos-billing__usage-guide-link:hover {
+  color: #60A5FA;
 }
 
-.clean-billing__meter-box {
-  padding: 14px 16px;
-  border-radius: 10px;
-  background: var(--bg-canvas);
-  border: 1px solid var(--border-subtle);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.clean-billing__meter-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 12px;
-}
-
-.clean-billing__meter-label {
-  font-weight: 700;
-  color: var(--text-main);
-}
-
-.clean-billing__meter-stats {
-  font-weight: 700;
-  color: var(--text-main);
-}
-
-.clean-billing__meter-max {
-  font-weight: 500;
-  color: var(--text-disabled);
-}
-
-.clean-billing__progress-track {
-  width: 100%;
-  height: 6px;
-  border-radius: 100px;
-  background: var(--border-subtle);
-  overflow: hidden;
-}
-
-.clean-billing__progress-fill {
-  height: 100%;
-  border-radius: 100px;
-  transition: width 0.35s ease;
-}
-
-.clean-billing__meter-foot {
-  display: flex;
-  justify-content: space-between;
-  font-size: 10.5px;
-  font-weight: 600;
-  color: var(--text-disabled);
-}
-
-/* ── Section 2: Pricing Matrix ── */
-.clean-billing__section {
+/* ── Section 3: Available Plans ── */
+.dos-billing__plans-section {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.clean-billing__section-head {
+.dos-billing__plans-header-row {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: 16px;
-  flex-wrap: wrap;
 }
 
-.clean-billing__section-title {
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--text-main);
-  letter-spacing: -0.3px;
-}
-
-.clean-billing__section-sub {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin-top: 2px;
-}
-
-.clean-billing__controls-bar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.clean-billing__toggle-group {
+.dos-billing__toggle-pill-wrap {
   display: inline-flex;
   padding: 3px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: 8px;
+  background: #0B101B;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
   gap: 2px;
 }
 
-.clean-billing__toggle-btn {
+.dos-billing__toggle-btn {
   padding: 6px 14px;
-  border-radius: 6px;
+  border-radius: 8px;
   border: none;
   background: transparent;
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 700;
-  color: var(--text-muted);
+  color: #94A3B8;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
   transition: all 0.15s ease;
   font-family: inherit;
 }
 
-.clean-billing__toggle-btn--active {
-  background: var(--accent-bg);
-  color: var(--accent-primary);
+.dos-billing__toggle-btn--active {
+  background: #1E293B;
+  color: #FFFFFF;
 }
 
-.clean-billing__save-pill {
-  font-size: 9.5px;
+.dos-billing__discount-badge {
+  background: #10B981;
+  color: #FFFFFF;
+  font-size: 10px;
   font-weight: 800;
   padding: 1px 6px;
   border-radius: 100px;
-  background: #10B981;
-  color: #fff;
 }
 
 /* Plans Grid */
-.clean-billing__plans-grid {
+.dos-billing__plans-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  gap: 24px;
   align-items: stretch;
 }
 
-.clean-billing__plan-card {
-  position: relative;
+.dos-billing__plan-card {
+  background: #0B101B;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 32px 28px;
   display: flex;
   flex-direction: column;
-  padding: 28px 24px;
-  transition: transform 0.15s ease;
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.clean-billing__plan-card--popular {
-  border: 2px solid var(--accent-primary);
-  background: radial-gradient(circle at 50% 0%, var(--accent-bg), transparent 60%),
-              var(--bg-card);
+.dos-billing__plan-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
 }
 
-.clean-billing__popular-pill {
+.dos-billing__plan-card--popular {
+  border: 2px solid #3B82F6;
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.08) 0%, #0B101B 60%);
+  box-shadow: 0 0 35px rgba(59, 130, 246, 0.18);
+}
+
+.dos-billing__popular-tag {
   position: absolute;
-  top: -11px;
+  top: -12px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--accent-primary);
-  color: #fff;
+  background: linear-gradient(135deg, #4F46E5 0%, #3B82F6 100%);
+  color: #FFFFFF;
   font-size: 10px;
   font-weight: 800;
-  letter-spacing: 0.5px;
-  padding: 3px 12px;
+  letter-spacing: 0.8px;
+  padding: 4px 14px;
   border-radius: 100px;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.dos-billing__plan-card-header {
   display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.dos-billing__plan-card-icon {
+  color: #3B82F6;
+}
+
+.dos-billing__plan-card-name {
+  font-size: 20px;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin: 0;
+}
+
+.dos-billing__plan-card-tagline {
+  font-size: 12.5px;
+  color: #94A3B8;
+  line-height: 1.45;
+  margin: 0 0 20px 0;
+  min-height: 38px;
+}
+
+.dos-billing__plan-pricing-box {
+  margin-bottom: 24px;
+}
+
+.dos-billing__plan-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.dos-billing__plan-price-num {
+  font-size: 34px;
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: -0.5px;
+}
+
+.dos-billing__plan-price-sub {
+  font-size: 13.5px;
+  color: #64748B;
+  font-weight: 500;
+}
+
+.dos-billing__plan-price-interval-note {
+  font-size: 12px;
+  color: #64748B;
+  margin-top: 3px;
+}
+
+.dos-billing__plan-features-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 28px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+.dos-billing__plan-feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  color: #CBD5E1;
+  line-height: 1.4;
+}
+
+.dos-billing__check-icon {
+  color: #10B981;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.dos-billing__plan-cta-btn {
+  width: 100%;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.dos-billing__plan-cta-btn--starter {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #F8FAFC;
+}
+
+.dos-billing__plan-cta-btn--starter:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.dos-billing__plan-cta-btn--pro {
+  background: linear-gradient(135deg, #4F46E5 0%, #3B82F6 100%);
+  border: none;
+  color: #FFFFFF;
+  box-shadow: 0 4px 18px rgba(59, 130, 246, 0.4);
+}
+
+.dos-billing__plan-cta-btn--pro:hover {
+  opacity: 0.95;
+  box-shadow: 0 6px 24px rgba(59, 130, 246, 0.55);
+}
+
+.dos-billing__plan-cta-btn--enterprise {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #FFFFFF;
+}
+
+.dos-billing__plan-cta-btn--enterprise:hover {
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.dos-billing__trust-guarantee {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #94A3B8;
+  margin-top: 4px;
+}
+
+/* ── Section 4: Bottom Grid (Payment Methods & Invoices) ── */
+.dos-billing__bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 24px;
+}
+
+.dos-billing__bottom-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.dos-billing__box-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.dos-billing__box-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin: 0;
+}
+
+.dos-billing__box-sub {
+  font-size: 12.5px;
+  color: #94A3B8;
+  margin: 0 0 18px 0;
+}
+
+/* Payment Gateway Channel */
+.dos-billing__gateway-header-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.dos-billing__gateway-name {
+  font-size: 18px;
+  font-weight: 800;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dos-billing__gateway-channels-pill {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #34D399;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.dos-billing__payment-icons-strip {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  background: #0D1322;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.dos-billing__pay-logo-badge {
+  font-size: 13px;
+  font-weight: 800;
+  color: #CBD5E1;
+  display: inline-flex;
   align-items: center;
   gap: 4px;
 }
 
-.clean-billing__card-header {
-  margin-bottom: 16px;
-}
-
-.clean-billing__card-name {
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--text-main);
-}
-
-.clean-billing__card-tagline {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-top: 4px;
-  line-height: 1.45;
-  min-height: 34px;
-}
-
-.clean-billing__card-pricing {
-  margin-bottom: 20px;
-}
-
-.clean-billing__price-row {
+.dos-billing__meta-details-table {
   display: flex;
-  align-items: baseline;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 12.5px;
+}
+
+.dos-billing__meta-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #94A3B8;
+}
+
+.dos-billing__meta-item strong {
+  color: #F1F5F9;
+  font-weight: 600;
+}
+
+/* Invoices Ledger */
+.dos-billing__invoices-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dos-billing__invoice-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #0D1322;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding: 10px 14px;
+  transition: border-color 0.15s ease;
+}
+
+.dos-billing__invoice-row:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.dos-billing__invoice-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dos-billing__invoice-icon-box {
+  width: 32px;
+  height: 32px;
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  color: #818CF8;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dos-billing__invoice-id-block {
+  display: flex;
+  flex-direction: column;
   gap: 2px;
 }
 
-.clean-billing__currency-sign {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text-main);
-}
-
-.clean-billing__price-digits {
-  font-size: 32px;
-  font-weight: 800;
-  color: var(--text-main);
-  letter-spacing: -0.5px;
-}
-
-.clean-billing__price-interval {
+.dos-billing__invoice-id {
   font-size: 12.5px;
-  color: var(--text-disabled);
-  font-weight: 500;
-  margin-left: 3px;
-}
-
-.clean-billing__yearly-billed {
-  font-size: 11.5px;
-  color: #10B981;
-  font-weight: 600;
-  margin-top: 3px;
-}
-
-.clean-billing__cta-button {
-  width: 100%;
-  padding: 10px 16px;
-  justify-content: center;
-  font-size: 13.5px;
   font-weight: 700;
-  margin-bottom: 22px;
-}
-
-.clean-billing__features-wrap {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  border-top: 1px solid var(--border-subtle);
-  padding-top: 18px;
-}
-
-.clean-billing__features-heading {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-disabled);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.clean-billing__features-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.clean-billing__feature-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  font-size: 12.5px;
-  color: var(--text-muted);
-  line-height: 1.4;
-}
-
-.clean-billing__feature-check {
-  color: #10B981;
-  flex-shrink: 0;
-  margin-top: 1px;
-}
-
-/* ── Section 3: Bottom Grid ── */
-.clean-billing__bottom-grid {
-  display: grid;
-  grid-template-columns: 1fr 1.3fr;
-  gap: 20px;
-}
-
-.clean-billing__card-box {
-  display: flex;
-  flex-direction: column;
-}
-
-.clean-billing__box-header {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  margin-bottom: 18px;
-}
-
-.clean-billing__box-icon {
-  color: var(--accent-primary);
-  margin-top: 2px;
-  flex-shrink: 0;
-}
-
-.clean-billing__box-title {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text-main);
-}
-
-.clean-billing__box-sub {
-  font-size: 12.5px;
-  color: var(--text-muted);
-  margin-top: 1px;
-}
-
-/* Payment Card */
-.clean-billing__payment-card {
-  padding: 16px;
-  border-radius: 10px;
-  background: var(--bg-canvas);
-  border: 1px solid var(--border-subtle);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-.clean-billing__payment-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.clean-billing__card-badge {
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--text-main);
-  letter-spacing: 0.8px;
-}
-
-.clean-billing__card-digits {
-  font-size: 15px;
-  font-weight: 700;
+  color: #F8FAFC;
   font-family: monospace;
-  letter-spacing: 2px;
-  color: var(--text-main);
 }
 
-.clean-billing__card-details {
-  display: flex;
-  justify-content: space-between;
+.dos-billing__invoice-meta-sub {
   font-size: 11.5px;
-  color: var(--text-muted);
+  color: #64748B;
 }
 
-.clean-billing__meta-summary {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 12px 14px;
-  border-radius: 8px;
-  background: var(--bg-canvas);
-  border: 1px solid var(--border-subtle);
-  font-size: 12px;
-  margin-bottom: 16px;
-}
-
-.clean-billing__meta-row {
-  display: flex;
-  justify-content: space-between;
-  color: var(--text-muted);
-}
-
-.clean-billing__meta-row strong {
-  color: var(--text-main);
-}
-
-.clean-billing__update-card-btn {
-  margin-top: auto;
-  font-size: 12.5px;
-  font-weight: 600;
+.dos-billing__invoice-right {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 6px;
+  gap: 12px;
 }
 
-/* Invoices Clean List */
-.clean-billing__invoices-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.dos-billing__invoice-amount {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #FFFFFF;
 }
 
-.clean-billing__invoice-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 14px;
-  border-radius: 8px;
-  background: var(--bg-canvas);
-  border: 1px solid var(--border-subtle);
-}
-
-.clean-billing__invoice-id {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-main);
-}
-
-.clean-billing__invoice-meta {
-  font-size: 11.5px;
-  color: var(--text-disabled);
-  margin-top: 1px;
-}
-
-.clean-billing__invoice-action {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.clean-billing__invoice-price {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-main);
-}
-
-.clean-billing__download-icon-btn {
-  width: 28px;
-  height: 28px;
+.dos-billing__paid-pill {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #34D399;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
   border-radius: 6px;
-  border: 1px solid var(--border-subtle);
-  background: var(--bg-card);
-  color: var(--text-muted);
+}
+
+.dos-billing__download-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94A3B8;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -567,325 +919,120 @@
   transition: all 0.15s ease;
 }
 
-.clean-billing__download-icon-btn:hover {
-  color: var(--accent-primary);
-  border-color: var(--accent-primary);
+.dos-billing__download-btn:hover {
+  color: #FFFFFF;
+  border-color: #3B82F6;
+  background: rgba(59, 130, 246, 0.1);
 }
 
-.clean-billing__invoice-note {
-  margin-top: 14px;
-  font-size: 11.5px;
-  color: var(--text-disabled);
-  text-align: center;
+/* ── Modals ── */
+.dos-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+  animation: dosFadeIn 0.18s ease-out;
 }
 
-/* ── Section 4: FAQs ── */
-.clean-billing__faqs-list {
+.dos-modal {
+  background: #0B101E;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-
-.clean-billing__faq-item {
-  border: 1px solid var(--border-subtle);
-  border-radius: 8px;
-  background: var(--bg-canvas);
   overflow: hidden;
+  animation: dosScaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.clean-billing__faq-trigger {
-  width: 100%;
-  padding: 13px 16px;
-  background: transparent;
-  border: none;
-  text-align: left;
-  font-size: 13.5px;
-  font-weight: 700;
-  color: var(--text-main);
+.dos-modal__head {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dos-modal__title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin: 0;
+}
+
+.dos-modal__close-btn {
+  background: transparent;
+  border: none;
+  color: #94A3B8;
   cursor: pointer;
-  font-family: inherit;
+  padding: 6px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
 }
 
-.clean-billing__faq-body {
-  padding: 0 16px 13px 16px;
-  font-size: 12.5px;
-  color: var(--text-muted);
-  line-height: 1.5;
+.dos-modal__close-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #FFFFFF;
 }
 
-.clean-billing__spin {
-  animation: cleanSpin 0.9s linear infinite;
+.dos-modal__body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 70vh;
+  overflow-y: auto;
 }
 
-@keyframes cleanSpin {
+@keyframes dosFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes dosScaleUp {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* ── Spin Animation ── */
+.dos-spin {
+  animation: dosRotate 0.8s linear infinite;
+}
+
+@keyframes dosRotate {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
 /* ── Responsive ── */
 @media (max-width: 1024px) {
-  .clean-billing__meters-grid {
+  .dos-billing__usage-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  .clean-billing__plans-grid {
+  .dos-billing__plans-grid {
     grid-template-columns: 1fr;
   }
-  .clean-billing__bottom-grid {
+  .dos-billing__bottom-grid {
     grid-template-columns: 1fr;
   }
-}
-
-@media (max-width: 640px) {
-  .clean-billing__meters-grid {
-    grid-template-columns: 1fr;
-  }
-  .clean-billing__section-head {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .clean-billing__plan-banner {
+  .dos-billing__current-plan-card {
     flex-direction: column;
     align-items: flex-start;
   }
 }
 
-/* ── Interactive Payment Checkout Modal ── */
-.payment-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(6px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  padding: 20px;
-  animation: fadeIn 0.18s ease-out;
+@media (max-width: 640px) {
+  .dos-billing__usage-grid {
+    grid-template-columns: 1fr;
+  }
 }
-
-.payment-modal {
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: 18px;
-  width: 100%;
-  max-width: 500px;
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.28);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  animation: scaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes scaleUp {
-  from { opacity: 0; transform: scale(0.96); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-.payment-modal__head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  padding: 22px 24px 16px 24px;
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.payment-modal__badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.6px;
-  color: #10B981;
-  background: rgba(16, 185, 129, 0.1);
-  padding: 3px 8px;
-  border-radius: 6px;
-  margin-bottom: 6px;
-}
-
-.payment-modal__title {
-  font-size: 19px;
-  font-weight: 800;
-  color: var(--text-main);
-  letter-spacing: -0.3px;
-}
-
-.payment-modal__close-btn {
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  cursor: pointer;
-  padding: 6px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.15s;
-}
-
-.payment-modal__close-btn:hover {
-  background: var(--bg-hover);
-  color: var(--text-main);
-}
-
-.payment-modal__summary {
-  background: var(--bg-subtle);
-  margin: 16px 24px 0 24px;
-  border-radius: 12px;
-  padding: 14px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  border: 1px solid var(--border-subtle);
-}
-
-.payment-modal__summary-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 13px;
-  color: var(--text-muted);
-}
-
-.payment-modal__summary-row strong {
-  color: var(--text-main);
-  font-weight: 700;
-}
-
-.payment-modal__summary-total {
-  border-top: 1px dashed var(--border-subtle);
-  padding-top: 8px;
-  font-size: 14.5px;
-}
-
-.payment-modal__summary-total strong {
-  font-size: 17px;
-  color: var(--brand-primary);
-  font-weight: 800;
-}
-
-.payment-modal__tabs {
-  display: flex;
-  gap: 8px;
-  padding: 16px 24px 0 24px;
-}
-
-.payment-modal__tab {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 10px;
-  border-radius: 10px;
-  font-size: 12.5px;
-  font-weight: 700;
-  border: 1px solid var(--border-subtle);
-  background: var(--bg-subtle);
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.payment-modal__tab--active {
-  background: var(--brand-primary);
-  color: #ffffff;
-  border-color: var(--brand-primary);
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
-}
-
-.payment-modal__form {
-  padding: 16px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.payment-modal__field {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  flex: 1;
-}
-
-.payment-modal__field label {
-  font-size: 11.5px;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-}
-
-.payment-modal__input-icon-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.payment-modal__input-icon-wrap input {
-  width: 100%;
-  padding-right: 50px;
-}
-
-.payment-modal__input-badge {
-  position: absolute;
-  right: 12px;
-  font-size: 10px;
-  font-weight: 800;
-  background: #2563eb;
-  color: #fff;
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-
-.payment-modal__row {
-  display: flex;
-  gap: 12px;
-}
-
-.payment-modal__hint {
-  font-size: 11.5px;
-  color: var(--text-muted);
-  line-height: 1.4;
-  margin: 0;
-}
-
-.payment-modal__foot {
-  padding: 12px 24px 22px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  border-top: 1px solid var(--border-subtle);
-}
-
-.payment-modal__pay-btn {
-  width: 100%;
-  padding: 13px;
-  font-size: 14.5px;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  border-radius: 12px;
-  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
-}
-
-.payment-modal__guarantee {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  font-size: 11px;
-  color: var(--text-muted);
-  text-align: center;
-}
-
