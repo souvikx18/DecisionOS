@@ -1,6 +1,6 @@
 // src/modules/billing/billing.router.js
 // ============================================================
-// Billing Routes — Subscriptions, Plans, Checkout & Webhooks
+// Billing Routes — Subscriptions, Plans, Razorpay Orders & Verification
 // ============================================================
 
 import { Router } from 'express';
@@ -13,17 +13,12 @@ import {
   getPlans,
   getSubscription,
   createCheckout,
+  verifyPayment,
   createPortalSession,
   listInvoices,
-  razorpayWebhook,
 } from './billing.controller.js';
 
 const router = Router();
-
-// ── Webhook endpoints (Raw payload, no session auth) ──────────
-// NOTE: /webhook/stripe is registered directly in app.js (before express.json)
-//       so Stripe's raw body signature verification works correctly.
-router.post('/webhook/razorpay', razorpayWebhook);
 
 // ── Authenticated & Org-Scoped Routes ─────────────────────────
 router.use(requireAuth);
@@ -35,7 +30,8 @@ router.get('/subscription', authGeneralLimiter, getSubscription);
 router.get('/invoices',     authGeneralLimiter, listInvoices);
 
 // Manage / Upgrade (requires MANAGE_ORG permission)
-router.post('/checkout', requirePermission('MANAGE_ORG'), authGeneralLimiter, createCheckout);
-router.post('/portal',   requirePermission('MANAGE_ORG'), authGeneralLimiter, createPortalSession);
+router.post('/checkout',       requirePermission('MANAGE_ORG'), authGeneralLimiter, createCheckout);
+router.post('/verify-payment', requirePermission('MANAGE_ORG'), authGeneralLimiter, verifyPayment);
+router.post('/portal',         requirePermission('MANAGE_ORG'), authGeneralLimiter, createPortalSession);
 
 export default router;

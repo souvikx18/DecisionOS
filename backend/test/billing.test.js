@@ -1,7 +1,7 @@
 // test/billing.test.js
 // ============================================================
-// Enterprise Billing & Stripe Integration Test Suite
-// Full test matrix: Crypto, Lifecycle Webhooks, Idempotency & Quotas
+// Enterprise Billing & Razorpay Integration Test Suite
+// Full test matrix: Crypto, Razorpay Orders, HMAC Verification & Quotas
 // ============================================================
 
 import 'dotenv/config';
@@ -11,13 +11,12 @@ import {
   getPlansService,
   getSubscriptionService,
   createCheckoutSessionService,
+  verifyRazorpayPaymentService,
   createPortalSessionService,
   listInvoicesService,
-  handleStripeWebhookService,
   handleRazorpayWebhookService,
 } from '../src/modules/billing/billing.service.js';
 import { prisma } from '../src/lib/prisma.js';
-import { GATEWAY_CONFIG } from '../src/modules/billing/billing.config.js';
 
 async function testBillingSuite() {
   const pass = [];
@@ -34,13 +33,13 @@ async function testBillingSuite() {
   }
 
   console.log('\n======================================================');
-  console.log('💳 ENTERPRISE BILLING & STRIPE INTEGRATION TEST SUITE');
+  console.log('💳 ENTERPRISE BILLING & RAZORPAY INTEGRATION TEST SUITE');
   console.log('======================================================\n');
 
   try {
     // ── 1. AES-256-GCM Field Encryption & Masking ───────────────
     console.log('🔒 1. Testing Cryptographic Encryption & Masking...');
-    const plainText = 'cus_stripe_live_secret_token_8888';
+    const plainText = 'rzp_cust_live_secret_token_8888';
     const cipherText = encrypt(plainText);
 
     check('Encryption produces distinct ciphertext starting with enc:', cipherText.startsWith('enc:'));
@@ -53,19 +52,19 @@ async function testBillingSuite() {
     const tamperedDecryption = decrypt('enc:00112233445566778899aabbccddeeff:00112233445566778899aabbccddeeff:deadbeef');
     check('Tampered ciphertext returns null (GCM tag verification failure)', tamperedDecryption === null);
 
-    const masked = maskIdentifier('cus_live_9876543210', 4);
+    const masked = maskIdentifier('rzp_live_9876543210', 4);
     check('Masking preserves only last 4 digits', masked === '•••• 3210');
 
-    // ── 2. Setup Test Organization & Subscription in Database ───
+    // ── 2. Setup Test Organization & Users in Database ──────────
     console.log('\n🏢 2. Setting up test organization & users in DB...');
-    const orgId = 'bill_org_' + Date.now();
-    const userId = 'bill_user_' + Date.now();
+    const orgId = 'rzp_org_' + Date.now();
+    const userId = 'rzp_user_' + Date.now();
 
     const user = await prisma.user.create({
       data: {
         id: userId,
-        email: `billing_${Date.now()}@decisionos.com`,
-        firstName: 'Enterprise',
+        email: `rzp_billing_${Date.now()}@decisionos.com`,
+        firstName: 'Razorpay',
         lastName: 'Tester',
         passwordHash: 'secure_dummy_hash_for_test',
       },
@@ -74,8 +73,8 @@ async function testBillingSuite() {
     const org = await prisma.organization.create({
       data: {
         id: orgId,
-        name: 'DecisionOS Test Organization',
-        slug: `decisionos-test-${Date.now()}`,
+        name: 'Razorpay Enterprise Test Org',
+        slug: `rzp-test-${Date.now()}`,
       },
     });
 
@@ -104,199 +103,169 @@ async function testBillingSuite() {
     check('Quotas list has 4 resource meters (AI, Reports, Seats, Ingestion)', subData.quotas.length === 4);
     check('Seats quota reflects active member count (1 seat used)', subData.quotas.find((q) => q.key === 'seats')?.used === 1);
 
-    // ── 5. Test Checkout Session Validation & Creation ─────────
-    console.log('\n🚀 5. Testing Checkout Session Creation & Validation...');
+    // ── 5. Test Razorpay Order Creation & Validation ───────────
+    console.log('\n🚀 5. Testing Razorpay Order Creation & Validation...');
     let freeUpgradeRejected = false;
     try {
       await createCheckoutSessionService(org.id, user.id, {
         planTier: 'FREE',
         interval: 'monthly',
         currency: 'INR',
-        gateway: 'stripe',
       });
     } catch {
       freeUpgradeRejected = true;
     }
     check('Attempting to checkout FREE plan is rejected', freeUpgradeRejected);
 
-    const checkoutResult = await createCheckoutSessionService(org.id, user.id, {
+    const orderResult = await createCheckoutSessionService(org.id, user.id, {
       planTier: 'PRO',
       interval: 'yearly',
       currency: 'INR',
-      gateway: 'stripe',
     });
-    check('Checkout session returns target plan tier PRO', checkoutResult.planTier === 'PRO');
-    check('Checkout session returns valid redirect URL', Boolean(checkoutResult.checkoutUrl));
+    check('Razorpay order returns target plan tier PRO', orderResult.planTier === 'PRO');
+    check('Razorpay order returns valid order ID & key ID', Boolean(orderResult.orderId && orderResult.keyId));
+    check('Razorpay order returns amount in paise', orderResult.amount > 0);
 
-    // ── 6. Test Webhook: checkout.session.completed ────────────
-    console.log('\n⚡ 6. Testing Webhook: checkout.session.completed (Plan Activation)...');
-    const testInvoiceId = 'inv_test_' + Date.now();
-    const testCustomerId = 'cus_test_' + Date.now();
-    const testSubscriptionId = 'sub_test_' + Date.now();
+    // ── 6. Test Razorpay Payment Signature Verification ────────
+    console.log('\n⚡ 6. Testing Razorpay Payment Verification (Plan Activation)...');
+    const testOrderId = `order_${Date.now()}`;
+    const testPaymentId = `pay_${Date.now()}`;
+    const secret = process.env.RAZORPAY_KEY_SECRET || 'decisionos_razorpay_secret_dev';
+    const validSignature = crypto.createHmac('sha256', secret).update(`${testOrderId}|${testPaymentId}`).digest('hex');
 
-    // Ensure database PRO plan exists
-    let dbProPlan = await prisma.plan.findUnique({ where: { tier: 'PRO' } });
-    if (!dbProPlan) {
-      dbProPlan = await prisma.plan.create({
-        data: {
-          name: 'Growth Pro',
-          tier: 'PRO',
-          priceMonthly: 2999,
-          priceYearly: 2399,
-          maxMembers: 15,
-          maxAiCallsPerMonth: 250000,
-          maxImportsPerMonth: 50,
-          maxStorageMb: 5000,
-          features: ['Pro features'],
-        },
-      });
-    }
+    const verifyResult = await verifyRazorpayPaymentService(org.id, user.id, {
+      razorpayOrderId: testOrderId,
+      razorpayPaymentId: testPaymentId,
+      razorpaySignature: validSignature,
+      planTier: 'PRO',
+      interval: 'yearly',
+      currency: 'INR',
+    });
 
-    // Direct DB state test mirroring handleStripeWebhookService
-    const encryptedCustId = encrypt(testCustomerId);
-    const subActivated = await prisma.subscription.upsert({
+    check('Payment verified and plan activated successfully', verifyResult.success === true && verifyResult.planTier === 'PRO');
+
+    const updatedSub = await prisma.subscription.findUnique({
       where: { organizationId: org.id },
-      update: {
-        planId: dbProPlan.id,
-        status: 'ACTIVE',
-        stripeCustomerId: encryptedCustId,
-        stripeSubscriptionId: testSubscriptionId,
-        currentPeriodStart: new Date(),
-        currentPeriodEnd: new Date(Date.now() + 30 * 86400000),
-      },
-      create: {
-        organizationId: org.id,
-        planId: dbProPlan.id,
-        status: 'ACTIVE',
-        stripeCustomerId: encryptedCustId,
-        stripeSubscriptionId: testSubscriptionId,
-        currentPeriodStart: new Date(),
-        currentPeriodEnd: new Date(Date.now() + 30 * 86400000),
-      },
+      include: { plan: true },
     });
+    check('Database subscription plan is ACTIVE and tier is PRO', updatedSub?.status === 'ACTIVE' && updatedSub.plan?.tier === 'PRO');
+    check('Razorpay customer reference is encrypted in DB', updatedSub?.razorpayCustomerId?.startsWith('enc:'));
 
-    await prisma.payment.create({
-      data: {
-        subscriptionId: subActivated.id,
-        stripeInvoiceId: testInvoiceId,
-        amount: 239900,
-        currency: 'inr',
-        status: 'PAID',
-        paidAt: new Date(),
-      },
+    // ── 7. Test Payment Verification Idempotency ───────────────
+    console.log('\n🔁 7. Testing Payment Verification Idempotency...');
+    const duplicateVerify = await verifyRazorpayPaymentService(org.id, user.id, {
+      razorpayOrderId: testOrderId,
+      razorpayPaymentId: testPaymentId,
+      razorpaySignature: validSignature,
+      planTier: 'PRO',
+      interval: 'yearly',
+      currency: 'INR',
     });
+    check('Duplicate payment verification safely returns idempotent success', duplicateVerify.idempotent === true);
 
-    check('Subscription plan tier successfully upgraded to PRO', subActivated.status === 'ACTIVE');
-    check('Stripe customer ID stored encrypted in DB', subActivated.stripeCustomerId.startsWith('enc:'));
-
-    // ── 7. Test Webhook Idempotency (Replay Attack Protection) ──
-    console.log('\n🔁 7. Testing Webhook Idempotency (Duplicate Prevention)...');
-    const existingPaymentCount = await prisma.payment.count({
-      where: { stripeInvoiceId: testInvoiceId },
+    const paymentRowsCount = await prisma.payment.count({
+      where: { razorpayPaymentId: testPaymentId },
     });
-    check('Invoice payment record exists in database', existingPaymentCount === 1);
+    check('No duplicate payment records created in database', paymentRowsCount === 1);
 
-    // ── 8. Test Webhook: invoice.payment_succeeded (Renewal) ───
-    console.log('\n💳 8. Testing Webhook: invoice.payment_succeeded (Renewal)...');
-    const renewalInvoiceId = 'inv_renewal_' + Date.now();
-    const newPeriodEnd = new Date(Date.now() + 60 * 86400000);
+    // ── 8. Test Customer Portal & Invoices Ledger ──────────────
+    console.log('\n📑 8. Testing Invoices & Receipts Ledger...');
+    const invoices = await listInvoicesService(org.id);
+    check('Invoices ledger contains payment record', invoices.length > 0);
+    check('Invoice contains valid currency amount and PAID status', invoices[0].status === 'PAID');
+    check('Invoice ID matches Razorpay payment ID', invoices[0].id === testPaymentId);
 
-    await prisma.subscription.update({
-      where: { id: subActivated.id },
-      data: {
-        status: 'ACTIVE',
-        currentPeriodEnd: newPeriodEnd,
-      },
-    });
-
-    await prisma.payment.create({
-      data: {
-        subscriptionId: subActivated.id,
-        stripeInvoiceId: renewalInvoiceId,
-        amount: 239900,
-        currency: 'inr',
-        status: 'PAID',
-        paidAt: new Date(),
-      },
-    });
-
-    const updatedSubAfterRenewal = await prisma.subscription.findUnique({
-      where: { id: subActivated.id },
-    });
-    check('Subscription period extended on renewal payment', updatedSubAfterRenewal.currentPeriodEnd > new Date());
-
-    // ── 9. Test Webhook: invoice.payment_failed (Past Due) ──────
-    console.log('\n⚠️ 9. Testing Webhook: invoice.payment_failed (Grace Period)...');
-    await prisma.subscription.update({
-      where: { id: subActivated.id },
-      data: { status: 'PAST_DUE' },
-    });
-    const pastDueSub = await prisma.subscription.findUnique({
-      where: { id: subActivated.id },
-    });
-    check('Subscription status transitioned to PAST_DUE on failed charge', pastDueSub.status === 'PAST_DUE');
-
-    // ── 10. Test Webhook: customer.subscription.deleted (Revert to Free) ──
-    console.log('\n❌ 10. Testing Webhook: customer.subscription.deleted (Cancellation)...');
-    let freePlan = await prisma.plan.findUnique({ where: { tier: 'FREE' } });
-    if (!freePlan) {
-      freePlan = await prisma.plan.create({
-        data: {
-          name: 'Starter Free',
-          tier: 'FREE',
-          priceMonthly: 0,
-          priceYearly: 0,
-          maxMembers: 3,
-          maxAiCallsPerMonth: 10000,
-          maxImportsPerMonth: 5,
-          maxStorageMb: 500,
-          features: ['Basic features'],
-        },
-      });
-    }
-
-    const canceledSub = await prisma.subscription.update({
-      where: { id: subActivated.id },
-      data: {
-        planId: freePlan.id,
-        status: 'CANCELED',
-        canceledAt: new Date(),
-        cancelAtPeriodEnd: false,
-      },
-    });
-    check('Subscription reverted to FREE plan tier on cancellation', canceledSub.status === 'CANCELED');
-
-    // ── 11. Test Customer Portal Session Generation ────────────
-    console.log('\n🚪 11. Testing Customer Portal Session Generation...');
     const portalResult = await createPortalSessionService(org.id);
     check('Portal session URL generated successfully', Boolean(portalResult.portalUrl));
 
-    // ── 12. Test Invoices & Receipts Ledger ────────────────────
-    console.log('\n📑 12. Testing Invoices & Receipts Ledger...');
-    const invoices = await listInvoicesService(org.id);
-    check('Invoices ledger contains payments list', invoices.length >= 2);
-    check('Invoice items contain formatted currency amount', invoices[0].amount.includes('₹') || invoices[0].amount.includes('$'));
-    check('Invoice items have uppercase status (PAID)', invoices[0].status === 'PAID');
+    // ── 9. Test Cryptographic HMAC Webhook Verification ───────
+    console.log('\n🛡️ 9. Testing Razorpay HMAC Webhook Signature Verification...');
+    const webhookSecret = 'test_razorpay_webhook_secret_key_8888';
+    process.env.RAZORPAY_WEBHOOK_SECRET = webhookSecret;
 
-    // ── 13. Test Cryptographic HMAC Webhook Verification ───────
-    console.log('\n🛡️ 13. Testing Cryptographic Signature Verification...');
-    process.env.RAZORPAY_WEBHOOK_SECRET = 'test_secret_key_crypto_verify_999';
-    const payload = JSON.stringify({ event: 'subscription.charged', orgId: org.id, timestamp: Date.now() });
-    const validSignature = crypto.createHmac('sha256', process.env.RAZORPAY_WEBHOOK_SECRET).update(payload).digest('hex');
+    const webhookPayload = JSON.stringify({
+      event: 'order.paid',
+      payload: {
+        payment: {
+          entity: {
+            id: `pay_hook_${Date.now()}`,
+            order_id: `order_hook_${Date.now()}`,
+            amount: 239900,
+            currency: 'INR',
+            status: 'captured',
+            notes: {
+              orgId: org.id,
+              userId: user.id,
+              planTier: 'PRO',
+              interval: 'yearly',
+              currency: 'INR',
+            },
+          },
+        },
+      },
+    });
 
-    const webhookResult = handleRazorpayWebhookService(payload, validSignature);
-    check('Valid cryptographic HMAC signature accepted', webhookResult.received === true);
+    const validWebhookSig = crypto
+      .createHmac('sha256', webhookSecret)
+      .update(webhookPayload)
+      .digest('hex');
 
-    let invalidSigRejected = false;
+    const webhookResult = await handleRazorpayWebhookService(webhookPayload, validWebhookSig);
+    check('Valid cryptographic HMAC webhook signature accepted', webhookResult.received === true);
+
+    let tamperedRejected = false;
     try {
-      handleRazorpayWebhookService(payload, 'forged_fake_signature_abc123');
+      await handleRazorpayWebhookService(webhookPayload, 'invalid_tampered_signature_xyz');
     } catch {
-      invalidSigRejected = true;
+      tamperedRejected = true;
     }
-    check('Tampered HMAC signature strictly rejected (anti-forgery)', invalidSigRejected);
+    check('Tampered HMAC webhook signature strictly rejected', tamperedRejected);
 
-    // ── 14. Cleanup Test Resources ─────────────────────────────
-    console.log('\n🧹 14. Cleaning up test database records...');
+    // ── 10. Test Webhook: subscription.charged (Renewal) ───────
+    console.log('\n💳 10. Testing Webhook: subscription.charged (Renewal)...');
+    const rzpSubId = `sub_rzp_${Date.now()}`;
+    await prisma.subscription.update({
+      where: { organizationId: org.id },
+      data: { razorpaySubscriptionId: rzpSubId },
+    });
+
+    const renewalPayload = JSON.stringify({
+      event: 'subscription.charged',
+      payload: {
+        subscription: {
+          entity: { id: rzpSubId, status: 'active' },
+        },
+        payment: {
+          entity: { id: `pay_renewal_${Date.now()}`, amount: 239900, currency: 'INR' },
+        },
+      },
+    });
+    const renewalSig = crypto.createHmac('sha256', webhookSecret).update(renewalPayload).digest('hex');
+    const renewalResult = await handleRazorpayWebhookService(renewalPayload, renewalSig);
+    check('Subscription renewal webhook processed successfully', renewalResult.received === true);
+
+    // ── 11. Test Webhook: subscription.cancelled (Cancellation) 
+    console.log('\n❌ 11. Testing Webhook: subscription.cancelled (Revert to Free)...');
+    const cancelPayload = JSON.stringify({
+      event: 'subscription.cancelled',
+      payload: {
+        subscription: {
+          entity: { id: rzpSubId, status: 'cancelled' },
+        },
+      },
+    });
+    const cancelSig = crypto.createHmac('sha256', webhookSecret).update(cancelPayload).digest('hex');
+    await handleRazorpayWebhookService(cancelPayload, cancelSig);
+
+    const canceledSub = await prisma.subscription.findUnique({
+      where: { organizationId: org.id },
+      include: { plan: true },
+    });
+    check('Subscription successfully reverted to FREE plan on cancellation', canceledSub?.plan?.tier === 'FREE');
+    check('Subscription status marked as CANCELED', canceledSub?.status === 'CANCELED');
+
+    // ── 12. Cleanup Test Resources ─────────────────────────────
+    console.log('\n🧹 12. Cleaning up test database records...');
     await prisma.payment.deleteMany({ where: { subscription: { organizationId: org.id } } });
     await prisma.subscription.deleteMany({ where: { organizationId: org.id } });
     await prisma.organizationMember.deleteMany({ where: { organizationId: org.id } });
@@ -305,7 +274,7 @@ async function testBillingSuite() {
     check('Database cleaned up cleanly without orphaned records', true);
 
     console.log('\n======================================================');
-    console.log(`🎉 ENTERPRISE TEST RUN COMPLETE: ${pass.length} passed, ${fail.length} failed`);
+    console.log(`🎉 RAZORPAY TEST RUN COMPLETE: ${pass.length} passed, ${fail.length} failed`);
     console.log('======================================================\n');
 
     process.exit(fail.length > 0 ? 1 : 0);

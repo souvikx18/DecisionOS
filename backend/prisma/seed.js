@@ -16,7 +16,7 @@ async function main() {
     create: {
       name: 'Free',
       tier: 'FREE',
-      stripePriceId: null,
+      razorpayPlanId: null,
       priceMonthly: 0,
       priceYearly: 0,
       maxMembers: 2,
@@ -42,7 +42,7 @@ async function main() {
     create: {
       name: 'Pro',
       tier: 'PRO',
-      stripePriceId: null, // add your Stripe price ID later
+      razorpayPlanId: null, // add your Stripe price ID later
       priceMonthly: 2999,  // ₹2999/month in paise? No — store in paisa: 299900
       priceYearly: 29900,
       maxMembers: 10,
@@ -68,7 +68,7 @@ async function main() {
     create: {
       name: 'Enterprise',
       tier: 'ENTERPRISE',
-      stripePriceId: null,
+      razorpayPlanId: null,
       priceMonthly: 9999,
       priceYearly: 99990,
       maxMembers: 9999,

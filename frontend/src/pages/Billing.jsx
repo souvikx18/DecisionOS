@@ -2,9 +2,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import {
   CreditCard, Check, Sparkles, ArrowRight,
-  Download, ExternalLink, RefreshCw, HelpCircle,
+  Download, RefreshCw, HelpCircle,
   Receipt, Loader2, Lock, ChevronDown, ChevronUp,
-  X, ShieldCheck, Zap, QrCode, Building2
+  ShieldCheck, Zap, QrCode
 } from 'lucide-react'
 import { notify } from '../components/ui/CustomToast.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
@@ -48,13 +48,13 @@ const PLANS = [
     priceMonthly: { INR: 0, USD: 0 },
     priceYearly: { INR: 0, USD: 0 },
     isPopular: false,
-    ctaText: 'Current Plan',
+    cta: 'Current Plan',
     features: [
       '1 Organization Workspace',
       'Up to 3 Team Member Seats',
       '10,000 AI Reasoning Tokens / mo',
       '10 Automated Report Exports / mo',
-      'Standard CSV & XLSX Ingestion (50k rows)',
+      'Standard CSV & XLSX Ingestion (50,000 rows)',
       '7-Day Cloud File Retention',
       'Community & Standard Support',
     ],
@@ -65,9 +65,10 @@ const PLANS = [
     name: 'Growth Pro',
     tagline: 'Predictive intelligence, cron schedules, and advanced business scans.',
     priceMonthly: { INR: 2999, USD: 39 },
-    priceYearly: { INR: 2399, USD: 29 },
+    priceYearly: { INR: 2399, USD: 29 }, // ~20% discount
     isPopular: true,
-    ctaText: 'Upgrade to Growth Pro',
+    cta: 'Upgrade to Growth Pro',
+    badge: 'MOST POPULAR',
     features: [
       'Unlimited Workspaces',
       'Up to 15 Team Member Seats',
@@ -76,6 +77,7 @@ const PLANS = [
       '30-Day Cloud File Retention + Purger',
       'RFM Customer Segmentation & Churn Matrix',
       'Priority 24/7 Support',
+      'UPI, Cards, RuPay & NetBanking Support',
     ],
   },
   {
@@ -86,7 +88,7 @@ const PLANS = [
     priceMonthly: { INR: 8999, USD: 119 },
     priceYearly: { INR: 7199, USD: 95 },
     isPopular: false,
-    ctaText: 'Upgrade to Enterprise',
+    cta: 'Upgrade to Enterprise',
     features: [
       'Unlimited Workspaces & Team Seats',
       '1,000,000+ AI Tokens / mo',
@@ -95,56 +97,62 @@ const PLANS = [
       'Custom Retention (90+ Days / Permanent)',
       'Custom ERP API & Webhook Integrations',
       '99.9% Uptime SLA & Dedicated Account Lead',
+      'Direct Wire / Custom Invoicing Support',
     ],
   },
 ]
 
 const FAQS = [
   {
-    q: 'How does billing work when I upgrade or downgrade?',
-    a: 'When you upgrade, you gain immediate access to all higher-tier features. Charges are prorated based on your billing cycle. If you downgrade, the new plan takes effect at the end of the current period.',
+    q: 'What payment methods are supported with Razorpay?',
+    a: 'Razorpay natively supports UPI (Google Pay, PhonePe, Paytm, BHIM), all major Credit/Debit cards (Visa, Mastercard, RuPay), NetBanking from 50+ banks, and Digital Wallets.',
   },
   {
-    q: 'What payment methods and currencies are supported?',
-    a: 'We support all major Credit and Debit cards (Visa, Mastercard, AMEX), UPI, and net banking via Stripe and Razorpay. Billing is supported in both INR (₹) and USD ($).',
+    q: 'Can I change my plan or billing cycle at any time?',
+    a: 'Yes. Upgrades take effect immediately with pro-rated billing. Downgrades take effect at the end of your current billing period without unexpected charges.',
   },
   {
-    q: 'Are payments secure and PCI-DSS compliant?',
-    a: 'Yes. All payments are processed directly through Stripe / Razorpay PCI-DSS Level 1 compliant infrastructure. DecisionOS never sees or stores your full card number or CVV.',
+    q: 'What happens when I exceed my resource quotas?',
+    a: 'Your workspace remains active. When you reach 100% of a quota (such as AI reasoning tokens or automated exports), further operations in that category are throttled until the quota refreshes at the next billing cycle, or until you upgrade.',
   },
   {
-    q: 'What happens if I reach my monthly quota limit?',
-    a: 'You will receive an in-app and email alert before reaching your limit. You can upgrade your plan anytime without data disruption.',
+    q: 'Are my payment details secure?',
+    a: 'Yes. All payments are processed through Razorpay with 256-bit SSL encryption and full PCI-DSS Level 1 compliance. DecisionOS never stores your raw card numbers or banking PINs.',
+  },
+  {
+    q: 'Do you offer a refund policy?',
+    a: 'Yes. If you are unsatisfied with your paid subscription within the first 14 days, contact our support team for a full refund without questions asked.',
   },
 ]
 
+// Helper to dynamically load the Razorpay checkout.js script
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    if (window.Razorpay) {
+      resolve(true)
+      return
+    }
+    const script = document.createElement('script')
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js'
+    script.onload = () => resolve(true)
+    script.onerror = () => resolve(false)
+    document.body.appendChild(script)
+  })
+}
+
 export default function Billing() {
   const { user } = useAuth()
-  const realtime = useRealtime ? useRealtime() : null
-  const on = realtime?.on || null
+  const { on } = useRealtime()
 
-  const [billingCycle, setBillingCycle] = useState('yearly') // 'monthly' | 'yearly'
+  const [billingCycle, setBillingCycle] = useState('monthly') // 'monthly' | 'yearly'
   const [currency, setCurrency] = useState('INR') // 'INR' | 'USD'
   const [loadingPlan, setLoadingPlan] = useState(null)
-  const [portalLoading, setPortalLoading] = useState(false)
   const [openFaq, setOpenFaq] = useState(null)
 
-  // Payment Checkout Modal State
-  const [checkoutModal, setCheckoutModal] = useState({
-    isOpen: false,
-    plan: null,
-    paymentMethod: 'card', // 'card' | 'upi'
-    cardNumber: '4242 •••• •••• 4242',
-    cardExpiry: '12/28',
-    cardCvc: '•••',
-    upiId: '',
-    isProcessing: false,
-  })
-
-  // Live Subscription & Quota State (with safe fallback defaults)
+  // Live Subscription & Quota State
   const [subscription, setSubscription] = useState(DEFAULT_SUBSCRIPTION)
 
-  // Live Invoices State (with safe fallback defaults)
+  // Live Invoices State
   const [invoices, setInvoices] = useState(DEFAULT_INVOICES)
 
   // Fetch live subscription and invoices from backend
@@ -174,24 +182,7 @@ export default function Billing() {
 
   useEffect(() => {
     fetchBillingData()
-
-    // Handle Stripe redirect back with success/cancel params
-    const params = new URLSearchParams(window.location.search)
-    if (params.get('success') === 'true') {
-      notify.success('Payment successful! Your plan is now being activated.', 'Payment Complete 🎉')
-      // Poll for subscription update (webhook may take a few seconds)
-      let retries = 0
-      const poll = setInterval(() => {
-        fetchBillingData()
-        retries++
-        if (retries >= 6) clearInterval(poll) // stop after 12 seconds
-      }, 2000)
-      // Clean the URL without page reload
-      window.history.replaceState({}, '', '/billing')
-    } else if (params.get('canceled') === 'true') {
-      notify.info('Checkout was cancelled. You can upgrade anytime.', 'Checkout Cancelled')
-      window.history.replaceState({}, '', '/billing')
-    }
+    loadRazorpayScript()
   }, [fetchBillingData])
 
   // Listen for real-time subscription update via WebSocket
@@ -206,76 +197,104 @@ export default function Billing() {
 
   const currentTier = subscription?.tier || 'FREE'
 
-  // Direct Checkout with Stripe
+  // Direct Checkout with Razorpay
   const handleDirectCheckout = async (plan) => {
     if (plan.tier === currentTier) return
     setLoadingPlan(plan.tier)
-    notify.info(`Opening secure checkout for ${plan.name}…`, 'Stripe Checkout 💳')
+    notify.info(`Opening secure Razorpay checkout for ${plan.name}…`, 'Razorpay Checkout 💳')
 
     try {
+      const isLoaded = await loadRazorpayScript()
+      if (!isLoaded && !window.Razorpay) {
+        notify.error('Razorpay SDK failed to load. Please check your network.', 'Checkout Error')
+        setLoadingPlan(null)
+        return
+      }
+
       const res = await api.post('/billing/checkout', {
         planTier: plan.tier,
         interval: billingCycle,
         currency,
-        gateway: 'stripe',
+        gateway: 'razorpay',
       })
 
-      const checkoutUrl = res.data?.data?.checkoutUrl
-      if (checkoutUrl) {
-        window.location.href = checkoutUrl
-      } else {
-        notify.success(`Subscribed to ${plan.name}!`, 'Plan Active ✓')
+      const orderData = res.data?.data
+      if (!orderData) {
+        throw new Error('Failed to create Razorpay checkout order.')
+      }
+
+      // If simulated fallback in dev
+      if (orderData.simulated) {
+        notify.info('Simulating local payment verification…', 'Test Mode 🧪')
+        await api.post('/billing/verify-payment', {
+          razorpayOrderId: orderData.orderId,
+          razorpayPaymentId: `pay_sim_${Date.now()}`,
+          razorpaySignature: 'simulated_signature_dev',
+          planTier: plan.tier,
+          interval: billingCycle,
+          currency,
+        })
+        notify.success(`Plan upgraded to ${plan.name}!`, 'Plan Active 🎉')
         fetchBillingData()
         setLoadingPlan(null)
+        return
       }
-    } catch (err) {
-      notify.error(err.response?.data?.error?.message || 'Failed to open Stripe Checkout.', 'Checkout Error')
-      setLoadingPlan(null)
-    }
-  }
 
-  // Execute Payment in Modal
-  const handleExecutePayment = async () => {
-    if (!checkoutModal.plan) return
-    setCheckoutModal((prev) => ({ ...prev, isProcessing: true }))
+      // Live / Test Mode Razorpay Checkout Modal
+      const options = {
+        key: orderData.keyId,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: 'DecisionOS',
+        description: `${orderData.planName} Plan (${billingCycle})`,
+        order_id: orderData.orderId,
+        prefill: {
+          name: `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'DecisionOS Admin',
+          email: user?.email || '',
+        },
+        notes: {
+          planTier: plan.tier,
+          interval: billingCycle,
+        },
+        theme: {
+          color: '#0F172A',
+        },
+        modal: {
+          ondismiss: () => {
+            notify.info('Payment was cancelled.', 'Razorpay Checkout')
+            setLoadingPlan(null)
+          },
+        },
+        handler: async (response) => {
+          try {
+            notify.info('Verifying payment signature…', 'Verifying 🔒')
+            await api.post('/billing/verify-payment', {
+              razorpayOrderId: response.razorpay_order_id,
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpaySignature: response.razorpay_signature,
+              planTier: plan.tier,
+              interval: billingCycle,
+              currency,
+            })
+            notify.success(`Successfully upgraded to ${plan.name}!`, 'Payment Complete 🎉')
+            fetchBillingData()
+          } catch (err) {
+            notify.error(err.response?.data?.error?.message || 'Payment verification failed.', 'Verification Error')
+          } finally {
+            setLoadingPlan(null)
+          }
+        },
+      }
 
-    try {
-      const res = await api.post('/billing/checkout', {
-        planTier: checkoutModal.plan.tier,
-        interval: billingCycle,
-        currency,
-        gateway: checkoutModal.paymentMethod === 'upi' ? 'razorpay' : 'stripe',
+      const rzp = new window.Razorpay(options)
+      rzp.on('payment.failed', function (response) {
+        notify.error(response.error?.description || 'Payment failed. Please try again.', 'Payment Failed')
+        setLoadingPlan(null)
       })
-
-      const checkoutUrl = res.data?.data?.checkoutUrl
-      if (checkoutUrl) {
-        window.location.href = checkoutUrl
-      } else {
-        notify.success(`Payment successful! Subscribed to ${checkoutModal.plan.name}.`, 'Payment Verified ✓')
-        fetchBillingData()
-        setCheckoutModal({ isOpen: false, plan: null, paymentMethod: 'card', cardNumber: '', cardExpiry: '', cardCvc: '', upiId: '', isProcessing: false })
-      }
+      rzp.open()
     } catch (err) {
-      notify.error(err.response?.data?.error?.message || 'Payment failed. Please check details.', 'Payment Error')
-      setCheckoutModal((prev) => ({ ...prev, isProcessing: false }))
-    }
-  }
-
-  // Handle Opening Customer Portal
-  const handleOpenCustomerPortal = async () => {
-    setPortalLoading(true)
-    notify.info('Opening Stripe Customer Portal…', 'Customer Portal 🔒')
-
-    try {
-      const res = await api.post('/billing/portal')
-      const portalUrl = res.data?.data?.portalUrl
-      if (portalUrl) {
-        window.location.href = portalUrl
-      }
-    } catch (err) {
-      notify.error(err.response?.data?.error?.message || 'Failed to open customer portal.', 'Portal Error')
-    } finally {
-      setPortalLoading(false)
+      notify.error(err.response?.data?.error?.message || 'Failed to initiate Razorpay checkout.', 'Checkout Error')
+      setLoadingPlan(null)
     }
   }
 
@@ -295,16 +314,15 @@ export default function Billing() {
         <div>
           <h1 className="clean-billing__title">Billing & Subscription</h1>
           <p className="clean-billing__subtitle">
-            Manage your organization's subscription plan, resource quotas, and payment receipts.
+            Manage your organization's subscription plan, resource quotas, and payment receipts via Razorpay.
           </p>
         </div>
         <button
           className="btn-ghost clean-billing__portal-btn"
-          disabled={portalLoading}
-          onClick={handleOpenCustomerPortal}
+          onClick={() => fetchBillingData()}
         >
-          {portalLoading ? <Loader2 size={14} className="clean-billing__spin" /> : <ExternalLink size={14} />}
-          Manage via Stripe Portal
+          <RefreshCw size={14} />
+          Refresh Status
         </button>
       </div>
 
@@ -349,32 +367,50 @@ export default function Billing() {
               <div className="clean-billing__progress-track">
                 <div
                   className="clean-billing__progress-fill"
-                  style={{ width: `${Math.min(m.percentage || 0, 100)}%`, background: m.color || '#3B82F6' }}
+                  style={{
+                    width: `${m.percentage}%`,
+                    backgroundColor: m.percentage > 85 ? '#EF4444' : m.color || '#3B82F6',
+                  }}
                 />
               </div>
-              <div className="clean-billing__meter-foot">
-                <span>{m.percentage || 0}% utilized</span>
-                <span>{Math.max(100 - (m.percentage || 0), 0)}% remaining</span>
+              <div className="clean-billing__meter-footer">
+                <span>{m.percentage}% consumed</span>
+                <span>{m.unit}</span>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* ── Section 2: Pricing Matrix ── */}
-      <div id="plans" className="clean-billing__section">
-        <div className="clean-billing__section-head">
+      {/* ── Section 2: Pricing Tiers & Upgrade Cards ── */}
+      <div className="clean-billing__plans-section" id="plans">
+        <div className="clean-billing__plans-header">
           <div>
-            <h2 className="clean-billing__section-title">Subscription Plans</h2>
+            <h2 className="clean-billing__section-title">Available Subscription Plans</h2>
             <p className="clean-billing__section-sub">
-              Select the plan that fits your organization's business scale.
+              Scale decision intelligence with predictive models, cron exports, and automated reports.
             </p>
           </div>
 
-          {/* Controls: Billing Interval & Currency Switcher */}
-          <div className="clean-billing__controls-bar">
-            {/* Interval Toggle */}
-            <div className="clean-billing__toggle-group">
+          <div className="clean-billing__controls-cluster">
+            {/* Currency Selector */}
+            <div className="clean-billing__currency-pill">
+              <button
+                className={`clean-billing__curr-btn ${currency === 'INR' ? 'clean-billing__curr-btn--active' : ''}`}
+                onClick={() => setCurrency('INR')}
+              >
+                INR (₹)
+              </button>
+              <button
+                className={`clean-billing__curr-btn ${currency === 'USD' ? 'clean-billing__curr-btn--active' : ''}`}
+                onClick={() => setCurrency('USD')}
+              >
+                USD ($)
+              </button>
+            </div>
+
+            {/* Billing Frequency Toggle */}
+            <div className="clean-billing__toggle-pill">
               <button
                 className={`clean-billing__toggle-btn ${billingCycle === 'monthly' ? 'clean-billing__toggle-btn--active' : ''}`}
                 onClick={() => setBillingCycle('monthly')}
@@ -385,146 +421,129 @@ export default function Billing() {
                 className={`clean-billing__toggle-btn ${billingCycle === 'yearly' ? 'clean-billing__toggle-btn--active' : ''}`}
                 onClick={() => setBillingCycle('yearly')}
               >
-                Yearly
-                <span className="clean-billing__save-pill">20% OFF</span>
-              </button>
-            </div>
-
-            {/* Currency Toggle */}
-            <div className="clean-billing__toggle-group">
-              <button
-                className={`clean-billing__toggle-btn ${currency === 'INR' ? 'clean-billing__toggle-btn--active' : ''}`}
-                onClick={() => setCurrency('INR')}
-              >
-                INR (₹)
-              </button>
-              <button
-                className={`clean-billing__toggle-btn ${currency === 'USD' ? 'clean-billing__toggle-btn--active' : ''}`}
-                onClick={() => setCurrency('USD')}
-              >
-                USD ($)
+                Annual <span className="clean-billing__save-tag">SAVE 20%</span>
               </button>
             </div>
           </div>
         </div>
 
-        {/* 3 Pricing Cards */}
-        <div className="clean-billing__plans-grid">
-          {PLANS.map((p) => {
-            const price = billingCycle === 'yearly' ? p.priceYearly[currency] : p.priceMonthly[currency]
-            const isCurrent = p.tier === currentTier
-            const symbol = CURRENCY_SYMBOLS[currency]
+        {/* Plan Cards Grid */}
+        <div className="clean-billing__cards-grid">
+          {PLANS.map((plan) => {
+            const isCurrent = plan.tier === currentTier
+            const price = billingCycle === 'yearly' ? plan.priceYearly[currency] : plan.priceMonthly[currency]
+            const isLoading = loadingPlan === plan.tier
 
             return (
               <div
-                key={p.id}
-                className={`clean-card clean-billing__plan-card ${p.isPopular ? 'clean-billing__plan-card--popular' : ''}`}
+                key={plan.id}
+                className={`clean-card clean-billing__card ${
+                  plan.isPopular ? 'clean-billing__card--popular' : ''
+                } ${isCurrent ? 'clean-billing__card--current' : ''}`}
               >
-                {p.isPopular && (
-                  <div className="clean-billing__popular-pill">
-                    <Sparkles size={11} /> MOST POPULAR
-                  </div>
-                )}
+                {plan.badge && <div className="clean-billing__popular-badge">{plan.badge}</div>}
 
-                <div className="clean-billing__card-header">
-                  <h3 className="clean-billing__card-name">{p.name}</h3>
-                  <p className="clean-billing__card-tagline">{p.tagline}</p>
+                <div className="clean-billing__card-top">
+                  <div className="clean-billing__tier-icon">
+                    {plan.tier === 'FREE' ? <Zap size={20} /> : plan.tier === 'PRO' ? <Sparkles size={20} /> : <ShieldCheck size={20} />}
+                  </div>
+                  <h3 className="clean-billing__card-tier-name">{plan.name}</h3>
+                  <p className="clean-billing__card-tagline">{plan.tagline}</p>
                 </div>
 
                 <div className="clean-billing__card-pricing">
                   <div className="clean-billing__price-row">
-                    <span className="clean-billing__currency-sign">{symbol}</span>
-                    <span className="clean-billing__price-digits">
-                      {price.toLocaleString('en-IN')}
-                    </span>
-                    <span className="clean-billing__price-interval">/ month</span>
+                    <span className="clean-billing__currency-sign">{CURRENCY_SYMBOLS[currency]}</span>
+                    <span className="clean-billing__price-val">{price.toLocaleString('en-IN')}</span>
+                    <span className="clean-billing__period-sub">/ mo</span>
                   </div>
-                  {billingCycle === 'yearly' && price > 0 ? (
-                    <div className="clean-billing__yearly-billed">
-                      Billed annually at {symbol}{(price * 12).toLocaleString('en-IN')} / year
-                    </div>
-                  ) : (
-                    <div className="clean-billing__yearly-billed" style={{ color: 'var(--text-disabled)' }}>
-                      {price === 0 ? 'Free forever' : 'Billed monthly'}
-                    </div>
-                  )}
+                  <div className="clean-billing__billing-note">
+                    {billingCycle === 'yearly' && price > 0
+                      ? `Billed annually (${CURRENCY_SYMBOLS[currency]}${(price * 12).toLocaleString('en-IN')} / yr)`
+                      : 'Billed monthly, cancel anytime'}
+                  </div>
                 </div>
 
+                <ul className="clean-billing__feature-list">
+                  {plan.features.map((feat, idx) => (
+                    <li key={idx} className="clean-billing__feature-item">
+                      <Check size={14} className="clean-billing__check-icon" />
+                      <span>{feat}</span>
+                    </li>
+                  ))}
+                </ul>
+
                 <button
-                  className={`clean-billing__cta-button ${p.isPopular ? 'btn-primary' : 'btn-ghost'}`}
-                  disabled={isCurrent || loadingPlan === p.tier}
-                  onClick={() => handleDirectCheckout(p)}
+                  className={`btn clean-billing__cta-btn ${
+                    isCurrent
+                      ? 'btn-secondary clean-billing__cta--current'
+                      : plan.isPopular
+                      ? 'btn-primary'
+                      : 'btn-secondary'
+                  }`}
+                  disabled={isCurrent || isLoading}
+                  onClick={() => handleDirectCheckout(plan)}
                 >
-                  {loadingPlan === p.tier ? (
-                    <Loader2 size={14} className="clean-billing__spin" />
+                  {isLoading ? (
+                    <>
+                      <Loader2 size={15} className="clean-billing__spin" /> Processing Razorpay…
+                    </>
                   ) : isCurrent ? (
-                    'Current Plan'
+                    'Current Active Plan'
                   ) : (
                     <>
-                      {p.ctaText} <ArrowRight size={14} />
+                      {plan.cta} <ArrowRight size={14} />
                     </>
                   )}
                 </button>
-
-                <div className="clean-billing__features-wrap">
-                  <span className="clean-billing__features-heading">Plan Includes:</span>
-                  <ul className="clean-billing__features-list">
-                    {p.features.map((feat, i) => (
-                      <li key={i} className="clean-billing__feature-item">
-                        <Check size={14} className="clean-billing__feature-check" />
-                        <span>{feat}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
               </div>
             )
           })}
         </div>
       </div>
 
-      {/* ── Section 3: Payment Method & Invoices (Zero PII Privacy Safe) ── */}
+      {/* ── Section 3: Payment Methods & Invoice History ── */}
       <div className="clean-billing__bottom-grid">
-        {/* Payment Method Container (Privacy Safe) */}
+        {/* Payment Methods */}
         <div className="clean-card clean-billing__card-box">
           <div className="clean-billing__box-header">
             <CreditCard size={18} className="clean-billing__box-icon" />
             <div>
-              <h3 className="clean-billing__box-title">Payment Method</h3>
-              <p className="clean-billing__box-sub">Active billing method secured with AES-256 via Stripe.</p>
+              <h3 className="clean-billing__box-title">Supported Payment Channels</h3>
+              <p className="clean-billing__box-sub">Pay via instant UPI, Cards, NetBanking, and RuPay.</p>
             </div>
           </div>
 
-          <div className="clean-billing__payment-card">
-            <div className="clean-billing__payment-top">
-              <div className="clean-billing__card-badge">VISA</div>
-              <span className="badge badge-success">Primary Method</span>
+          <div className="clean-billing__payment-preview">
+            <div className="clean-billing__card-type-row">
+              <div className="clean-billing__card-badge" style={{ background: '#0F172A', color: '#fff' }}>RAZORPAY</div>
+              <span className="badge badge-success">UPI / CARDS / NETBANKING</span>
             </div>
             <div className="clean-billing__card-digits">
-              •••• •••• •••• {subscription?.customerReference ? subscription.customerReference.slice(-4) : '4242'}
+              UPI · Google Pay · PhonePe · RuPay · Visa · Mastercard
             </div>
             <div className="clean-billing__card-details">
-              <span>Account: <strong>Organization Primary</strong></span>
-              <span>Expires: <strong>12 / 2028</strong></span>
+              <span>Security: <strong>256-Bit SSL Encryption</strong></span>
+              <span>Compliance: <strong>PCI-DSS Level 1</strong></span>
             </div>
           </div>
 
           <div className="clean-billing__meta-summary">
             <div className="clean-billing__meta-row">
-              <span>Selected Currency</span>
+              <span>Active Gateway</span>
+              <strong>Razorpay Native Gateway (India & Global)</strong>
+            </div>
+            <div className="clean-billing__meta-row">
+              <span>Settlement Currency</span>
               <strong>{currency} ({CURRENCY_SYMBOLS[currency]})</strong>
             </div>
             <div className="clean-billing__meta-row">
               <span>Security Level</span>
               <strong style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#10B981' }}>
-                <Lock size={12} /> PCI-DSS Level 1 Encrypted
+                <Lock size={12} /> HMAC-SHA256 Cryptographic Verification
               </strong>
             </div>
           </div>
-
-          <button className="btn-ghost clean-billing__update-card-btn" onClick={handleOpenCustomerPortal}>
-            <ExternalLink size={13} /> Update Payment Method on Stripe
-          </button>
         </div>
 
         {/* Invoices & Receipts Ledger */}
@@ -533,7 +552,7 @@ export default function Billing() {
             <Receipt size={18} className="clean-billing__box-icon" />
             <div>
               <h3 className="clean-billing__box-title">Invoice & Receipts Ledger</h3>
-              <p className="clean-billing__box-sub">Download official tax-compliant billing receipts.</p>
+              <p className="clean-billing__box-sub">Tax-compliant billing receipts & transaction records.</p>
             </div>
           </div>
 
@@ -561,7 +580,7 @@ export default function Billing() {
           </div>
 
           <div className="clean-billing__invoice-note">
-            Invoices are generated automatically by Stripe at the start of each billing cycle.
+            Invoices and payment receipts are generated automatically upon successful Razorpay transaction.
           </div>
         </div>
       </div>
@@ -572,7 +591,7 @@ export default function Billing() {
           <HelpCircle size={18} className="clean-billing__box-icon" />
           <div>
             <h3 className="clean-billing__box-title">Frequently Asked Questions</h3>
-            <p className="clean-billing__box-sub">Everything you need to know about plans, billing, and taxes.</p>
+            <p className="clean-billing__box-sub">Everything you need to know about plans, Razorpay payments, and quotas.</p>
           </div>
         </div>
 
@@ -595,78 +614,6 @@ export default function Billing() {
           ))}
         </div>
       </div>
-
-      {/* ── Interactive Payment Checkout Modal ── */}
-      {checkoutModal.isOpen && checkoutModal.plan && (
-        <div className="payment-modal-backdrop" onClick={() => setCheckoutModal((prev) => ({ ...prev, isOpen: false }))}>
-          <div className="payment-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="payment-modal__head">
-              <div>
-                <div className="payment-modal__badge">
-                  <Lock size={12} /> PCI-DSS ENCRYPTED CHECKOUT
-                </div>
-                <h2 className="payment-modal__title">Upgrade to {checkoutModal.plan.name}</h2>
-              </div>
-              <button
-                className="payment-modal__close-btn"
-                onClick={() => setCheckoutModal((prev) => ({ ...prev, isOpen: false }))}
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            {/* Plan & Pricing Summary Box */}
-            <div className="payment-modal__summary">
-              <div className="payment-modal__summary-row">
-                <span>Selected Plan:</span>
-                <strong>{checkoutModal.plan.name} ({billingCycle.toUpperCase()})</strong>
-              </div>
-              <div className="payment-modal__summary-row">
-                <span>Billing Period:</span>
-                <span>{billingCycle === 'yearly' ? '12 Months (20% Savings)' : '1 Month'}</span>
-              </div>
-              <div className="payment-modal__summary-row payment-modal__summary-total">
-                <span>Total Amount Due:</span>
-                <strong>
-                  {CURRENCY_SYMBOLS[currency]}
-                  {(billingCycle === 'yearly'
-                    ? checkoutModal.plan.priceYearly[currency] * 12
-                    : checkoutModal.plan.priceMonthly[currency]
-                  ).toLocaleString('en-IN')}
-                </strong>
-              </div>
-            </div>
-
-            {/* Pay Button */}
-            <div className="payment-modal__foot">
-              <button
-                className="btn-primary payment-modal__pay-btn"
-                disabled={checkoutModal.isProcessing}
-                onClick={handleExecutePayment}
-              >
-                {checkoutModal.isProcessing ? (
-                  <>
-                    <Loader2 size={16} className="clean-billing__spin" /> Redirecting to Stripe…
-                  </>
-                ) : (
-                  <>
-                    <ShieldCheck size={16} /> Pay via Stripe{' '}
-                    {CURRENCY_SYMBOLS[currency]}
-                    {(billingCycle === 'yearly'
-                      ? checkoutModal.plan.priceYearly[currency] * 12
-                      : checkoutModal.plan.priceMonthly[currency]
-                    ).toLocaleString('en-IN')}
-                  </>
-                )}
-              </button>
-
-              <div className="payment-modal__guarantee">
-                <Lock size={12} /> Redirects securely to official Stripe Hosted Checkout.
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

@@ -32,7 +32,7 @@ import aiRouter          from './modules/ai/ai.router.js';
 import reportsRouter     from './modules/reports/reports.router.js';
 import realtimeRouter    from './modules/realtime/realtime.router.js';
 import billingRouter     from './modules/billing/billing.router.js';
-import { stripeWebhook } from './modules/billing/billing.controller.js';
+import { razorpayWebhook } from './modules/billing/billing.controller.js';
 
 const app = express();
 
@@ -41,9 +41,10 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", 'https://checkout.razorpay.com'],
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", 'data:', 'https:'],
+      frameSrc: ["'self'", 'https://api.razorpay.com', 'https://checkout.razorpay.com'],
     },
   },
   crossOriginEmbedderPolicy: false,
@@ -66,13 +67,14 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-// ── 3a. Stripe Webhook raw-body capture (MUST be before express.json) ────
-// Stripe cryptographic HMAC signature verification requires the exact raw request bytes.
+// ── 3a. Razorpay Webhook raw-body capture (MUST be before express.json) ──
+// Razorpay HMAC SHA-256 signature verification requires the exact raw request bytes.
 app.post(
-  '/api/v1/billing/webhook/stripe',
+  '/api/v1/billing/webhook/razorpay',
   express.raw({ type: 'application/json', limit: '2mb' }),
-  stripeWebhook
+  razorpayWebhook
 );
+
 
 // ── 3b. Body Parser (Standard JSON for all other API endpoints) ──
 app.use(express.json({ limit: '1mb' }));

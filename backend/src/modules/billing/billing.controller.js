@@ -1,17 +1,17 @@
 // src/modules/billing/billing.controller.js
 // ============================================================
-// Billing Controller — Secure HTTP Handlers
+// Billing Controller — Secure Razorpay HTTP Handlers
 // ============================================================
 
 import { sendSuccess, sendError } from '../../lib/response.js';
-import { checkoutSchema, portalSchema } from './billing.schema.js';
+import { checkoutSchema, verifyPaymentSchema, portalSchema } from './billing.schema.js';
 import {
   getPlansService,
   getSubscriptionService,
   createCheckoutSessionService,
+  verifyRazorpayPaymentService,
   createPortalSessionService,
   listInvoicesService,
-  handleStripeWebhookService,
   handleRazorpayWebhookService,
 } from './billing.service.js';
 
@@ -41,9 +41,23 @@ export async function createCheckout(req, res) {
     }
 
     const data = await createCheckoutSessionService(req.org.id, req.user.id, parsed.data);
-    return sendSuccess(res, data, 200, 'Checkout session created.');
+    return sendSuccess(res, data, 200, 'Razorpay checkout order created.');
   } catch (err) {
     return sendError(res, 400, 'CHECKOUT_ERROR', err.message);
+  }
+}
+
+export async function verifyPayment(req, res) {
+  try {
+    const parsed = verifyPaymentSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return sendError(res, 400, 'VALIDATION_ERROR', parsed.error.errors[0]?.message);
+    }
+
+    const data = await verifyRazorpayPaymentService(req.org.id, req.user.id, parsed.data);
+    return sendSuccess(res, data, 200, 'Payment verified and plan activated successfully.');
+  } catch (err) {
+    return sendError(res, 400, 'VERIFICATION_ERROR', err.message);
   }
 }
 
@@ -53,7 +67,7 @@ export async function createPortalSession(req, res) {
     const returnUrl = parsed.success ? parsed.data.returnUrl : undefined;
 
     const data = await createPortalSessionService(req.org.id, returnUrl);
-    return sendSuccess(res, data, 200, 'Customer portal session created.');
+    return sendSuccess(res, data, 200, 'Billing portal session created.');
   } catch (err) {
     return sendError(res, 500, 'PORTAL_ERROR', err.message);
   }
@@ -68,23 +82,6 @@ export async function listInvoices(req, res) {
   }
 }
 
-export async function stripeWebhook(req, res) {
-  const signature = req.headers['stripe-signature'];
-  if (!signature) {
-    console.warn('[Billing Controller] ❌ Stripe webhook rejected: Missing stripe-signature header.');
-    return res.status(400).json({ error: 'Missing stripe-signature header' });
-  }
-
-  try {
-    // req.body here is a raw Buffer (thanks to express.raw() middleware)
-    const result = await handleStripeWebhookService(req.body, signature);
-    return res.status(200).json(result);
-  } catch (err) {
-    console.error('[Billing Controller] ❌ Stripe webhook processing error:', err.message);
-    return res.status(400).json({ error: `Webhook Error: ${err.message}` });
-  }
-}
-
 export async function razorpayWebhook(req, res) {
   const signature = req.headers['x-razorpay-signature'];
   if (!signature) {
@@ -94,11 +91,10 @@ export async function razorpayWebhook(req, res) {
 
   try {
     const rawBody = req.body;
-    const result = handleRazorpayWebhookService(rawBody, signature);
+    const result = await handleRazorpayWebhookService(rawBody, signature);
     return res.status(200).json(result);
   } catch (err) {
     console.error('[Billing Controller] ❌ Razorpay webhook processing error:', err.message);
     return res.status(400).json({ error: `Webhook Error: ${err.message}` });
   }
 }
-

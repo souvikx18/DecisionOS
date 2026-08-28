@@ -1,6 +1,6 @@
 // src/modules/billing/billing.config.js
 // ============================================================
-// Billing Plans & Gateway Configuration
+// Billing Plans & Razorpay Gateway Configuration
 // ============================================================
 
 import { env } from '../../config/env.js';
@@ -39,10 +39,6 @@ export const PLANS_CATALOG = {
     tagline: 'Predictive intelligence, cron schedules, and advanced business scans.',
     priceMonthly: { INR: 2999, USD: 39 },
     priceYearly: { INR: 2399, USD: 29 }, // ~20% discount
-    stripePriceId: {
-      monthly: 'price_pro_monthly',
-      yearly: 'price_pro_yearly',
-    },
     razorpayPlanId: {
       monthly: 'plan_pro_monthly',
       yearly: 'plan_pro_yearly',
@@ -73,10 +69,6 @@ export const PLANS_CATALOG = {
     tagline: 'Dedicated queue workers, custom retention, and high-volume ERP integrations.',
     priceMonthly: { INR: 8999, USD: 119 },
     priceYearly: { INR: 7199, USD: 95 },
-    stripePriceId: {
-      monthly: 'price_enterprise_monthly',
-      yearly: 'price_enterprise_yearly',
-    },
     razorpayPlanId: {
       monthly: 'plan_enterprise_monthly',
       yearly: 'plan_enterprise_yearly',
@@ -103,15 +95,17 @@ export const PLANS_CATALOG = {
 };
 
 export const GATEWAY_CONFIG = {
-  stripe: {
-    secretKey: env.STRIPE_SECRET_KEY,
-    webhookSecret: env.STRIPE_WEBHOOK_SECRET,
-    isConfigured: Boolean(env.STRIPE_SECRET_KEY && !env.STRIPE_SECRET_KEY.includes('xxxx')),
-  },
   razorpay: {
-    keyId: process.env.RAZORPAY_KEY_ID || '',
-    keySecret: process.env.RAZORPAY_KEY_SECRET || '',
-    webhookSecret: process.env.RAZORPAY_WEBHOOK_SECRET || '',
-    isConfigured: Boolean(process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET),
+    keyId: env.RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID || '',
+    keySecret: env.RAZORPAY_KEY_SECRET || process.env.RAZORPAY_KEY_SECRET || '',
+    webhookSecret: env.RAZORPAY_WEBHOOK_SECRET || process.env.RAZORPAY_WEBHOOK_SECRET || '',
+    isConfigured: Boolean(
+      (env.RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID) &&
+      (env.RAZORPAY_KEY_SECRET || process.env.RAZORPAY_KEY_SECRET) &&
+      !String(env.RAZORPAY_KEY_ID || '').includes('xxxx') &&
+      !String(env.RAZORPAY_KEY_ID || '').includes('dev') &&
+      !String(env.RAZORPAY_KEY_ID || '').includes('simulated')
+    ),
   },
 };
+

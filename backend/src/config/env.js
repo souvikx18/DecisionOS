@@ -42,9 +42,10 @@ const envSchema = z.object({
   OPENAI_API_KEY: z.string().optional(),
   GEMINI_API_KEY: z.string().optional(),
 
-  // Stripe
-  STRIPE_SECRET_KEY: z.string().min(1),
-  STRIPE_WEBHOOK_SECRET: z.string().min(1),
+  // Razorpay Payment Gateway
+  RAZORPAY_KEY_ID: z.string().default('rzp_test_decisionos_dev'),
+  RAZORPAY_KEY_SECRET: z.string().default('decisionos_razorpay_secret_dev'),
+  RAZORPAY_WEBHOOK_SECRET: z.string().default('decisionos_razorpay_webhook_secret_dev'),
 
   // Admin
   SUPER_ADMIN_EMAIL: z.string().email(),

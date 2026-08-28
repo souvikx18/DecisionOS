@@ -582,7 +582,7 @@ model Plan {
   id                  String   @id @default(cuid())
   name                String
   tier                PlanTier @unique
-  stripePriceId       String?
+  razorpayPlanId      String?
   priceMonthly        Int
   priceYearly         Int?
   maxMembers          Int
@@ -599,19 +599,19 @@ model Plan {
 }
 
 model Subscription {
-  id                   String             @id @default(cuid())
-  organizationId       String             @unique
-  planId               String
-  stripeCustomerId     String?            @unique
-  stripeSubscriptionId String?            @unique
-  status               SubscriptionStatus
-  currentPeriodStart   DateTime
-  currentPeriodEnd     DateTime
-  trialEndsAt          DateTime?
-  cancelAtPeriodEnd    Boolean            @default(false)
-  canceledAt           DateTime?
-  createdAt            DateTime           @default(now())
-  updatedAt            DateTime           @updatedAt
+  id                     String             @id @default(cuid())
+  organizationId         String             @unique
+  planId                 String
+  razorpayCustomerId     String?            @unique
+  razorpaySubscriptionId String?            @unique
+  status                 SubscriptionStatus
+  currentPeriodStart     DateTime
+  currentPeriodEnd       DateTime
+  trialEndsAt            DateTime?
+  cancelAtPeriodEnd      Boolean            @default(false)
+  canceledAt             DateTime?
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
 
   organization Organization @relation(fields: [organizationId], references: [id])
   plan         Plan         @relation(fields: [planId], references: [id])
@@ -621,22 +621,26 @@ model Subscription {
 }
 
 model Payment {
-  id                    String    @id @default(cuid())
-  subscriptionId        String
-  stripeInvoiceId       String    @unique
-  stripePaymentIntentId String?
-  amount                Int
-  currency              String    @default("inr")
-  status                String
-  invoiceUrl            String?
-  paidAt                DateTime?
-  createdAt             DateTime  @default(now())
+  id                  String    @id @default(cuid())
+  subscriptionId      String
+  razorpayPaymentId   String?   @unique
+  razorpayOrderId     String?
+  razorpaySignature   String?
+  receipt             String?
+  amount              Int
+  currency            String    @default("INR")
+  status              String
+  invoiceUrl          String?
+  paidAt              DateTime?
+  createdAt           DateTime  @default(now())
 
   subscription Subscription @relation(fields: [subscriptionId], references: [id])
 
   @@index([subscriptionId])
+  @@index([razorpayOrderId])
   @@map("payments")
 }
+
 
 // ============================================================
 // MODULE 8 — NOTIFICATIONS & AUDIT
