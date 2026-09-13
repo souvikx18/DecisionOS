@@ -22,6 +22,11 @@ export default function Customers() {
   const pagination = data?.data?.pagination ?? data?.meta ?? {}
   const summary    = data?.data?.summary    ?? {}
 
+  const totalCustomers = summary.totalCount ?? pagination.total ?? customers.length
+  const totalRevenue   = summary.totalRevenue ?? customers.reduce((a, c) => a + Number(c.totalRevenue || 0), 0)
+  const topRevenue     = summary.topRevenue ?? customers.reduce((m, c) => Math.max(m, Number(c.totalRevenue || 0)), 0)
+  const avgOrders      = summary.avgOrders ?? (customers.length ? (customers.reduce((a, c) => a + Number(c.totalOrders || 1), 0) / customers.length) : 0)
+
   const handleSearch = e => { e.preventDefault(); setQuery(search); setPage(1) }
 
   return (
@@ -36,10 +41,10 @@ export default function Customers() {
       {/* KPI */}
       <div className="customers-kpi-grid">
         {[
-          { icon: Users, label: 'Total Customers', val: (summary.totalCount ?? 0).toLocaleString(), color: '#1D4ED8', bg: '#EFF6FF' },
-          { icon: TrendingUp, label: 'Total Revenue', val: fmtCurrency(summary.totalRevenue), color: '#10B981', bg: '#F0FDF4' },
-          { icon: ShoppingBag, label: 'Avg. Orders', val: (summary.avgOrders ?? 0).toFixed(1), color: '#6366F1', bg: '#EEF2FF' },
-          { icon: TrendingUp, label: 'Top Customer Revenue', val: fmtCurrency(summary.topRevenue), color: '#F59E0B', bg: '#FFFBEB' },
+          { icon: Users, label: 'Total Customers', val: totalCustomers.toLocaleString(), color: '#1D4ED8', bg: '#EFF6FF' },
+          { icon: TrendingUp, label: 'Total Revenue', val: fmtCurrency(totalRevenue), color: '#10B981', bg: '#F0FDF4' },
+          { icon: ShoppingBag, label: 'Avg. Orders', val: Number(avgOrders || 0).toFixed(1), color: '#6366F1', bg: '#EEF2FF' },
+          { icon: TrendingUp, label: 'Top Customer Revenue', val: fmtCurrency(topRevenue), color: '#F59E0B', bg: '#FFFBEB' },
         ].map(k => (
           <div key={k.label} className="glass-card customers-kpi">
             <div style={{ width: 40, height: 40, borderRadius: 10, background: k.bg, color: k.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -104,7 +109,7 @@ export default function Customers() {
                     </td>
                     <td>{c.email ?? '—'}</td>
                     <td>{c.phone ?? '—'}</td>
-                    <td><strong>{(c.totalOrders ?? c._count?.sales ?? 0).toLocaleString()}</strong></td>
+                    <td><strong>{(c._count?.sales ?? c.totalOrders ?? 0).toLocaleString()}</strong></td>
                     <td className="customers-tbl__revenue">{fmtCurrency(rev)}</td>
                     <td>{fmtDate(c.lastPurchaseAt ?? c.updatedAt)}</td>
                     <td>

@@ -23,5 +23,7 @@ router.use(requireAuth, requireOrg, requirePermission('VIEW_DATA'));
 router.get('/summary',                  authGeneralLimiter, getExecutiveSummary);
 router.get('/charts/revenue-trend',     authGeneralLimiter, getRevenueTrendChart);
 router.get('/charts/expense-breakdown', authGeneralLimiter, getExpenseBreakdownChart);
+router.get('/revenue-trend',            authGeneralLimiter, getRevenueTrendChart);
+router.get('/expense-breakdown',        authGeneralLimiter, getExpenseBreakdownChart);
 
 export default router;

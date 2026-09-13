@@ -165,10 +165,11 @@ export default function Dashboard() {
             ) : (
               <ResponsiveContainer width="100%" height={220}>
                 <PieChart>
-                  <Pie data={expBreakdown} dataKey="amount" nameKey="category" cx="50%" cy="50%" outerRadius={80} label={({ category, percentage }) => `${category} ${percentage}%`} labelLine={false}>
+                  <Pie data={expBreakdown} dataKey="amount" nameKey="category" cx="50%" cy="50%" outerRadius={75} label={false} labelLine={false}>
                     {expBreakdown.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
                   </Pie>
-                  <Tooltip formatter={v => fmtAmount(v)} />
+                  <Tooltip formatter={(v, name) => [fmtAmount(v), name]} />
+                  <Legend iconType="circle" iconSize={7} wrapperStyle={{ fontSize: 10, paddingTop: 6 }} />
                 </PieChart>
               </ResponsiveContainer>
             )

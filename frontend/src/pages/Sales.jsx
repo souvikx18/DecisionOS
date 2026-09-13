@@ -46,10 +46,10 @@ export default function Sales() {
 
       {/* KPI row */}
       <div className="sales-kpi-grid">
-        <KPI icon={DollarSign} label="Total Revenue"      value={fmtCurrency(summary.totalRevenue)}    color="#1D4ED8" />
-        <KPI icon={ShoppingCart} label="Total Transactions" value={(summary.totalCount ?? 0).toLocaleString()} color="#10B981" />
-        <KPI icon={TrendingUp} label="Avg. Order Value"   value={fmtCurrency(summary.avgOrderValue)}   color="#6366F1" />
-        <KPI icon={Package} label="Products Sold"      value={(summary.uniqueProducts ?? 0).toLocaleString()} color="#F59E0B" />
+        <KPI icon={DollarSign} label="Total Revenue"      value={fmtCurrency(summary.totalRevenue ?? sales.reduce((a, s) => a + Number(s.totalAmount || 0), 0))}    color="#1D4ED8" />
+        <KPI icon={ShoppingCart} label="Total Transactions" value={(summary.totalCount ?? pagination.total ?? sales.length).toLocaleString()} color="#10B981" />
+        <KPI icon={TrendingUp} label="Avg. Order Value"   value={fmtCurrency(summary.avgOrderValue ?? ((summary.totalCount || sales.length) ? (summary.totalRevenue || 0) / (summary.totalCount || sales.length) : 0))}   color="#6366F1" />
+        <KPI icon={Package} label="Products Sold"      value={(summary.totalUnitsSold ?? summary.uniqueProducts ?? sales.reduce((a, s) => a + Number(s.quantity || 1), 0)).toLocaleString()} color="#F59E0B" />
       </div>
 
       {/* Search */}

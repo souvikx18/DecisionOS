@@ -132,20 +132,17 @@
 
 /* Avatar — gradient ring on hover */
 .topbar__avatar {
-  width: 30px;
-  height: 30px;
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-indigo));
+  width: 32px;
+  height: 32px;
+  background: #ffffff;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
-  font-weight: 700;
-  color: #fff;
   flex-shrink: 0;
-  letter-spacing: 0.3px;
   box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px rgba(37, 99, 235, 0.2);
   transition: box-shadow 180ms ease;
+  overflow: hidden;
 }
 
 .topbar__user:hover .topbar__avatar {

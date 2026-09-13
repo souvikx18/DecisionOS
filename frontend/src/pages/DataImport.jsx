@@ -261,10 +261,10 @@ export default function DataImport() {
                   {history.map(imp => (
                     <tr key={imp.id} style={{ borderBottom: '1px solid var(--border-default)' }}>
                       <td style={{ padding: '8px 8px', color: 'var(--text-primary)', fontWeight: 500, maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {imp.originalFilename ?? imp.fileName ?? 'file'}
+                        {imp.file?.fileName ?? imp.originalFilename ?? imp.fileName ?? 'file'}
                       </td>
                       <td style={{ padding: '8px 8px', color: 'var(--text-secondary)' }}>{imp.dataType ?? imp.type}</td>
-                      <td style={{ padding: '8px 8px', color: 'var(--text-secondary)' }}>{imp.rowsImported ?? imp.rowsProcessed ?? '—'}</td>
+                      <td style={{ padding: '8px 8px', color: 'var(--text-secondary)' }}>{imp.validRows ?? imp.totalRows ?? imp.rowsImported ?? imp.rowsProcessed ?? '—'}</td>
                       <td style={{ padding: '8px 8px' }}>
                         <span className={`badge ${STATUS_BADGE[imp.status] ?? 'badge-info'}`}>{imp.status}</span>
                       </td>

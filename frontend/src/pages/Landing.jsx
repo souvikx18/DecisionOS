@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { useTheme } from '../context/ThemeContext'
 import {
   TrendingUp, Package, Users, DollarSign, Bell,
   BarChart2, ArrowRight, Check, Star, Zap,
-  Sun, Moon, Menu, X, Sparkles, Building2
+  Menu, X, Sparkles, Building2
 } from 'lucide-react'
 import logoImg from '../assets/logo.png'
 import './Landing.css'
@@ -77,11 +76,9 @@ const NAV_LINKS = [
 
 export default function Landing() {
   const { user } = useAuth()
-  const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const isDark = theme === 'dark'
 
   useEffect(() => {
     if (user) navigate('/dashboard', { replace: true })
@@ -94,7 +91,7 @@ export default function Landing() {
   }, [])
 
   return (
-    <div className={`landing ${isDark ? 'landing--dark' : ''}`}>
+    <div className="landing">
 
       {/* ── REDESIGNED NAVBAR ─────────────────────────────────────── */}
       <nav className={`lnav ${scrolled ? 'lnav--scrolled' : ''}`}>
@@ -123,27 +120,6 @@ export default function Landing() {
 
           {/* Right controls */}
           <div className="lnav__right">
-            {/* Theme toggle */}
-            <button
-              className="lnav__theme-btn"
-              onClick={toggleTheme}
-              title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-              id="theme-toggle"
-            >
-              <span className={`lnav__theme-icon ${isDark ? 'lnav__theme-icon--active' : ''}`}>
-                <Sun size={15} strokeWidth={2} />
-              </span>
-              <span className="lnav__theme-track">
-                <span className={`lnav__theme-thumb ${isDark ? 'lnav__theme-thumb--dark' : ''}`} />
-              </span>
-              <span className={`lnav__theme-icon ${!isDark ? 'lnav__theme-icon--active' : ''}`}>
-                <Moon size={15} strokeWidth={2} />
-              </span>
-            </button>
-
-            {/* Divider */}
-            <div className="lnav__divider" />
-
             {/* Sign in */}
             <button
               className="lnav__signin"

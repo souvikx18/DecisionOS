@@ -36,7 +36,7 @@ export async function callGeminiFlash(prompt, systemInstruction = '', options = 
   }
 
   try {
-    const modelName = options.model || 'gemini-3.6-flash';
+    const modelName = options.model || 'gemini-1.5-flash';
     const model = client.getGenerativeModel({
       model: modelName,
       systemInstruction: systemInstruction || 'You are DecisionOS AI, a world-class Chief Financial & Business Operations Intelligence Analyst. Provide concise, data-driven, strategic recommendations.',

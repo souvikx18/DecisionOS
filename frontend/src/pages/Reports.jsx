@@ -64,11 +64,10 @@ function FormatToggle({ selected, onChange }) {
       {Object.entries(FORMAT_META).map(([fmt, meta]) => (
         <button
           key={fmt}
+          type="button"
           className={`rpt-fmt-btn ${selected.includes(fmt) ? 'rpt-fmt-btn--active' : ''}`}
           style={{ '--fmt-color': meta.color }}
-          onClick={() => onChange(prev =>
-            prev.includes(fmt) ? prev.filter(f => f !== fmt) : [...prev, fmt]
-          )}
+          onClick={() => onChange([fmt])}
           id={`fmt-${fmt.toLowerCase()}`}
         >
           <meta.icon size={13} />
@@ -96,16 +95,43 @@ function ProgressBar({ status }) {
 // ── Tab 1: Generate ────────────────────────────────────────────
 
 function GenerateTab({ onGenerated }) {
-  const today = new Date().toISOString().slice(0, 16)
-  const monthAgo = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 16)
+  const pad = n => String(n).padStart(2, '0')
+  const toLocalIso = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
 
-  const [reportType, setReportType]   = useState('MONTHLY_REPORT')
-  const [periodStart, setPeriodStart] = useState(monthAgo)
-  const [periodEnd, setPeriodEnd]     = useState(today)
+  const now = new Date()
+  const startOfToday = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T00:00`
+  const endOfToday = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T23:59`
+
+  const [reportType, setReportType]   = useState('DAILY_SUMMARY')
+  const [periodStart, setPeriodStart] = useState(startOfToday)
+  const [periodEnd, setPeriodEnd]     = useState(endOfToday)
   const [formats, setFormats]         = useState(['XLSX'])
   const [emailTo, setEmailTo]         = useState('')
 
   const { generating, report, error, generate } = useGenerateReport()
+
+  const handleSelectReportType = (typeId) => {
+    setReportType(typeId)
+    const current = new Date()
+    if (typeId === 'DAILY_SUMMARY') {
+      const s = `${current.getFullYear()}-${pad(current.getMonth()+1)}-${pad(current.getDate())}T00:00`
+      const e = `${current.getFullYear()}-${pad(current.getMonth()+1)}-${pad(current.getDate())}T23:59`
+      setPeriodStart(s)
+      setPeriodEnd(e)
+    } else if (typeId === 'WEEKLY_REPORT') {
+      const weekAgo = new Date(current.getTime() - 7 * 86400000)
+      const s = `${weekAgo.getFullYear()}-${pad(weekAgo.getMonth()+1)}-${pad(weekAgo.getDate())}T00:00`
+      const e = toLocalIso(current)
+      setPeriodStart(s)
+      setPeriodEnd(e)
+    } else if (typeId === 'MONTHLY_REPORT') {
+      const m = new Date(current.getTime() - 30 * 86400000)
+      const s = `${m.getFullYear()}-${pad(m.getMonth()+1)}-${pad(m.getDate())}T00:00`
+      const e = toLocalIso(current)
+      setPeriodStart(s)
+      setPeriodEnd(e)
+    }
+  }
 
   const handleGenerate = async () => {
     if (formats.length === 0) {
@@ -116,8 +142,33 @@ function GenerateTab({ onGenerated }) {
       const emails = emailTo.trim()
         ? emailTo.split(',').map(e => e.trim()).filter(Boolean)
         : []
-      const result = await generate({ type: reportType, periodStart, periodEnd, formats, emailTo: emails })
-      notify.success(`${result.title} is ready for download.`, 'Report Ready ✅')
+      const pStart = new Date(periodStart).toISOString()
+      const pEnd = new Date(periodEnd).toISOString()
+      const result = await generate({ type: reportType, periodStart: pStart, periodEnd: pEnd, formats, emailTo: emails })
+
+      // Auto-download each export file directly to local downloads
+      if (result?.exports?.length) {
+        for (const exp of result.exports) {
+          try {
+            const dlData = await fetchDownloadUrl(result.id, exp.id)
+            const url = dlData?.download?.signedUrl ?? dlData?.signedUrl
+            if (url) {
+              // Trigger browser download
+              const a = document.createElement('a')
+              a.href = url
+              a.download = `${result.title ?? 'report'}.${exp.format.toLowerCase()}`
+              document.body.appendChild(a)
+              a.click()
+              document.body.removeChild(a)
+            }
+          } catch {
+            // Silently skip if download URL fetch fails for one format
+          }
+        }
+        notify.success(`${result.title} downloaded successfully.`, 'Report Downloaded ✅')
+      } else {
+        notify.success(`${result.title} is ready. Check History tab to download.`, 'Report Ready ✅')
+      }
       onGenerated()
     } catch (err) {
       notify.error(err.message || 'Generation failed', 'Report Failed')
@@ -135,8 +186,9 @@ function GenerateTab({ onGenerated }) {
           {REPORT_TYPES.map(t => (
             <button
               key={t.id}
+              type="button"
               className={`rpt-type-btn ${reportType === t.id ? 'rpt-type-btn--active' : ''}`}
-              onClick={() => setReportType(t.id)}
+              onClick={() => handleSelectReportType(t.id)}
               id={`rtype-${t.id.toLowerCase()}`}
             >
               {t.label}
@@ -167,7 +219,7 @@ function GenerateTab({ onGenerated }) {
 
       {/* Format */}
       <div className="rpt-field">
-        <label className="rpt-label">Export Format <span style={{ color: 'var(--text-disabled)', fontWeight: 400 }}>(select one or more)</span></label>
+        <label className="rpt-label">Export Format</label>
         <FormatToggle selected={formats} onChange={setFormats} />
       </div>
 

@@ -31,26 +31,27 @@ export default function Sidebar({ collapsed, setCollapsed }) {
     navigate('/login')
   }
 
+  const companyLogo = user?.org?.logoUrl || user?.company?.logoUrl || logoFull
+  const orgName = user?.company?.name || user?.org?.name || 'Company'
+
   return (
     <aside className={`sidebar ${collapsed ? 'sidebar--collapsed' : ''}`}>
-      {/* Logo — click to toggle sidebar */}
+      {/* DecisionOS Product Logo — Always official DecisionOS branding */}
       <div
         className={`sidebar__logo sidebar__logo--clickable${collapsed ? ' sidebar__logo--is-collapsed' : ''}`}
         onClick={() => setCollapsed(c => !c)}
         title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {collapsed ? (
-          /* Collapsed: small icon + full blur overlay on hover */
-          <>
-            <div className="sidebar__logo-icon-collapsed">
-              <img src={logoFull} alt="DecisionOS" style={{ width: 32, height: 32, objectFit: 'contain' }} />
-            </div>
-            <div className="sidebar__logo-overlay">
-              <ChevronRight size={16} className="sidebar__logo-chevron" />
-            </div>
-          </>
+          /* Collapsed: DecisionOS product logo + greater than icon */
+          <div className="sidebar__logo-collapsed-wrap">
+            <img src={logoFull} alt="DecisionOS" className="sidebar__logo-collapsed-img" />
+            <span className="sidebar__logo-collapsed-chevron">
+              <ChevronRight size={14} strokeWidth={2.5} />
+            </span>
+          </div>
         ) : (
-          /* Expanded: logo stays visible, close hint appears on hover */
+          /* Expanded: DecisionOS product logo */
           <>
             <img src={logoFull} alt="DecisionOS" className="sidebar__logo-img" />
             <div className="sidebar__logo-close-hint">
@@ -93,11 +94,11 @@ export default function Sidebar({ collapsed, setCollapsed }) {
       {/* Bottom section */}
       <div className="sidebar__bottom">
         {collapsed ? (
-          /* ── Collapsed: avatar centered + icon buttons stacked ── */
+          /* ── Collapsed: organization/company logo avatar centered + icon buttons stacked ── */
           <>
-            <div className="sidebar__user-collapsed-wrap" title={`${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim()}>
+            <div className="sidebar__user-collapsed-wrap" title={orgName}>
               <div className="sidebar__avatar sidebar__avatar--lg">
-                {`${user?.firstName ?? 'U'}`.slice(0,1).toUpperCase()}
+                <img src={companyLogo} alt={orgName} className="sidebar__avatar-photo" />
               </div>
             </div>
             <div className="sidebar__actions-collapsed">
@@ -110,14 +111,14 @@ export default function Sidebar({ collapsed, setCollapsed }) {
             </div>
           </>
         ) : (
-          /* ── Expanded: unified professional user card ── */
+          /* ── Expanded: organization/company card ── */
           <div className="sidebar__user-card">
             <div className="sidebar__avatar">
-              {`${user?.firstName ?? 'U'}`.slice(0,1).toUpperCase()}
+              <img src={companyLogo} alt={orgName} className="sidebar__avatar-photo" />
             </div>
             <div className="sidebar__user-info">
               <span className="sidebar__user-name">{`${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim() || user?.email}</span>
-              <span className="sidebar__user-role">{user?.email}</span>
+              <span className="sidebar__user-role">{orgName}</span>
             </div>
             <div className="sidebar__card-actions">
               <NavLink to="/settings" className="sidebar__action-btn" title="Settings">

@@ -151,6 +151,125 @@ function RazorpayLogo({ width = 100, height = 24, textFill = '#0284C7' }) {
   )
 }
 
+function UpiLogo() {
+  return (
+    <svg height="14" viewBox="0 0 68 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block' }}>
+      <text
+        x="1"
+        y="18.5"
+        fill="#475569"
+        fontFamily="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+        fontWeight="900"
+        fontStyle="italic"
+        fontSize="18"
+        letterSpacing="0.3px"
+      >
+        UPI
+      </text>
+      <polygon points="46,5 51,12 46,19 49.5,19 54.5,12 49.5,5" fill="#F47920" />
+      <polygon points="52.5,5 57.5,12 52.5,19 56,19 61,12 56,5" fill="#008450" />
+    </svg>
+  )
+}
+
+function GPayLogo() {
+  return (
+    <svg height="15" viewBox="0 0 74 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block' }}>
+      <g transform="translate(0, 2)">
+        <path d="M10 4.2c1.4 0 2.6.5 3.5 1.3l2.6-2.6C14.5 1.4 12.4.6 10 .6 6.1.6 2.8 2.8 1.2 6.1l3.1 2.4C5 6.1 7.3 4.2 10 4.2z" fill="#EA4335"/>
+        <path d="M20 10.3c0-.7-.1-1.4-.2-2H10v4h5.6c-.2 1.3-1 2.5-2.2 3.2l3.2 2.5c1.9-1.8 3.4-4.4 3.4-7.7z" fill="#4285F4"/>
+        <path d="M4.3 8.5L1.2 6.1C.4 7.6 0 9.2 0 11s.4 3.4 1.2 4.9l3.1-2.4c-.2-.8-.3-1.6-.3-2.5 0-.9.1-1.7.3-2.5z" fill="#FBBC05"/>
+        <path d="M10 18c2.4 0 4.5-.8 6-2.2l-3.2-2.5c-.8.5-1.8.8-2.8.8-2.7 0-5.1-1.9-5.7-4.4L1.2 12C2.8 15.3 6.1 18 10 18z" fill="#34A853"/>
+      </g>
+      <text
+        x="26"
+        y="17"
+        fill="#3C4043"
+        fontFamily="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+        fontWeight="600"
+        fontSize="17"
+        letterSpacing="-0.2px"
+      >
+        Pay
+      </text>
+    </svg>
+  )
+}
+
+function PhonePeLogo() {
+  return (
+    <svg height="18" width="18" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block' }}>
+      <circle cx="14" cy="14" r="14" fill="#5F259F" />
+      <text
+        x="14"
+        y="19"
+        fill="#FFFFFF"
+        fontFamily="system-ui, -apple-system, 'Segoe UI', 'Noto Sans Devanagari', sans-serif"
+        fontWeight="700"
+        fontSize="16.5"
+        textAnchor="middle"
+      >
+        पे
+      </text>
+    </svg>
+  )
+}
+
+function RuPayLogo() {
+  return (
+    <svg height="14" viewBox="0 0 88 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block' }}>
+      <text
+        x="1"
+        y="18.5"
+        fill="#0B2055"
+        fontFamily="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+        fontWeight="900"
+        fontStyle="italic"
+        fontSize="19"
+        letterSpacing="-0.3px"
+      >
+        RuPay
+      </text>
+      <polygon points="66,5 71,12 66,19 69.5,19 74.5,12 69.5,5" fill="#F47920" />
+      <polygon points="72.5,5 77.5,12 72.5,19 76,19 81,12 76,5" fill="#00A651" />
+    </svg>
+  )
+}
+
+function VisaLogo() {
+  return (
+    <svg height="13" viewBox="0 0 54 20" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block' }}>
+      <text
+        x="0"
+        y="17"
+        fill="#1A1F71"
+        fontFamily="system-ui, -apple-system, 'Segoe UI Black', 'Arial Black', sans-serif"
+        fontWeight="900"
+        fontStyle="italic"
+        fontSize="20"
+        letterSpacing="-0.5px"
+      >
+        VISA
+      </text>
+    </svg>
+  )
+}
+
+function MastercardLogo() {
+  return (
+    <svg height="16" width="25" viewBox="0 0 38 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block' }}>
+      <defs>
+        <clipPath id="mcIntersectClip">
+          <circle cx="12.5" cy="12" r="11" />
+        </clipPath>
+      </defs>
+      <circle cx="12.5" cy="12" r="11" fill="#EB001B" />
+      <circle cx="25.5" cy="12" r="11" fill="#F79E1B" />
+      <circle cx="25.5" cy="12" r="11" fill="#FF5F00" clipPath="url(#mcIntersectClip)" />
+    </svg>
+  )
+}
+
 // 3D Credit Card with Shield & Concentric Pedestal Rings (Matching User Mockup)
 function SecurityCard3D() {
   return (
@@ -179,17 +298,17 @@ function SecurityCard3D() {
           </linearGradient>
           {/* Shadows */}
           <filter id="cardDropShadow" x="0" y="5" width="200" height="135" filterUnits="userSpaceOnUse">
-            <feDropShadow dx="0" dy="10" stdDeviation="8" floodColor="#000000" floodOpacity="0.55" />
+            <feDropShadow dx="0" dy="8" stdDeviation="6" floodColor="#1E293B" floodOpacity="0.15" />
           </filter>
           <filter id="shieldDropShadow" x="110" y="45" width="90" height="100" filterUnits="userSpaceOnUse">
-            <feDropShadow dx="-2" dy="6" stdDeviation="6" floodColor="#000000" floodOpacity="0.6" />
+            <feDropShadow dx="-2" dy="5" stdDeviation="5" floodColor="#1E293B" floodOpacity="0.2" />
           </filter>
         </defs>
 
-        {/* 1. Pedestal Concentric Glowing Rings */}
-        <ellipse cx="100" cy="120" rx="80" ry="20" stroke="#4338CA" strokeWidth="1.2" opacity="0.35" fill="none" />
-        <ellipse cx="100" cy="120" rx="60" ry="15" stroke="#6366F1" strokeWidth="1.5" opacity="0.5" fill="none" />
-        <ellipse cx="100" cy="120" rx="38" ry="10" stroke="#38BDF8" strokeWidth="1.8" opacity="0.7" fill="none" />
+        {/* 1. Pedestal Concentric Rings */}
+        <ellipse cx="100" cy="120" rx="80" ry="20" stroke="#93C5FD" strokeWidth="1.2" opacity="0.4" fill="none" />
+        <ellipse cx="100" cy="120" rx="60" ry="15" stroke="#60A5FA" strokeWidth="1.5" opacity="0.5" fill="none" />
+        <ellipse cx="100" cy="120" rx="38" ry="10" stroke="#3B82F6" strokeWidth="1.8" opacity="0.6" fill="none" />
 
         {/* 2. 3D Isometric Tilted Credit Card */}
         <g transform="rotate(-6 90 65)" filter="url(#cardDropShadow)">
@@ -257,6 +376,8 @@ export default function Billing() {
   const [loadingPlan, setLoadingPlan] = useState(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [timeframe, setTimeframe] = useState('This Month')
+  const [showTimeframeDropdown, setShowTimeframeDropdown] = useState(false)
+  const TIMEFRAMES = ['Today', 'This Week', 'This Month', 'Last Month', 'Year to Date']
 
   // Modals state
   const [manageSubModal, setManageSubModal] = useState(false)
@@ -536,7 +657,7 @@ export default function Billing() {
             <div className="dos-billing__current-payment-meta">
               <span className="dos-billing__payment-label">PAYMENT METHOD</span>
               <div className="dos-billing__payment-row" style={{ marginTop: 2 }}>
-                <RazorpayLogo width={92} height={20} textFill="#38BDF8" />
+                <RazorpayLogo width={92} height={20} textFill="#0284C7" />
               </div>
               <div className="dos-billing__payment-row" style={{ marginTop: 2 }}>
                 <span>Visa • • • • {subscription?.customerReference ? subscription.customerReference.slice(-4) : '4242'}</span>
@@ -561,10 +682,35 @@ export default function Billing() {
       <div className="dos-billing__usage-section">
         <div className="dos-billing__section-header-row">
           <h3 className="dos-billing__section-title">Usage Overview</h3>
-          <div className="dos-billing__timeframe-select">
-            <Calendar size={13} />
-            <span>{timeframe}</span>
-            <ChevronDown size={13} />
+          <div className="dos-billing__timeframe-wrap">
+            <button
+              type="button"
+              className="dos-billing__timeframe-select"
+              onClick={() => setShowTimeframeDropdown(p => !p)}
+              id="billing-timeframe-btn"
+            >
+              <Calendar size={13} />
+              <span>{timeframe}</span>
+              <ChevronDown size={13} style={{ transform: showTimeframeDropdown ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s ease' }} />
+            </button>
+            {showTimeframeDropdown && (
+              <div className="dos-billing__timeframe-dropdown">
+                {TIMEFRAMES.map((tf) => (
+                  <div
+                    key={tf}
+                    className={`dos-billing__timeframe-option ${timeframe === tf ? 'dos-billing__timeframe-option--active' : ''}`}
+                    onClick={() => {
+                      setTimeframe(tf)
+                      setShowTimeframeDropdown(false)
+                      notify.info(`Usage metrics adjusted for ${tf}.`, 'Timeframe Updated')
+                    }}
+                  >
+                    <span>{tf}</span>
+                    {timeframe === tf && <Check size={12} />}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -572,6 +718,17 @@ export default function Billing() {
         <div className="dos-billing__usage-grid">
           {DEFAULT_QUOTAS.map((q) => {
             const IconComponent = q.icon
+            const multiplier = {
+              'Today': 0.08,
+              'This Week': 0.35,
+              'This Month': 1,
+              'Last Month': 0.92,
+              'Year to Date': 2.8,
+            }[timeframe] || 1
+            const currentQuota = subscription?.quotas?.find(item => item.key === q.key) || q
+            const scaledUsed = Math.min(currentQuota.max, Math.max(1, Math.round((currentQuota.used || q.used) * multiplier)))
+            const scaledPercentage = Math.round((scaledUsed / currentQuota.max) * 100)
+
             return (
               <div key={q.key} className="dos-billing__quota-card">
                 <div className="dos-billing__quota-top">
@@ -585,21 +742,21 @@ export default function Billing() {
                 </div>
 
                 <div className="dos-billing__quota-numbers">
-                  {q.used.toLocaleString()} <span className="dos-billing__quota-max">/ {q.max.toLocaleString()}</span>
+                  {scaledUsed.toLocaleString()} <span className="dos-billing__quota-max">/ {currentQuota.max.toLocaleString()}</span>
                 </div>
 
                 <div className="dos-billing__progress-bar">
                   <div
                     className="dos-billing__progress-fill"
                     style={{
-                      width: `${Math.max(q.percentage, 2)}%`,
+                      width: `${Math.max(scaledPercentage, 2)}%`,
                       backgroundColor: q.color,
                     }}
                   />
                 </div>
 
                 <div className="dos-billing__quota-footer">
-                  {q.percentage}% used
+                  {scaledPercentage}% used
                 </div>
               </div>
             )
@@ -740,12 +897,29 @@ export default function Billing() {
 
 
           <div className="dos-billing__payment-icons-strip">
-            <span className="dos-billing__pay-logo-badge" style={{ color: '#F43F5E' }}>UPI</span>
-            <span className="dos-billing__pay-logo-badge" style={{ color: '#4285F4' }}>GPay</span>
-            <span className="dos-billing__pay-logo-badge" style={{ color: '#6739B7' }}>PhonePe</span>
-            <span className="dos-billing__pay-logo-badge" style={{ color: '#00BAF2' }}>RuPay</span>
-            <span className="dos-billing__pay-logo-badge" style={{ color: '#1A1F71' }}>VISA</span>
-            <span className="dos-billing__pay-logo-badge" style={{ color: '#EB001B' }}>Mastercard</span>
+            <div className="dos-billing__payment-logo-item" title="UPI">
+              <UpiLogo />
+            </div>
+            <div className="dos-billing__payment-divider" />
+            <div className="dos-billing__payment-logo-item" title="Google Pay">
+              <GPayLogo />
+            </div>
+            <div className="dos-billing__payment-divider" />
+            <div className="dos-billing__payment-logo-item" title="PhonePe">
+              <PhonePeLogo />
+            </div>
+            <div className="dos-billing__payment-divider" />
+            <div className="dos-billing__payment-logo-item" title="RuPay">
+              <RuPayLogo />
+            </div>
+            <div className="dos-billing__payment-divider" />
+            <div className="dos-billing__payment-logo-item" title="VISA">
+              <VisaLogo />
+            </div>
+            <div className="dos-billing__payment-divider" />
+            <div className="dos-billing__payment-logo-item" title="Mastercard">
+              <MastercardLogo />
+            </div>
           </div>
 
           <div className="dos-billing__meta-details-table">

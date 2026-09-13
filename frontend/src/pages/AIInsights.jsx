@@ -4,6 +4,7 @@
 // ============================================================
 
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import InsightCard from '../components/ui/InsightCard'
 import { useInsights, useInsightsSummary, useGenerateInsights } from '../lib/hooks/useAI.js'
 import { Sparkles, RefreshCw, Filter, Loader2 } from 'lucide-react'
@@ -18,6 +19,7 @@ const Shimmer = ({ h = 80 }) => (
 )
 
 export default function AIInsights() {
+  const navigate = useNavigate()
   const [activeSeverity, setActiveSeverity] = useState('all')
   const [activeType, setActiveType]         = useState('all')
 
@@ -49,6 +51,25 @@ export default function AIInsights() {
     }
   }
 
+  const handleAction = (actionText) => {
+    const text = String(actionText || '').toLowerCase()
+    if (text.includes('dashboard') || text.includes('analytic')) {
+      navigate('/dashboard')
+    } else if (text.includes('inventory') || text.includes('stock')) {
+      navigate('/inventory')
+    } else if (text.includes('sale') || text.includes('revenue')) {
+      navigate('/sales')
+    } else if (text.includes('expense')) {
+      navigate('/expenses')
+    } else if (text.includes('customer') || text.includes('churn')) {
+      navigate('/customers')
+    } else if (text.includes('report')) {
+      navigate('/reports')
+    } else {
+      navigate('/dashboard')
+    }
+  }
+
   return (
     <div className="insights-page">
       <div className="insights-page__header">
@@ -60,52 +81,52 @@ export default function AIInsights() {
           className={`btn-primary ${generating ? 'btn-loading' : ''}`}
           onClick={handleRefresh}
           disabled={generating}
-          id="refresh-insights"
+          id="refresh-insights-btn"
         >
-          {generating
-            ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} />
-            : <RefreshCw size={14} />
-          }
-          {generating ? 'Analyzing…' : 'Refresh Insights'}
+          {generating ? <Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> : <Sparkles size={15} />}
+          {generating ? 'Re-analyzing Models…' : 'Re-run AI Analysis'}
         </button>
       </div>
 
-      {/* Summary cards */}
-      <div className="insights-summary">
-        {[
-          { label: 'Critical', count: counts.critical, cls: 'critical', color: 'var(--accent-error)' },
-          { label: 'Warnings', count: counts.warning,  cls: 'warning',  color: 'var(--accent-warning)' },
-          { label: 'Info',     count: counts.info,     cls: 'info',     color: 'var(--accent-primary)' },
-          { label: 'Positive', count: counts.success,  cls: 'success',  color: 'var(--accent-success)' },
-        ].map(s => (
-          <button
-            key={s.label}
-            className={`insights-summary__card glass-card ${activeSeverity === s.cls ? 'insights-summary__card--active' : ''}`}
-            onClick={() => setActiveSeverity(prev => prev === s.cls ? 'all' : s.cls)}
-          >
-            <div className="insights-summary__dot" style={{ background: s.color }} />
-            <span className="insights-summary__count" style={{ color: s.color }}>{s.count}</span>
-            <span className="insights-summary__label">{s.label}</span>
-          </button>
-        ))}
+      {/* Filter bars */}
+      <div className="glass-card insights-filters">
+        <div className="insights-filter-group">
+          <span className="insights-filter-label"><Filter size={13} /> Severity</span>
+          <div className="insights-pill-group">
+            {SEVERITIES.map(s => (
+              <button
+                key={s}
+                className={`insights-pill ${activeSeverity === s ? 'insights-pill--active' : ''}`}
+                onClick={() => setActiveSeverity(s)}
+                id={`sev-${s}`}
+              >
+                {s.charAt(0).toUpperCase() + s.slice(1)}
+                {counts[s] !== undefined && counts[s] > 0 && (
+                  <span className="insights-pill-count">{counts[s]}</span>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="insights-filter-group">
+          <span className="insights-filter-label">Domain</span>
+          <div className="insights-pill-group">
+            {TYPES.map(t => (
+              <button
+                key={t}
+                className={`insights-pill ${activeType === t ? 'insights-pill--active' : ''}`}
+                onClick={() => setActiveType(t)}
+                id={`type-${t}`}
+              >
+                {t.charAt(0).toUpperCase() + t.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* Filters */}
-      <div className="insights-filters glass-card">
-        <Filter size={14} style={{ color: 'var(--text-disabled)' }} />
-        <span className="insights-filters__label">Filter by type:</span>
-        {TYPES.map(t => (
-          <button
-            key={t}
-            className={`dashboard__filter-btn ${activeType === t ? 'dashboard__filter-btn--active' : ''}`}
-            onClick={() => setActiveType(t)}
-          >
-            {t === 'all' ? 'All Types' : t.charAt(0).toUpperCase() + t.slice(1)}
-          </button>
-        ))}
-      </div>
-
-      {/* Insights grid */}
+      {/* Insights list */}
       <div className="insights-grid">
         {loading ? (
           [1,2,3,4].map(i => <Shimmer key={i} h={100} />)
@@ -122,7 +143,7 @@ export default function AIInsights() {
             <InsightCard
               key={insight.id}
               {...insight}
-              onAction={() => notify.info('Opening detailed metric analytics…', 'Deep Analysis')}
+              onAction={() => handleAction(insight.action || insight.details?.action)}
             />
           ))
         )}

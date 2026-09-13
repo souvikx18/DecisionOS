@@ -10,7 +10,7 @@ export const askQuerySchema = z
   .object({
     query: z
       .string({ required_error: 'Query prompt is required' })
-      .min(3, 'Query must be at least 3 characters')
+      .min(1, 'Query prompt cannot be empty')
       .max(1000, 'Query cannot exceed 1000 characters')
       .trim(),
   })

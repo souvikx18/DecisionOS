@@ -331,11 +331,18 @@
 .dashboard__filter-btn:hover {
   border-color: var(--accent-primary);
   color: var(--accent-primary);
+  background: rgba(29, 78, 216, 0.06);
 }
 
 .dashboard__filter-btn--active {
   background: var(--accent-primary);
   border-color: var(--accent-primary);
+  color: #fff;
+}
+
+.dashboard__filter-btn--active:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
   color: #fff;
 }
 

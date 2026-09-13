@@ -33,6 +33,12 @@ export async function getExpenseBreakdown(req, res) {
   return sendSuccess(res, result);
 }
 
+// ── GET /api/v1/expenses/categories ────────────────────────────
+export async function getExpenseCategories(req, res) {
+  const result = await getExpenseBreakdownService(req.org.id, req.query);
+  return sendSuccess(res, result.breakdown || []);
+}
+
 // ── GET /api/v1/expenses/:id ───────────────────────────────────
 export async function getExpense(req, res) {
   const result = await getExpenseService(req.org.id, req.params.id);

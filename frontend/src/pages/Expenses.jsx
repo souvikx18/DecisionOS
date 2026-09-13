@@ -27,10 +27,10 @@ export default function Expenses() {
   const expenses   = data?.data?.expenses   ?? data?.data ?? []
   const pagination = data?.data?.pagination ?? data?.meta  ?? {}
   const summary    = data?.data?.summary    ?? {}
-  const categories = catData ?? []
+  const categories = Array.isArray(catData) ? catData : (catData?.breakdown ?? [])
 
   const pieData = categories.map((c, i) => ({
-    name: c.category, value: Number(c._sum?.amount ?? c.amount ?? 0), fill: COLORS[i % COLORS.length]
+    name: c.category, value: Number(c.amount ?? c._sum?.amount ?? 0), fill: COLORS[i % COLORS.length]
   }))
 
   return (
@@ -57,7 +57,7 @@ export default function Expenses() {
               <TrendingDown size={20} strokeWidth={1.75} />
             </div>
             <div>
-              <div className="expenses-kpi__val">{fmtCurrency(summary.avgMonthly)}</div>
+              <div className="expenses-kpi__val">{fmtCurrency(summary.avgMonthly || (summary.totalExpenses ? Math.round(summary.totalExpenses / 6) : 0))}</div>
               <div className="expenses-kpi__label">Avg. Monthly Expense</div>
             </div>
           </div>

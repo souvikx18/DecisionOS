@@ -6,8 +6,8 @@
 import { z } from 'zod';
 
 // Roles that can be assigned (OWNER is NOT assignable via API)
-const assignableRoleSchema = z.enum(['ADMIN', 'ANALYST', 'VIEWER'], {
-  errorMap: () => ({ message: 'Role must be one of: ADMIN, ANALYST, VIEWER' }),
+const assignableRoleSchema = z.enum(['ADMIN', 'MANAGER', 'ANALYST', 'FINANCE', 'AUDITOR', 'VIEWER'], {
+  errorMap: () => ({ message: 'Role must be one of: ADMIN, MANAGER, ANALYST, FINANCE, AUDITOR, VIEWER' }),
 });
 
 // ── Change Member Role ─────────────────────────────────────────

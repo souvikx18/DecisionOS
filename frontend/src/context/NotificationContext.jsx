@@ -1,6 +1,5 @@
 // src/context/NotificationContext.jsx
 import { createContext, useContext, useState, useEffect } from 'react'
-import { mockNotifications } from '../data/mockData'
 import { notify } from '../components/ui/CustomToast'
 import { useRealtime } from '../lib/hooks/useRealtime.js'
 
@@ -10,10 +9,14 @@ export function NotificationProvider({ children }) {
   const [notifs, setNotifs] = useState(() => {
     try {
       const saved = localStorage.getItem('decisionos_notifications')
-      return saved ? JSON.parse(saved) : mockNotifications
-    } catch {
-      return mockNotifications
-    }
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        // Filter out any old mock/demo notifications (they have numeric ids)
+        const real = parsed.filter(n => typeof n.id === 'string' && n.id.startsWith('notif_'))
+        return real
+      }
+    } catch {}
+    return []
   })
 
   const { connected, on } = useRealtime()

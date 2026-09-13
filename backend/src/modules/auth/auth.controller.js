@@ -19,6 +19,7 @@ import {
 } from './auth.service.js';
 
 import { sendSuccess, sendError, sendValidationError } from '../../lib/response.js';
+import { prisma } from '../../lib/prisma.js';
 
 // ── POST /api/v1/auth/signup ───────────────────────────────────
 export async function signup(req, res) {
@@ -152,7 +153,27 @@ export async function changePassword(req, res) {
 
 // ── GET /api/v1/auth/me ────────────────────────────────────────
 export async function getMe(req, res) {
-  return sendSuccess(res, { user: req.user });
+  try {
+    const membership = await prisma.organizationMember.findFirst({
+      where: { userId: req.user.id },
+      include: {
+        organization: true,
+      },
+    });
+
+    const fullUser = {
+      ...req.user,
+      role: membership?.role || 'OWNER',
+      org: membership?.organization || null,
+      company: membership?.organization
+        ? { name: membership.organization.name, logoUrl: membership.organization.logoUrl }
+        : null,
+    };
+
+    return sendSuccess(res, { user: fullUser });
+  } catch (err) {
+    return sendSuccess(res, { user: req.user });
+  }
 }
 
 // ── GET /api/v1/auth/sessions ─────────────────────────────────

@@ -395,57 +395,180 @@ Return JSON with structure:
 
   // Fallback intelligent answer engine if Gemini is not configured or fails
   if (!answerText) {
-    const qLower = userPrompt.toLowerCase();
-    
-    if (qLower.includes('revenue') || qLower.includes('sale') || qLower.includes('earning')) {
-      answerText = `Based on your recent transactions, **Total Revenue is ₹${ctx.summary.totalAllTimeRevenue.toLocaleString('en-IN')}** across ${ctx.summary.totalAllTimeSalesCount} orders. Over the last 30 days, your business generated **₹${ctx.summary.salesLast30Days.toLocaleString('en-IN')}**, running at an average velocity of **₹${ctx.summary.dailySalesRunRate7d.toLocaleString('en-IN')}/day** this week.`;
+    const qLower = userPrompt.toLowerCase().trim()
+      .replace(/[^\w\s]/g, ' ') // strip punctuation
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    // ── Intent detection helpers ─────────────────────────────────
+    const hasAny = (...words) => words.some((w) => qLower.includes(w));
+    const isExact = (...words) => words.some((w) => qLower === w);
+    const startsWith = (...words) => words.some((w) => qLower.startsWith(w));
+
+    // ── Greeting intent (catches typos, short openers) ───────────
+    const greetWords = [
+      'hi', 'hii', 'hiii', 'hlw', 'hlo', 'hllo', 'hello', 'hey', 'heyy', 'heya',
+      'howdy', 'hola', 'sup', 'yo', 'namaste', 'namaskar', 'greetings',
+      'good morning', 'gm', 'good evening', 'good afternoon', 'good night',
+      'whats up', 'wassup', 'watsup', 'how are you', 'how r u',
+    ];
+    const isGreeting = greetWords.some((g) => isExact(g) || startsWith(g + ' ') || qLower === g);
+
+    // ── Capability / help intent ─────────────────────────────────
+    const isCapability = hasAny('who are you', 'what can you do', 'what do you do',
+      'help', 'assist', 'capabilities', 'features', 'what is decisionos', 'about you');
+
+    // ── Thanks / acknowledgement ─────────────────────────────────
+    const isThanks = hasAny('thank', 'thanks', 'thx', 'ty', 'great', 'nice',
+      'awesome', 'cool', 'perfect', 'got it', 'ok', 'okay', 'k ');
+
+    // ── Casual / off-topic (not business-related) ─────────────────
+    const isOffTopic = !hasAny(
+      'revenue', 'sale', 'earn', 'profit', 'income', 'money',
+      'expense', 'cost', 'spend', 'budget', 'payment',
+      'stock', 'inventory', 'reorder', 'sku', 'warehouse',
+      'customer', 'client', 'buyer', 'churn',
+      'report', 'pdf', 'export', 'import', 'upload', 'csv',
+      'dashboard', 'insight', 'forecast', 'analytic',
+      'team', 'member', 'role', 'plan', 'billing', 'subscription',
+    );
+
+    if (isGreeting) {
+      const hour = new Date().getHours();
+      const timeGreet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+      answerText = `${timeGreet}! I'm **Atlas**, your DecisionOS executive assistant for **${ctx.organization.name}**. 🎯\n\nHere's what I can help you with:\n- **Live metrics** — revenue, expenses, inventory, customers\n- **Business insights** — trends, anomalies, forecasts\n- **Platform guidance** — importing data, generating reports, team setup\n\nWhat would you like to explore today?`;
+      keyMetrics = {
+        'Total Revenue': `₹${ctx.summary.totalAllTimeRevenue.toLocaleString('en-IN')}`,
+        'Active Customers': ctx.customers.totalCount,
+        'Inventory Items': ctx.inventory.totalItems,
+      };
+      suggestedFollowUps = [
+        'What is our total revenue this month?',
+        'Show inventory items low on stock',
+        'How do I generate a report?',
+      ];
+    } else if (isThanks) {
+      answerText = `You're welcome! 😊 Is there anything else you'd like to know about **${ctx.organization.name}**'s operations? I'm here anytime.`;
+      keyMetrics = {};
+      suggestedFollowUps = [
+        'Show me the executive dashboard',
+        'What is our current profit margin?',
+        'Check for any alerts',
+      ];
+    } else if (isCapability) {
+      answerText = `I'm **Atlas**, the business intelligence concierge for **${ctx.organization.name}**.\n\nI can help you with:\n- 📊 **Revenue & Sales** — daily velocity, top products, period comparisons\n- 💰 **Expenses** — category breakdowns, spike detection, month-over-month\n- 📦 **Inventory** — stock levels, reorder alerts, warehouse valuation\n- 👥 **Customers** — churn risk, top accounts, CLV analysis\n- 📄 **Reports** — generate PDF/XLSX/CSV, schedule automated dispatches\n- ⚙️ **Platform setup** — data import, team roles, organization settings`;
+      keyMetrics = {
+        'Inventory Items': ctx.inventory.totalItems,
+        'Active Customers': ctx.customers.totalCount,
+      };
+      suggestedFollowUps = [
+        'What is our sales performance this week?',
+        'How do I import data?',
+        'Show expense breakdown',
+      ];
+    } else if (hasAny('revenue', 'sale', 'earn', 'income', 'turnover')) {
+      answerText = `Here's your revenue snapshot for **${ctx.organization.name}**:\n\n- **Total All-Time Revenue:** ₹${ctx.summary.totalAllTimeRevenue.toLocaleString('en-IN')}\n- **Last 30 Days:** ₹${ctx.summary.salesLast30Days.toLocaleString('en-IN')}\n- **Daily Velocity (7-day avg):** ₹${ctx.summary.dailySalesRunRate7d.toLocaleString('en-IN')}/day\n- **Total Orders:** ${ctx.summary.totalAllTimeSalesCount}`;
       keyMetrics = {
         'Total Revenue': `₹${ctx.summary.totalAllTimeRevenue.toLocaleString('en-IN')}`,
         '30-Day Sales': `₹${ctx.summary.salesLast30Days.toLocaleString('en-IN')}`,
         'Daily Run-Rate': `₹${ctx.summary.dailySalesRunRate7d.toLocaleString('en-IN')}/day`,
       };
       suggestedFollowUps = [
-        'How does this compare to our revenue targets?',
         'Which customer generated the highest revenue?',
-        'What is our 3-month revenue prediction?',
+        'Compare this month vs last month',
+        'What is our 3-month revenue forecast?',
       ];
-    } else if (qLower.includes('expense') || qLower.includes('cost') || qLower.includes('spend')) {
+    } else if (hasAny('expense', 'cost', 'spend', 'spending', 'budget')) {
       const topCat = Object.entries(ctx.expenses.currentMonth).sort((a, b) => b[1] - a[1])[0];
-      answerText = `Current month total expenses stand at **₹${ctx.expenses.currentMonthTotal.toLocaleString('en-IN')}**. ${topCat ? `Your highest expense category is **${topCat[0]}** at ₹${topCat[1].toLocaleString('en-IN')}.` : 'No major expense spikes detected.'}`;
+      answerText = `**${ctx.organization.name}** expense summary:\n\n- **This Month Total:** ₹${ctx.expenses.currentMonthTotal.toLocaleString('en-IN')}\n${topCat ? `- **Top Category:** ${topCat[0]} — ₹${Number(topCat[1]).toLocaleString('en-IN')}` : '- No major expense spikes detected this month.'}`;
       keyMetrics = {
         'Monthly Expenses': `₹${ctx.expenses.currentMonthTotal.toLocaleString('en-IN')}`,
         'Top Category': topCat ? topCat[0] : 'N/A',
       };
       suggestedFollowUps = [
-        'Break down expenses by category',
+        'Break down expenses by every category',
         'Are there any expense spikes this month?',
-        'How can we reduce logistics costs?',
+        'What is our profit margin after expenses?',
       ];
-    } else if (qLower.includes('stock') || qLower.includes('inventory') || qLower.includes('reorder')) {
-      const lowStock = ctx.inventory.items.filter((i) => i.quantity <= i.reorderLevel);
-      answerText = `You currently track **${ctx.inventory.totalItems} inventory items**. There are **${lowStock.length} items** currently at or below their reorder thresholds.`;
+    } else if (hasAny('profit', 'margin', 'p&l', 'gross profit', 'net profit')) {
+      const rev = ctx.summary.salesLast30Days;
+      const exp = ctx.expenses.currentMonthTotal;
+      const gp = rev - exp;
+      const margin = rev > 0 ? ((gp / rev) * 100).toFixed(1) : 0;
+      answerText = `**P&L Snapshot for ${ctx.organization.name}** (last 30 days):\n\n- **Revenue:** ₹${rev.toLocaleString('en-IN')}\n- **Expenses:** ₹${exp.toLocaleString('en-IN')}\n- **Gross Profit:** ₹${gp.toLocaleString('en-IN')}\n- **Profit Margin:** ${margin}%`;
       keyMetrics = {
-        'Total Items': ctx.inventory.totalItems,
-        'Low Stock Alerts': lowStock.length,
+        'Gross Profit': `₹${gp.toLocaleString('en-IN')}`,
+        'Profit Margin': `${margin}%`,
       };
       suggestedFollowUps = [
-        'Which items are critically low in stock?',
-        'What is our total inventory valuation?',
-        'When should I place the next purchase order?',
+        'What expenses can we reduce?',
+        'Show full revenue breakdown',
+        'Generate a monthly P&L report',
       ];
-    } else if (qLower.includes('customer') || qLower.includes('client') || qLower.includes('churn')) {
+    } else if (hasAny('stock', 'inventory', 'reorder', 'sku', 'warehouse', 'item')) {
+      const lowStock = ctx.inventory.items.filter((i) => i.quantity <= i.reorderLevel);
+      const outOfStock = ctx.inventory.items.filter((i) => i.quantity === 0);
+      answerText = `**Inventory Status for ${ctx.organization.name}:**\n\n- **Total Items Tracked:** ${ctx.inventory.totalItems}\n- **Low Stock Alerts:** ${lowStock.length} item(s)\n- **Out of Stock:** ${outOfStock.length} item(s)\n${outOfStock.length > 0 ? `\n⚠️ Critical: **${outOfStock.slice(0, 3).map(i => i.name || i.sku).join(', ')}** are out of stock.` : '✅ No critical stockouts at this time.'}`;
+      keyMetrics = {
+        'Total Items': ctx.inventory.totalItems,
+        'Low Stock': lowStock.length,
+        'Out of Stock': outOfStock.length,
+      };
+      suggestedFollowUps = [
+        'Which items need to be reordered now?',
+        'What is our total inventory valuation?',
+        'How do I import updated stock data?',
+      ];
+    } else if (hasAny('customer', 'client', 'buyer', 'churn', 'retention', 'account')) {
       const topCust = ctx.customers.topList[0];
-      answerText = `You currently have **${ctx.customers.totalCount} active customer accounts**. Your top spending customer is **${topCust ? topCust.name : 'N/A'}** with a lifetime revenue of ₹${Number(topCust?.totalRevenue || 0).toLocaleString('en-IN')}.`;
+      answerText = `**Customer Intelligence for ${ctx.organization.name}:**\n\n- **Total Active Accounts:** ${ctx.customers.totalCount}\n- **Top Customer:** ${topCust ? `${topCust.name} — ₹${Number(topCust.totalRevenue || 0).toLocaleString('en-IN')} lifetime revenue` : 'No customers yet'}\n- **Churn Risk:** Monitor accounts with no orders in the last 60+ days.`;
       keyMetrics = {
         'Total Accounts': ctx.customers.totalCount,
         'Top Customer': topCust ? topCust.name : 'N/A',
       };
       suggestedFollowUps = [
-        'Are any high-value customers at risk of churn?',
-        'Which customer segment has the highest growth?',
         'List top 5 customers by revenue',
+        'Are any high-value customers at churn risk?',
+        'Which customer segment is growing fastest?',
+      ];
+    } else if (hasAny('report', 'pdf', 'export', 'download', 'schedule')) {
+      answerText = `To generate a business report in **DecisionOS**:\n\n1. Go to **Reports** in the left sidebar\n2. Select your report type (Daily, Weekly, Monthly)\n3. Choose your export format: **PDF**, **XLSX**, or **CSV**\n4. Click **Generate Report** — it downloads automatically to your device\n\nYou can also schedule automated reports to be emailed daily, weekly, or monthly.`;
+      keyMetrics = {};
+      suggestedFollowUps = [
+        'How do I email a report automatically?',
+        'What is included in the monthly report?',
+        'Can I customize the report date range?',
+      ];
+    } else if (hasAny('import', 'upload', 'csv', 'excel', 'xlsx', 'spreadsheet')) {
+      answerText = `To import your business data into **DecisionOS**:\n\n1. Go to **Data Import** in the sidebar\n2. Select the data type: Sales, Expenses, Inventory, or Customers\n3. Upload your **.CSV** or **.XLSX** file (up to 50MB)\n4. Confirm column mappings and click **Run Ingestion**\n\nSample templates are available on the import page for correct formatting.`;
+      keyMetrics = {};
+      suggestedFollowUps = [
+        'What columns are required for sales data?',
+        'Can I import multiple files at once?',
+        'How long does import processing take?',
+      ];
+    } else if (hasAny('dashboard', 'overview', 'summary', 'snapshot', 'kpi')) {
+      answerText = `Here's your live **Executive Dashboard** snapshot for **${ctx.organization.name}**:\n\n- **Total Revenue:** ₹${ctx.summary.totalAllTimeRevenue.toLocaleString('en-IN')}\n- **30-Day Sales:** ₹${ctx.summary.salesLast30Days.toLocaleString('en-IN')}\n- **Monthly Expenses:** ₹${ctx.expenses.currentMonthTotal.toLocaleString('en-IN')}\n- **Inventory Items:** ${ctx.inventory.totalItems} tracked\n- **Active Customers:** ${ctx.customers.totalCount} accounts`;
+      keyMetrics = {
+        'Total Revenue': `₹${ctx.summary.totalAllTimeRevenue.toLocaleString('en-IN')}`,
+        'Expenses': `₹${ctx.expenses.currentMonthTotal.toLocaleString('en-IN')}`,
+      };
+      suggestedFollowUps = [
+        'What drove revenue this month?',
+        'Show expense category breakdown',
+        'Which customers are at churn risk?',
+      ];
+    } else if (isOffTopic) {
+      // Short, natural conversational reply for off-topic messages
+      answerText = `I'm **Atlas**, your DecisionOS business intelligence assistant. I specialize in helping you analyze **${ctx.organization.name}**'s performance — revenue, expenses, inventory, customers, and reports.\n\nCould you ask me something about your business operations? For example:\n- *"What is our revenue this month?"*\n- *"Which inventory items are low in stock?"*\n- *"How do I generate a PDF report?"*`;
+      keyMetrics = {};
+      suggestedFollowUps = [
+        'What is our total revenue?',
+        'Show low stock alerts',
+        'How do I import data?',
       ];
     } else {
+      // Generic business snapshot fallback
       answerText = `Here is your current operational snapshot for **${ctx.organization.name}**:\n\n- **Total Revenue:** ₹${ctx.summary.totalAllTimeRevenue.toLocaleString('en-IN')}\n- **Monthly Expenses:** ₹${ctx.expenses.currentMonthTotal.toLocaleString('en-IN')}\n- **Inventory Items:** ${ctx.inventory.totalItems} tracked\n- **Active Customers:** ${ctx.customers.totalCount} accounts`;
       keyMetrics = {
         'Total Revenue': `₹${ctx.summary.totalAllTimeRevenue.toLocaleString('en-IN')}`,

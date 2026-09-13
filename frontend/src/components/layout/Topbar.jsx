@@ -1,18 +1,19 @@
 import { useState } from 'react'
-import { Search, Bell, ChevronDown, Calendar, Sun, Moon, Menu } from 'lucide-react'
+import { Search, Bell, ChevronDown, Calendar, Menu } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
-import { useTheme } from '../../context/ThemeContext'
 import { useNotifications } from '../../context/NotificationContext'
 import { useNavigate } from 'react-router-dom'
+import logoFull from '../../assets/logo.png'
 import './Topbar.css'
 
 export default function Topbar({ sidebarCollapsed, onToggleSidebar }) {
   const { user } = useAuth()
-  const { theme, toggleTheme } = useTheme()
   const { hasUnread } = useNotifications()
   const navigate = useNavigate()
   const [searchFocused, setSearchFocused] = useState(false)
-  const isDark = theme === 'dark'
+
+  const companyLogo = user?.org?.logoUrl || user?.company?.logoUrl || logoFull
+  const orgName = user?.company?.name || user?.org?.name || 'Company'
 
   const today = new Date().toLocaleDateString('en-IN', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
@@ -51,19 +52,6 @@ export default function Topbar({ sidebarCollapsed, onToggleSidebar }) {
           <span>{today}</span>
         </div>
 
-        {/* Theme Toggle */}
-        <button
-          className="topbar__icon-btn topbar__theme-btn"
-          onClick={toggleTheme}
-          title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-          id="topbar-theme-toggle"
-        >
-          {isDark
-            ? <Sun size={17} strokeWidth={1.75} />
-            : <Moon size={17} strokeWidth={1.75} />
-          }
-        </button>
-
         {/* Notifications */}
         <button
           className="topbar__icon-btn"
@@ -75,16 +63,25 @@ export default function Topbar({ sidebarCollapsed, onToggleSidebar }) {
         </button>
 
         {/* User Profile Pill */}
-        <div className="topbar__user">
-          <div className="topbar__avatar">
-            {user?.photo
-              ? <img src={user.photo} alt={user.name} className="topbar__avatar-photo" />
-              : (user?.avatar || 'U')
+        <div
+          className="topbar__user"
+          onClick={() => navigate('/settings', { state: { tab: 'profile' } })}
+          role="button"
+          tabIndex={0}
+          title="Open Profile"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              navigate('/settings', { state: { tab: 'profile' } })
             }
+          }}
+        >
+          <div className="topbar__avatar">
+            <img src={companyLogo} alt={orgName} className="topbar__avatar-photo" />
           </div>
           <div className="topbar__user-info">
-            <span className="topbar__user-name">{user?.name || 'Executive'}</span>
-            <span className="topbar__company">{user?.company?.name || 'DecisionOS'}</span>
+            <span className="topbar__user-name">{user?.name || [user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'Executive'}</span>
+            <span className="topbar__company">{user?.company?.name || user?.org?.name || 'DecisionOS'}</span>
           </div>
           <ChevronDown size={14} className="topbar__chevron" />
         </div>

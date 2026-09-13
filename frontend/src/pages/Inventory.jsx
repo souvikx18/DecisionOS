@@ -30,9 +30,14 @@ export default function Inventory() {
   const [lowStock, setLowStock] = useState(false)
 
   const { data, loading } = useApi(() => fetchInventory(page, query, lowStock), [page, query, lowStock])
-  const items      = data?.data?.items      ?? data?.data ?? []
+  const items      = data?.data?.items      ?? data?.data?.inventory ?? data?.data ?? []
   const pagination = data?.data?.pagination ?? data?.meta ?? {}
   const summary    = data?.data?.summary    ?? {}
+
+  const totalSKUs   = summary.totalItems ?? pagination.total ?? items.length
+  const critCount   = summary.criticalCount ?? items.filter(i => (i.quantity / Math.max(i.reorderLevel, 1)) <= 0.25).length
+  const warnCount   = summary.warningCount ?? items.filter(i => { const r = i.quantity / Math.max(i.reorderLevel, 1); return r > 0.25 && r <= 0.6; }).length
+  const healthyCount = summary.okCount ?? items.filter(i => (i.quantity / Math.max(i.reorderLevel, 1)) > 0.6).length
 
   const handleSearch = e => { e.preventDefault(); setQuery(search); setPage(1) }
 
@@ -47,10 +52,10 @@ export default function Inventory() {
 
       <div className="inventory-kpi-grid">
         {[
-          { icon: Package, label: 'Total SKUs', val: (summary.totalItems ?? 0).toLocaleString(), color: '#1D4ED8', bg: '#EFF6FF' },
-          { icon: AlertTriangle, label: 'Critical (≤25%)', val: summary.criticalCount ?? 0, color: '#EF4444', bg: '#FEF2F2' },
-          { icon: AlertTriangle, label: 'Low Stock (≤60%)', val: summary.warningCount ?? 0, color: '#F59E0B', bg: '#FFFBEB' },
-          { icon: CheckCircle, label: 'Healthy Stock', val: summary.okCount ?? 0, color: '#10B981', bg: '#F0FDF4' },
+          { icon: Package, label: 'Total SKUs', val: totalSKUs.toLocaleString(), color: '#1D4ED8', bg: '#EFF6FF' },
+          { icon: AlertTriangle, label: 'Critical (≤25%)', val: critCount, color: '#EF4444', bg: '#FEF2F2' },
+          { icon: AlertTriangle, label: 'Low Stock (≤60%)', val: warnCount, color: '#F59E0B', bg: '#FFFBEB' },
+          { icon: CheckCircle, label: 'Healthy Stock', val: healthyCount, color: '#10B981', bg: '#F0FDF4' },
         ].map(k => (
           <div key={k.label} className="glass-card inventory-kpi">
             <div style={{ width: 40, height: 40, borderRadius: 10, background: k.bg, color: k.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -103,7 +108,7 @@ export default function Inventory() {
                     <td><strong>{qty.toLocaleString()}</strong></td>
                     <td>{reorder.toLocaleString()}</td>
                     <td style={{ minWidth: 130 }}><StockBar quantity={qty} reorderLevel={reorder} /></td>
-                    <td>{fmtCurrency(item.unitCost ?? item.product?.costPrice)}</td>
+                    <td>{item.product?.costPrice ? fmtCurrency(item.unitCost ?? item.product?.costPrice) : '—'}</td>
                     <td>
                       <span className={`badge badge-${status === 'critical' ? 'error' : status === 'warning' ? 'warning' : 'success'}`}>
                         {status === 'critical' ? 'Critical' : status === 'warning' ? 'Low' : 'OK'}

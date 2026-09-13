@@ -1,4 +1,4 @@
-/* src/pages/Billing.css — DecisionOS Executive Billing & Subscription Styling */
+/* src/pages/Billing.css — DecisionOS Executive Billing & Subscription Styling (Day / Light Mode) */
 
 .dos-billing {
   display: flex;
@@ -8,18 +8,18 @@
   margin: 0 auto;
   width: 100%;
   padding-bottom: 60px;
-  color: #F8FAFC;
+  color: #0F172A;
   font-family: inherit;
 }
 
 /* ── Card Foundation ── */
 .dos-card {
-  background: #0B101B;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 16px;
   padding: 24px 28px;
   position: relative;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 /* ── Header ── */
@@ -46,7 +46,7 @@
 .dos-billing__title {
   font-size: 26px;
   font-weight: 800;
-  color: #FFFFFF;
+  color: #0F172A;
   letter-spacing: -0.5px;
   margin: 0;
 }
@@ -59,14 +59,14 @@
 
 .dos-billing__subtitle {
   font-size: 14px;
-  color: #94A3B8;
+  color: #64748B;
   margin: 0;
 }
 
 .dos-billing__refresh-btn {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #F1F5F9;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  color: #334155;
   border-radius: 10px;
   padding: 8px 16px;
   font-size: 13px;
@@ -75,12 +75,13 @@
   align-items: center;
   gap: 8px;
   cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   transition: all 0.2s ease;
 }
 
 .dos-billing__refresh-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: #F8FAFC;
+  border-color: #94A3B8;
   transform: translateY(-1px);
 }
 
@@ -91,10 +92,12 @@
   justify-content: space-between;
   gap: 32px;
   padding: 28px 32px;
-  background: linear-gradient(145deg, #0D1527 0%, #0B101E 100%);
-  border: 1px solid rgba(59, 130, 246, 0.15);
+  background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
 }
 
 .dos-billing__current-plan-card::after {
@@ -104,7 +107,7 @@
   right: 120px;
   width: 250px;
   height: 250px;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.06) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -123,7 +126,7 @@
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.8px;
-  color: #10B981;
+  color: #059669;
 }
 
 .dos-billing__status-dot {
@@ -131,7 +134,7 @@
   height: 6px;
   border-radius: 50%;
   background: #10B981;
-  box-shadow: 0 0 8px #10B981;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
 }
 
 .dos-billing__current-plan-name-row {
@@ -143,15 +146,15 @@
 .dos-billing__current-plan-title {
   font-size: 26px;
   font-weight: 800;
-  color: #FFFFFF;
+  color: #0F172A;
   margin: 0;
   letter-spacing: -0.5px;
 }
 
 .dos-billing__active-pill {
-  background: rgba(16, 185, 129, 0.15);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  color: #34D399;
+  background: #ECFDF5;
+  border: 1px solid #A7F3D0;
+  color: #059669;
   font-size: 11.5px;
   font-weight: 700;
   padding: 2px 10px;
@@ -160,7 +163,7 @@
 
 .dos-billing__current-plan-desc {
   font-size: 13.5px;
-  color: #94A3B8;
+  color: #64748B;
   margin: 0;
   line-height: 1.5;
 }
@@ -173,7 +176,7 @@
 }
 
 .dos-btn-primary {
-  background: linear-gradient(135deg, #4338CA 0%, #3B82F6 100%);
+  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
   color: #FFFFFF;
   border: none;
   border-radius: 10px;
@@ -186,20 +189,19 @@
   cursor: pointer;
   text-decoration: none;
   transition: all 0.15s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
 }
 
 .dos-btn-primary:hover {
-  opacity: 0.95;
+  background: linear-gradient(135deg, #1D4ED8 0%, #1E40AF 100%);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
 }
 
-
 .dos-btn-outline {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #F8FAFC;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  color: #334155;
   border-radius: 10px;
   padding: 10px 18px;
   font-size: 13.5px;
@@ -208,12 +210,14 @@
   align-items: center;
   gap: 8px;
   cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   transition: all 0.2s ease;
 }
 
 .dos-btn-outline:hover {
-  background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: #F8FAFC;
+  border-color: #94A3B8;
+  color: #0F172A;
 }
 
 .dos-billing__current-plan-right {
@@ -243,13 +247,13 @@
 .dos-billing__current-price-num {
   font-size: 32px;
   font-weight: 800;
-  color: #FFFFFF;
+  color: #0F172A;
   letter-spacing: -0.5px;
 }
 
 .dos-billing__current-price-period {
   font-size: 14px;
-  color: #94A3B8;
+  color: #64748B;
   font-weight: 500;
 }
 
@@ -263,7 +267,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid #E2E8F0;
   padding-top: 10px;
 }
 
@@ -280,13 +284,13 @@
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  color: #CBD5E1;
+  color: #334155;
 }
 
 .dos-billing__update-badge {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #94A3B8;
+  background: #F1F5F9;
+  border: 1px solid #CBD5E1;
+  color: #475569;
   border-radius: 6px;
   padding: 2px 8px;
   font-size: 11px;
@@ -296,8 +300,9 @@
 }
 
 .dos-billing__update-badge:hover {
-  color: #FFFFFF;
-  border-color: #3B82F6;
+  color: #0F172A;
+  background: #E2E8F0;
+  border-color: #94A3B8;
 }
 
 /* 3D Visual Card Illustration Stage */
@@ -309,7 +314,7 @@
   flex-shrink: 0;
   width: 220px;
   height: 150px;
-  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.4));
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1));
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -335,15 +340,19 @@
 .dos-billing__section-title {
   font-size: 19px;
   font-weight: 800;
-  color: #FFFFFF;
+  color: #0F172A;
   margin: 0;
   letter-spacing: -0.3px;
 }
 
+.dos-billing__timeframe-wrap {
+  position: relative;
+}
+
 .dos-billing__timeframe-select {
-  background: #0B101B;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #CBD5E1;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  color: #334155;
   border-radius: 8px;
   padding: 6px 12px;
   font-size: 12.5px;
@@ -352,6 +361,50 @@
   align-items: center;
   gap: 6px;
   cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.dos-billing__timeframe-select:hover {
+  border-color: #94A3B8;
+  background: #F8FAFC;
+}
+
+.dos-billing__timeframe-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 50;
+  min-width: 140px;
+  padding: 4px;
+}
+
+.dos-billing__timeframe-option {
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 0.12s ease;
+}
+
+.dos-billing__timeframe-option:hover {
+  background: #F1F5F9;
+  color: #1D4ED8;
+}
+
+.dos-billing__timeframe-option--active {
+  background: #EFF6FF;
+  color: #2563EB;
 }
 
 .dos-billing__usage-grid {
@@ -361,18 +414,20 @@
 }
 
 .dos-billing__quota-card {
-  background: #0D1322;
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 14px;
   padding: 18px 20px;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .dos-billing__quota-card:hover {
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: #CBD5E1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   transform: translateY(-2px);
 }
 
@@ -386,7 +441,7 @@
 .dos-billing__quota-label {
   font-size: 13px;
   font-weight: 700;
-  color: #F1F5F9;
+  color: #1E293B;
 }
 
 .dos-billing__quota-icon-wrap {
@@ -401,7 +456,7 @@
 .dos-billing__quota-numbers {
   font-size: 18px;
   font-weight: 800;
-  color: #FFFFFF;
+  color: #0F172A;
 }
 
 .dos-billing__quota-max {
@@ -412,9 +467,9 @@
 
 .dos-billing__progress-bar {
   width: 100%;
-  height: 5px;
+  height: 6px;
   border-radius: 100px;
-  background: rgba(255, 255, 255, 0.08);
+  background: #F1F5F9;
   overflow: hidden;
 }
 
@@ -431,15 +486,15 @@
 }
 
 .dos-billing__usage-info-banner {
-  background: rgba(59, 130, 246, 0.06);
-  border: 1px solid rgba(59, 130, 246, 0.18);
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
   border-radius: 12px;
   padding: 12px 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-size: 13px;
-  color: #94A3B8;
+  color: #1E40AF;
   gap: 12px;
 }
 
@@ -450,7 +505,7 @@
 }
 
 .dos-billing__usage-guide-link {
-  color: #3B82F6;
+  color: #1D4ED8;
   font-weight: 700;
   text-decoration: none;
   display: inline-flex;
@@ -461,7 +516,7 @@
 }
 
 .dos-billing__usage-guide-link:hover {
-  color: #60A5FA;
+  color: #2563EB;
 }
 
 /* ── Section 3: Available Plans ── */
@@ -480,9 +535,9 @@
 
 .dos-billing__toggle-pill-wrap {
   display: inline-flex;
-  padding: 3px;
-  background: #0B101B;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 4px;
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
   border-radius: 10px;
   gap: 2px;
 }
@@ -494,7 +549,7 @@
   background: transparent;
   font-size: 12.5px;
   font-weight: 700;
-  color: #94A3B8;
+  color: #64748B;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -503,9 +558,19 @@
   font-family: inherit;
 }
 
+.dos-billing__toggle-btn:hover {
+  color: #1E293B;
+}
+
 .dos-billing__toggle-btn--active {
-  background: #1E293B;
-  color: #FFFFFF;
+  background: #FFFFFF;
+  color: #1D4ED8;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.dos-billing__toggle-btn--active:hover {
+  background: #FFFFFF;
+  color: #1D4ED8;
 }
 
 .dos-billing__discount-badge {
@@ -526,25 +591,27 @@
 }
 
 .dos-billing__plan-card {
-  background: #0B101B;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 18px;
   padding: 32px 28px;
   display: flex;
   flex-direction: column;
   position: relative;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .dos-billing__plan-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+  border-color: #CBD5E1;
 }
 
 .dos-billing__plan-card--popular {
-  border: 1.5px solid #6366F1;
-  background: linear-gradient(180deg, #121933 0%, #0B101B 100%);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border: 2px solid #3B82F6;
+  background: linear-gradient(180deg, #F8FAFC 0%, #FFFFFF 100%);
+  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.1);
   padding-top: 36px;
 }
 
@@ -553,19 +620,16 @@
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  background: linear-gradient(180deg, #6366F1 0%, #4338CA 100%);
+  background: linear-gradient(180deg, #3B82F6 0%, #1D4ED8 100%);
   color: #FFFFFF;
   font-size: 9.5px;
   font-weight: 800;
   letter-spacing: 0.8px;
   padding: 4px 18px 5px 18px;
   border-radius: 0 0 10px 10px;
-  border: 1px solid rgba(99, 102, 241, 0.5);
-  border-top: none;
-  box-shadow: 0 4px 10px rgba(67, 56, 202, 0.35);
+  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.3);
   text-transform: uppercase;
 }
-
 
 .dos-billing__plan-card-header {
   display: flex;
@@ -575,19 +639,19 @@
 }
 
 .dos-billing__plan-card-icon {
-  color: #3B82F6;
+  color: #2563EB;
 }
 
 .dos-billing__plan-card-name {
   font-size: 20px;
   font-weight: 800;
-  color: #FFFFFF;
+  color: #0F172A;
   margin: 0;
 }
 
 .dos-billing__plan-card-tagline {
   font-size: 12.5px;
-  color: #94A3B8;
+  color: #64748B;
   line-height: 1.45;
   margin: 0 0 20px 0;
   min-height: 38px;
@@ -606,7 +670,7 @@
 .dos-billing__plan-price-num {
   font-size: 34px;
   font-weight: 800;
-  color: #FFFFFF;
+  color: #0F172A;
   letter-spacing: -0.5px;
 }
 
@@ -637,7 +701,7 @@
   align-items: flex-start;
   gap: 10px;
   font-size: 13px;
-  color: #CBD5E1;
+  color: #334155;
   line-height: 1.4;
 }
 
@@ -662,36 +726,37 @@
 }
 
 .dos-billing__plan-cta-btn--starter {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #F8FAFC;
+  background: #F8FAFC;
+  border: 1px solid #CBD5E1;
+  color: #1E293B;
 }
 
 .dos-billing__plan-cta-btn--starter:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: #F1F5F9;
+  border-color: #94A3B8;
 }
 
 .dos-billing__plan-cta-btn--pro {
-  background: linear-gradient(135deg, #4338CA 0%, #3B82F6 100%);
+  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
   border: none;
   color: #FFFFFF;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
 }
 
 .dos-billing__plan-cta-btn--pro:hover {
-  opacity: 0.95;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(135deg, #1D4ED8 0%, #1E40AF 100%);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
 }
 
-
 .dos-billing__plan-cta-btn--enterprise {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #FFFFFF;
+  background: #F8FAFC;
+  border: 1px solid #CBD5E1;
+  color: #1E293B;
 }
 
 .dos-billing__plan-cta-btn--enterprise:hover {
-  background: rgba(255, 255, 255, 0.09);
+  background: #F1F5F9;
+  border-color: #94A3B8;
 }
 
 .dos-billing__trust-guarantee {
@@ -699,7 +764,7 @@
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  color: #94A3B8;
+  color: #64748B;
   margin-top: 4px;
 }
 
@@ -725,13 +790,13 @@
 .dos-billing__box-title {
   font-size: 16px;
   font-weight: 800;
-  color: #FFFFFF;
+  color: #0F172A;
   margin: 0;
 }
 
 .dos-billing__box-sub {
   font-size: 12.5px;
-  color: #94A3B8;
+  color: #64748B;
   margin: 0 0 18px 0;
 }
 
@@ -746,16 +811,16 @@
 .dos-billing__gateway-name {
   font-size: 18px;
   font-weight: 800;
-  color: #FFFFFF;
+  color: #0F172A;
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
 .dos-billing__gateway-channels-pill {
-  background: rgba(16, 185, 129, 0.15);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  color: #34D399;
+  background: #ECFDF5;
+  border: 1px solid #A7F3D0;
+  color: #059669;
   font-size: 10.5px;
   font-weight: 800;
   letter-spacing: 0.5px;
@@ -766,22 +831,27 @@
 .dos-billing__payment-icons-strip {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 12px 16px;
-  background: #0D1322;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
+  justify-content: space-between;
+  padding: 8px 18px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
   margin-bottom: 20px;
-  flex-wrap: wrap;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
 }
 
-.dos-billing__pay-logo-badge {
-  font-size: 13px;
-  font-weight: 800;
-  color: #CBD5E1;
-  display: inline-flex;
+.dos-billing__payment-logo-item {
+  display: flex;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dos-billing__payment-divider {
+  width: 1px;
+  height: 14px;
+  background: #E2E8F0;
+  flex-shrink: 0;
 }
 
 .dos-billing__meta-details-table {
@@ -795,11 +865,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: #94A3B8;
+  color: #64748B;
 }
 
 .dos-billing__meta-item strong {
-  color: #F1F5F9;
+  color: #1E293B;
   font-weight: 600;
 }
 
@@ -814,15 +884,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #0D1322;
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
   border-radius: 12px;
   padding: 10px 14px;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
 
 .dos-billing__invoice-row:hover {
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: #CBD5E1;
+  background: #F1F5F9;
 }
 
 .dos-billing__invoice-left {
@@ -834,9 +905,9 @@
 .dos-billing__invoice-icon-box {
   width: 32px;
   height: 32px;
-  background: rgba(99, 102, 241, 0.15);
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  color: #818CF8;
+  background: #EEF2FF;
+  border: 1px solid #C7D2FE;
+  color: #4F46E5;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -853,7 +924,7 @@
 .dos-billing__invoice-id {
   font-size: 12.5px;
   font-weight: 700;
-  color: #F8FAFC;
+  color: #1E293B;
   font-family: monospace;
 }
 
@@ -871,13 +942,13 @@
 .dos-billing__invoice-amount {
   font-size: 13.5px;
   font-weight: 800;
-  color: #FFFFFF;
+  color: #0F172A;
 }
 
 .dos-billing__paid-pill {
-  background: rgba(16, 185, 129, 0.15);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  color: #34D399;
+  background: #ECFDF5;
+  border: 1px solid #A7F3D0;
+  color: #059669;
   font-size: 11px;
   font-weight: 800;
   padding: 2px 8px;
@@ -885,9 +956,9 @@
 }
 
 .dos-billing__download-btn {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #94A3B8;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  color: #64748B;
   width: 30px;
   height: 30px;
   border-radius: 6px;
@@ -895,21 +966,22 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   transition: all 0.15s ease;
 }
 
 .dos-billing__download-btn:hover {
-  color: #FFFFFF;
+  color: #1D4ED8;
   border-color: #3B82F6;
-  background: rgba(59, 130, 246, 0.1);
+  background: #EFF6FF;
 }
 
 /* ── Modals ── */
 .dos-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(8px);
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -919,15 +991,16 @@
 }
 
 .dos-modal {
-  background: #0B101E;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 20px;
   width: 100%;
   max-width: 520px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  color: #0F172A;
   animation: dosScaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -936,20 +1009,20 @@
   align-items: center;
   justify-content: space-between;
   padding: 20px 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .dos-modal__title {
   font-size: 18px;
   font-weight: 800;
-  color: #FFFFFF;
+  color: #0F172A;
   margin: 0;
 }
 
 .dos-modal__close-btn {
   background: transparent;
   border: none;
-  color: #94A3B8;
+  color: #64748B;
   cursor: pointer;
   padding: 6px;
   border-radius: 6px;
@@ -960,8 +1033,8 @@
 }
 
 .dos-modal__close-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #FFFFFF;
+  background: #F1F5F9;
+  color: #0F172A;
 }
 
 .dos-modal__body {
@@ -971,6 +1044,7 @@
   gap: 16px;
   max-height: 70vh;
   overflow-y: auto;
+  color: #334155;
 }
 
 @keyframes dosFadeIn {

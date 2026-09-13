@@ -6,8 +6,8 @@
 import { z } from 'zod';
 
 // Roles that can be invited (OWNER cannot be invited)
-const invitableRoleSchema = z.enum(['ADMIN', 'ANALYST', 'VIEWER'], {
-  errorMap: () => ({ message: 'Role must be one of: ADMIN, ANALYST, VIEWER' }),
+const invitableRoleSchema = z.enum(['ADMIN', 'MANAGER', 'ANALYST', 'FINANCE', 'AUDITOR', 'VIEWER'], {
+  errorMap: () => ({ message: 'Role must be one of: ADMIN, MANAGER, ANALYST, FINANCE, AUDITOR, VIEWER' }),
 });
 
 // ── Send Invitation ────────────────────────────────────────────

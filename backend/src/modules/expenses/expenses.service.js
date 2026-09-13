@@ -69,6 +69,7 @@ export async function listExpensesService(orgId, query) {
     expenses,
     summary: {
       totalExpenses: aggregate._sum.amount || 0,
+      avgMonthly: Math.round((aggregate._sum.amount || 0) / 6),
     },
     meta: formatPaginationMeta(total, page, limit),
   };

@@ -1,0 +1,91 @@
+# ============================================================
+# DecisionOS — Root .gitignore
+# Prevents any API keys, credentials, secrets, or mock data leaks
+# ============================================================
+
+# ── Environment & Secrets (NEVER COMMIT API KEYS) ────────────
+.env
+.env.*
+*.env
+*.env.*
+!.env.example
+!.env.docker.example
+!*.env.example
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.*.example
+
+# ── Cloud, Cryptographic & API Credentials ──────────────────
+*.pem
+*.key
+*.cert
+*.crt
+*.pfx
+*.p12
+*.token
+*credentials*.json
+*client_secret*.json
+service-account*.json
+firebase-adminsdk*.json
+google-credentials*.json
+aws-credentials*
+stripe.exe
+
+# ── Mock Data & Temporary Test Artifacts ─────────────────────
+mock_data/
+mock_data/**
+**/mock_data/**
+mock_*.csv
+mock_*.xlsx
+mock_*.json
+
+# ── Local File Uploads & Local Storage ───────────────────────
+uploads/*
+!uploads/.gitkeep
+**/uploads/*
+!**/uploads/.gitkeep
+zk_store.json
+**/zk_store.json
+
+# ── Dependencies ─────────────────────────────────────────────
+node_modules/
+**/node_modules/
+.pnpm-store/
+
+# ── Build Outputs & Caches ───────────────────────────────────
+dist/
+**/dist/
+dist-ssr/
+build/
+**/build/
+.turbo/
+.cache/
+.parcel-cache/
+
+# ── Databases & Dumps ────────────────────────────────────────
+*.sqlite
+*.sqlite3
+*.db
+*.dump
+*.sql.gz
+
+# ── Logs & Debug Files ───────────────────────────────────────
+*.log
+logs/
+**/logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ── Editor & Operating System Artifacts ───────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*.swo
+*.bak
+*.tmp

@@ -21,25 +21,25 @@ export const PERMISSIONS = {
   MANAGE_MEMBERS:  ['OWNER', 'ADMIN'],
 
   // Billing
-  MANAGE_BILLING:  ['OWNER', 'ADMIN'],
+  MANAGE_BILLING:  ['OWNER', 'ADMIN', 'FINANCE'],
 
   // Data operations
-  MANAGE_DATA:     ['OWNER', 'ADMIN', 'ANALYST'],
+  MANAGE_DATA:     ['OWNER', 'ADMIN', 'MANAGER', 'ANALYST'],
   DELETE_DATA:     ['OWNER', 'ADMIN'],
-  IMPORT_DATA:     ['OWNER', 'ADMIN', 'ANALYST'],
-  EXPORT_DATA:     ['OWNER', 'ADMIN', 'ANALYST'],
-  VIEW_DATA:       ['OWNER', 'ADMIN', 'ANALYST', 'VIEWER'],
+  IMPORT_DATA:     ['OWNER', 'ADMIN', 'MANAGER', 'ANALYST'],
+  EXPORT_DATA:     ['OWNER', 'ADMIN', 'MANAGER', 'ANALYST', 'FINANCE', 'AUDITOR'],
+  VIEW_DATA:       ['OWNER', 'ADMIN', 'MANAGER', 'ANALYST', 'FINANCE', 'AUDITOR', 'VIEWER'],
 
   // AI operations
-  RUN_AI:          ['OWNER', 'ADMIN', 'ANALYST'],
+  RUN_AI:          ['OWNER', 'ADMIN', 'MANAGER', 'ANALYST'],
 
   // Reports
-  CREATE_REPORT:   ['OWNER', 'ADMIN', 'ANALYST'],
-  VIEW_REPORT:     ['OWNER', 'ADMIN', 'ANALYST', 'VIEWER'],
+  CREATE_REPORT:   ['OWNER', 'ADMIN', 'MANAGER', 'ANALYST', 'FINANCE'],
+  VIEW_REPORT:     ['OWNER', 'ADMIN', 'MANAGER', 'ANALYST', 'FINANCE', 'AUDITOR', 'VIEWER'],
 };
 
 // Role hierarchy (higher index = higher privilege)
-const ROLE_HIERARCHY = ['VIEWER', 'ANALYST', 'ADMIN', 'OWNER'];
+const ROLE_HIERARCHY = ['VIEWER', 'AUDITOR', 'ANALYST', 'FINANCE', 'MANAGER', 'ADMIN', 'OWNER'];
 
 /**
  * Get numeric rank of a role (higher = more powerful)

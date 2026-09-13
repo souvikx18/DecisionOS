@@ -68,6 +68,9 @@ export async function listSalesService(orgId, query) {
     summary: {
       totalRevenue: aggregate._sum.totalAmount || 0,
       totalUnitsSold: aggregate._sum.quantity || 0,
+      totalCount: total,
+      avgOrderValue: total > 0 ? Math.round((aggregate._sum.totalAmount || 0) / total) : 0,
+      uniqueProducts: aggregate._sum.quantity || 0,
     },
     meta: formatPaginationMeta(total, page, limit),
   };

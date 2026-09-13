@@ -53,6 +53,8 @@ export function AuthProvider({ children }) {
       lastName,
       email,
       password,
+      company,
+      industry,
     });
     const data = res.data?.data ?? res.data;
     return data;

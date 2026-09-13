@@ -164,21 +164,66 @@ export async function fetchReportData(orgId, periodStart, periodEnd) {
     ? ((grossProfit / currentRevenue) * 100).toFixed(1)
     : 0;
 
+  // All-time fallback: if the selected period has no sales/expenses,
+  // pull org-wide data so the report is always meaningful
+  const finalSales = salesList.length > 0 ? salesList : await prisma.sale.findMany({
+    where: { organizationId: orgId },
+    select: {
+      id: true, totalAmount: true, quantity: true, unitPrice: true,
+      discount: true, channel: true, region: true, soldAt: true,
+      customer: { select: { name: true, company: true } },
+      product: { select: { name: true, sku: true, category: true } },
+    },
+    orderBy: { soldAt: 'desc' },
+    take: 100,
+  });
+
+  const finalExpenses = expensesList.length > 0 ? expensesList : await prisma.expense.findMany({
+    where: { organizationId: orgId, isArchived: false },
+    select: {
+      id: true, category: true, subCategory: true, amount: true,
+      vendor: true, description: true, occurredAt: true,
+    },
+    orderBy: { occurredAt: 'desc' },
+    take: 100,
+  });
+
+  // Recompute expense breakdown from the actual list we'll use
+  const finalExpenseCategoryMap = {};
+  for (const exp of finalExpenses) {
+    finalExpenseCategoryMap[exp.category] = (finalExpenseCategoryMap[exp.category] || 0) + Number(exp.amount || 0);
+  }
+  const finalExpenseByCategory = Object.entries(finalExpenseCategoryMap)
+    .map(([category, total]) => ({ category, total }))
+    .sort((a, b) => b.total - a.total);
+
+  // Recompute summary from all-time data when period was empty
+  const finalRevenue = finalSales.length > 0 && salesList.length === 0
+    ? finalSales.reduce((s, sale) => s + Number(sale.totalAmount || 0), 0)
+    : currentRevenue;
+  const finalTotalExpenses = finalExpenses.length > 0 && expensesList.length === 0
+    ? finalExpenses.reduce((s, exp) => s + Number(exp.amount || 0), 0)
+    : totalExpenses;
+  const finalGrossProfit = finalRevenue - finalTotalExpenses;
+  const finalProfitMargin = finalRevenue > 0
+    ? parseFloat(((finalGrossProfit / finalRevenue) * 100).toFixed(1))
+    : 0;
+
   return {
     org,
     period: { start: periodStart, end: periodEnd },
     summary: {
-      totalRevenue: currentRevenue,
-      totalTransactions: salesAgg._count.id,
-      totalExpenses,
-      grossProfit,
-      profitMargin: parseFloat(profitMargin),
+      totalRevenue: finalRevenue,
+      totalTransactions: finalSales.length,
+      totalExpenses: finalTotalExpenses,
+      grossProfit: finalGrossProfit,
+      profitMargin: finalProfitMargin,
       prevRevenue,
       revenueChange: revenueChange ? parseFloat(revenueChange) : null,
     },
-    sales: salesList,
-    expenses: expensesList,
-    expenseByCategory,
+    sales: finalSales,
+    expenses: finalExpenses,
+    expenseByCategory: finalExpenseByCategory,
     inventory: {
       all: inventoryItems,
       alerts: inventoryAlerts,

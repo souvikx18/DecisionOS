@@ -16,11 +16,13 @@ export const generateReportSchema = z
       errorMap: () => ({ message: `type must be one of: ${REPORT_TYPES.join(', ')}` }),
     }),
     periodStart: z
-      .string({ required_error: 'periodStart is required (ISO 8601 date string)' })
-      .datetime({ message: 'periodStart must be a valid ISO 8601 datetime' }),
+      .string({ required_error: 'periodStart is required' })
+      .refine((s) => !isNaN(Date.parse(s)), { message: 'periodStart must be a valid date string' })
+      .transform((s) => new Date(s).toISOString()),
     periodEnd: z
-      .string({ required_error: 'periodEnd is required (ISO 8601 date string)' })
-      .datetime({ message: 'periodEnd must be a valid ISO 8601 datetime' }),
+      .string({ required_error: 'periodEnd is required' })
+      .refine((s) => !isNaN(Date.parse(s)), { message: 'periodEnd must be a valid date string' })
+      .transform((s) => new Date(s).toISOString()),
     formats: z
       .array(z.enum(VALID_FORMATS))
       .min(1, 'At least one format is required (PDF, CSV, XLSX)')

@@ -78,8 +78,32 @@ export async function listInventoryService(orgId, query) {
     ? formatted.filter((item) => item.isLowStock)
     : formatted;
 
+  // Compute KPI counts across all active items in org
+  const allOrgItems = await prisma.inventoryItem.findMany({
+    where: { organizationId: orgId, isArchived: false },
+    select: { quantity: true, reorderLevel: true },
+  });
+
+  let criticalCount = 0;
+  let warningCount = 0;
+  let okCount = 0;
+
+  allOrgItems.forEach((it) => {
+    const pct = Math.round((it.quantity / Math.max(it.reorderLevel, 1)) * 100);
+    if (pct <= 25) criticalCount++;
+    else if (pct <= 60) warningCount++;
+    else okCount++;
+  });
+
   return {
+    items: filtered,
     inventory: filtered,
+    summary: {
+      totalItems: allOrgItems.length,
+      criticalCount,
+      warningCount,
+      okCount,
+    },
     meta: formatPaginationMeta(total, page, limit),
   };
 }

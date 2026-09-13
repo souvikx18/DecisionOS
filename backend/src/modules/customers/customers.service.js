@@ -23,6 +23,7 @@ const CUSTOMER_SELECT = {
   isArchived: true,
   createdAt: true,
   updatedAt: true,
+  _count: { select: { sales: true } },
 };
 
 // ── LIST CUSTOMERS ─────────────────────────────────────────────
@@ -59,8 +60,25 @@ export async function listCustomersService(orgId, query) {
     prisma.customer.count({ where }),
   ]);
 
+  const allOrgCustomers = await prisma.customer.findMany({
+    where: { organizationId: orgId, isArchived: false },
+    select: { totalRevenue: true },
+  });
+
+  const totalRev = allOrgCustomers.reduce((acc, c) => acc + Number(c.totalRevenue || 0), 0);
+  const maxRev = allOrgCustomers.reduce((acc, c) => Math.max(acc, Number(c.totalRevenue || 0)), 0);
+
+  const totalSalesCount = await prisma.sale.count({ where: { organizationId: orgId } });
+  const avgOrders = allOrgCustomers.length > 0 ? Number((totalSalesCount / allOrgCustomers.length).toFixed(1)) : 0;
+
   return {
     customers,
+    summary: {
+      totalCount: allOrgCustomers.length,
+      totalRevenue: totalRev,
+      avgOrders,
+      topRevenue: maxRev,
+    },
     meta: formatPaginationMeta(total, page, limit),
   };
 }

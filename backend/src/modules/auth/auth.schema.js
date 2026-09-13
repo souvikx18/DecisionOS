@@ -37,8 +37,9 @@ export const signupSchema = z
     lastName: nameSchema,
     email: emailSchema,
     password: passwordSchema,
-  })
-  .strict(); // Rejects any unknown fields
+    company: z.string().optional().nullable(),
+    industry: z.string().optional().nullable(),
+  });
 
 export const loginSchema = z
   .object({

@@ -12,6 +12,7 @@ import { authGeneralLimiter } from '../../middleware/rateLimit.middleware.js';
 import {
   listExpenses,
   getExpenseBreakdown,
+  getExpenseCategories,
   getExpense,
   createExpense,
   updateExpense,
@@ -25,6 +26,7 @@ router.use(requireAuth, requireOrg);
 
 // ── Breakdown & Summaries (must be before /:id) ───────────────
 router.get('/summary/breakdown', requirePermission('VIEW_DATA'), authGeneralLimiter, getExpenseBreakdown);
+router.get('/categories',        requirePermission('VIEW_DATA'), authGeneralLimiter, getExpenseCategories);
 
 // ── Read endpoints (VIEW_DATA) ────────────────────────────────
 router.get('/',                  requirePermission('VIEW_DATA'), authGeneralLimiter, listExpenses);

@@ -11,6 +11,7 @@ import { logAudit, getIpAddress, getUserAgent } from '../../lib/audit.js';
 import { generateToken, hashToken, expiresAt } from '../../lib/crypto.js';
 import { redisIncr, redisDel, redisGet, redisSet } from '../../config/redis.js';
 import { createSession, destroySession, destroyAllUserSessions, getSession } from './auth.helpers.js';
+import { generateUniqueSlug } from '../../lib/slugify.js';
 
 // ── Argon2id configuration (memory-hard) ──────────────────────
 const ARGON2_OPTIONS = {
@@ -30,7 +31,7 @@ const EMAIL_VERIFY_TTL = 24 * 60 * 60;  // 24 hours
 const PASSWORD_RESET_TTL = 60 * 60;     // 1 hour
 
 // ── SIGNUP ─────────────────────────────────────────────────────
-export async function signupService(req, { firstName, lastName, email, password }) {
+export async function signupService(req, { firstName, lastName, email, password, company, industry }) {
   // Check if email already exists
   const existing = await prisma.user.findUnique({ where: { email } });
 
@@ -43,10 +44,72 @@ export async function signupService(req, { firstName, lastName, email, password 
   // Hash password
   const passwordHash = await argon2.hash(password, ARGON2_OPTIONS);
 
+  // Auto-verify email in development so sign up -> login works seamlessly
+  const isEmailVerified = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
+
   // Create user
   const user = await prisma.user.create({
-    data: { firstName, lastName, email, passwordHash, isEmailVerified: false },
+    data: { firstName, lastName, email, passwordHash, isEmailVerified },
   });
+
+  // Automatically create organization and workspace for the user
+  try {
+    const orgName = company?.trim() || `${firstName}'s Organization`;
+    const orgIndustry = industry?.trim() || 'Services';
+    const slug = await generateUniqueSlug(orgName);
+
+    let freePlan = await prisma.plan.findUnique({ where: { tier: 'FREE' } });
+    if (!freePlan) {
+      freePlan = await prisma.plan.create({
+        data: {
+          name: 'Free',
+          tier: 'FREE',
+          priceMonthly: 0,
+          priceYearly: 0,
+          maxMembers: 2,
+          maxAiCallsPerMonth: 5,
+          maxImportsPerMonth: 3,
+          maxStorageMb: 100,
+          features: { aiInsights: true },
+        },
+      });
+    }
+
+    const now = new Date();
+    const oneYearLater = new Date(now);
+    oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
+
+    const org = await prisma.organization.create({
+      data: {
+        name: orgName,
+        slug,
+        industry: orgIndustry,
+        timezone: 'Asia/Kolkata',
+        currency: 'INR',
+        status: 'ACTIVE',
+      },
+    });
+
+    await prisma.organizationMember.create({
+      data: {
+        organizationId: org.id,
+        userId: user.id,
+        role: 'OWNER',
+      },
+    });
+
+    await prisma.subscription.create({
+      data: {
+        organizationId: org.id,
+        planId: freePlan.id,
+        status: 'ACTIVE',
+        currentPeriodStart: now,
+        currentPeriodEnd: oneYearLater,
+      },
+    });
+  } catch (orgErr) {
+    console.error('[Auth] Failed to auto-create org during signup:', orgErr.message);
+  }
 
   // Generate email verification token
   const rawToken = generateToken(32);
@@ -58,8 +121,6 @@ export async function signupService(req, { firstName, lastName, email, password 
     },
   });
 
-  // TODO Phase 8: Queue email via BullMQ
-  // For now, log it to console in development
   if (process.env.NODE_ENV === 'development') {
     console.log(`[Auth] Email verification token for ${email}: ${rawToken}`);
   }
@@ -126,7 +187,45 @@ export async function loginService(req, res, { email, password }) {
 
   // 5. Check email verified
   if (!user.isEmailVerified) {
-    return { unverified: true };
+    if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { isEmailVerified: true },
+      });
+      user.isEmailVerified = true;
+    } else {
+      return { unverified: true };
+    }
+  }
+
+  // Ensure user has at least one organization
+  try {
+    const memberCheck = await prisma.organizationMember.findFirst({
+      where: { userId: user.id },
+    });
+    if (!memberCheck) {
+      const slug = await generateUniqueSlug(`${user.firstName}'s Org`);
+      let freePlan = await prisma.plan.findUnique({ where: { tier: 'FREE' } });
+      if (freePlan) {
+        const org = await prisma.organization.create({
+          data: {
+            name: `${user.firstName}'s Organization`,
+            slug,
+            industry: 'Services',
+            status: 'ACTIVE',
+          },
+        });
+        await prisma.organizationMember.create({
+          data: {
+            organizationId: org.id,
+            userId: user.id,
+            role: 'OWNER',
+          },
+        });
+      }
+    }
+  } catch (orgErr) {
+    console.error('[Auth] Failed to ensure org on login:', orgErr.message);
   }
 
   // 6. Reset brute force counter on success

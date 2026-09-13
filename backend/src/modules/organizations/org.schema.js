@@ -33,6 +33,7 @@ export const createOrgSchema = z
     industry: z.string().max(100).trim().optional(),
     timezone: timezoneSchema.optional().default('Asia/Kolkata'),
     currency: currencySchema.optional().default('INR'),
+    logoUrl: z.string().nullable().optional(),
   })
   .strict();
 
@@ -43,6 +44,7 @@ export const updateOrgSchema = z
     industry: z.string().max(100).trim().nullable().optional(),
     timezone: timezoneSchema.optional(),
     currency: currencySchema.optional(),
+    logoUrl: z.string().nullable().optional(),
   })
   .strict()
   .refine((data) => Object.keys(data).length > 0, {

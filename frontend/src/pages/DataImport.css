@@ -81,6 +81,12 @@
   color: var(--accent-primary);
 }
 
+.import-type-btn--active:hover {
+  background: #DBEAFE;
+  border-color: var(--accent-hover);
+  color: var(--accent-hover);
+}
+
 .import-type-label {
   display: block;
   font-size: 13px;

@@ -1,14 +1,16 @@
 // src/pages/Settings.jsx
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import api from '../lib/api.js'
 import {
-  User, Building2, Bell, Shield, Palette, Save, CheckCircle,
+  User, Building2, Bell, Shield, Save, CheckCircle,
   AlertCircle, Users, UserPlus, Trash2, Mail, Copy, Check,
-  LogOut, Loader2, ShieldCheck, ShieldAlert, Globe, DollarSign
+  LogOut, Loader2, ShieldCheck, ShieldAlert, Globe, DollarSign,
+  Upload, Building
 } from 'lucide-react'
-import { useTheme } from '../context/ThemeContext.jsx'
 import { notify } from '../components/ui/CustomToast.jsx'
+import logoFull from '../assets/logo.png'
 import './Settings.css'
 
 const TABS = [
@@ -16,13 +18,15 @@ const TABS = [
   { id: 'organization',  icon: Building2, label: 'Organization' },
   { id: 'team',          icon: Users,      label: 'Team Members' },
   { id: 'notifications', icon: Bell,      label: 'Notifications' },
-  { id: 'appearance',    icon: Palette,   label: 'Appearance' },
   { id: 'security',      icon: Shield,    label: 'Security' },
 ]
 
 const ROLES = [
-  { id: 'ADMIN',   label: 'Admin',   desc: 'Can manage members, data, and settings' },
-  { id: 'ANALYST', label: 'Analyst', desc: 'Can view data, generate reports and AI scans' },
+  { id: 'ADMIN',   label: 'Admin',   desc: 'Can manage members, data, and workspace settings' },
+  { id: 'MANAGER', label: 'Manager', desc: 'Can manage business data, operations, and trigger AI insights' },
+  { id: 'ANALYST', label: 'Analyst', desc: 'Can view data, generate reports and perform AI queries' },
+  { id: 'FINANCE', label: 'Finance', desc: 'Can manage billing, invoices, financial data, and reports' },
+  { id: 'AUDITOR', label: 'Auditor', desc: 'Can inspect reports, audits, and export compliance data' },
   { id: 'VIEWER',  label: 'Viewer',  desc: 'Read-only access to dashboards and insights' },
 ]
 
@@ -66,8 +70,14 @@ const INDUSTRIES = [
 
 export default function Settings() {
   const { user, logout, refreshUser } = useAuth()
-  const { theme, setTheme } = useTheme()
-  const [activeTab, setActiveTab] = useState('profile')
+  const location = useLocation()
+  const [activeTab, setActiveTab] = useState(() => location.state?.tab || 'profile')
+
+  useEffect(() => {
+    if (location.state?.tab) {
+      setActiveTab(location.state.tab)
+    }
+  }, [location.state])
 
   // Profile form state
   const [profile, setProfile] = useState({
@@ -96,6 +106,62 @@ export default function Settings() {
       })
     }
   }, [user])
+
+  // Logo upload state & handlers
+  const [logoUploading, setLogoUploading] = useState(false)
+  const logoInputRef = useRef(null)
+
+  const handleLogoChange = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/svg+xml']
+    if (!validTypes.includes(file.type)) {
+      notify.error('Please upload a valid image file (PNG, JPG, WebP, SVG).', 'Invalid Format')
+      return
+    }
+
+    if (file.size > 4 * 1024 * 1024) {
+      notify.error('Logo file size must be less than 4MB.', 'File Too Large')
+      return
+    }
+
+    setLogoUploading(true)
+    const reader = new FileReader()
+    reader.onload = async (event) => {
+      const base64 = event.target.result
+      try {
+        await api.patch('/organizations/me', { logoUrl: base64 })
+        await refreshUser()
+        notify.success('Organization logo updated successfully!', 'Logo Uploaded 🎉')
+      } catch (err) {
+        const msg = err?.response?.data?.error?.message || 'Failed to update organization logo'
+        notify.error(msg, 'Upload Failed')
+      } finally {
+        setLogoUploading(false)
+        if (logoInputRef.current) logoInputRef.current.value = ''
+      }
+    }
+    reader.onerror = () => {
+      setLogoUploading(false)
+      notify.error('Failed to read image file.', 'Error')
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleRemoveLogo = async () => {
+    setLogoUploading(true)
+    try {
+      await api.patch('/organizations/me', { logoUrl: null })
+      await refreshUser()
+      notify.info('Organization logo has been removed.', 'Logo Removed')
+    } catch (err) {
+      const msg = err?.response?.data?.error?.message || 'Failed to remove logo'
+      notify.error(msg, 'Error')
+    } finally {
+      setLogoUploading(false)
+    }
+  }
 
   // Password state
   const [passwords, setPasswords] = useState({ currentPassword: '', newPassword: '', confirm: '' })
@@ -311,34 +377,111 @@ export default function Settings() {
 
           {/* ── Profile ── */}
           {activeTab === 'profile' && (
-            <div className="glass-card settings-panel">
-              <h2 className="settings-panel__title">Personal Information</h2>
-              <p className="settings-panel__sub">Update your name and email address.</p>
-              <form className="settings-form" onSubmit={saveProfile}>
-                <div className="settings-form-row">
-                  <div className="settings-field">
-                    <label htmlFor="s-firstname">First Name</label>
-                    <input id="s-firstname" type="text" className="input-field" value={profile.firstName}
-                      onChange={(e) => setProfile((p) => ({ ...p, firstName: e.target.value }))} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              <div className="glass-card settings-panel">
+                <h2 className="settings-panel__title">Personal Information</h2>
+                <p className="settings-panel__sub">Update your name and email address.</p>
+                <form className="settings-form" onSubmit={saveProfile}>
+                  <div className="settings-form-row">
+                    <div className="settings-field">
+                      <label htmlFor="s-firstname">First Name</label>
+                      <input id="s-firstname" type="text" className="input-field" value={profile.firstName}
+                        onChange={(e) => setProfile((p) => ({ ...p, firstName: e.target.value }))} />
+                    </div>
+                    <div className="settings-field">
+                      <label htmlFor="s-lastname">Last Name</label>
+                      <input id="s-lastname" type="text" className="input-field" value={profile.lastName}
+                        onChange={(e) => setProfile((p) => ({ ...p, lastName: e.target.value }))} />
+                    </div>
                   </div>
                   <div className="settings-field">
-                    <label htmlFor="s-lastname">Last Name</label>
-                    <input id="s-lastname" type="text" className="input-field" value={profile.lastName}
-                      onChange={(e) => setProfile((p) => ({ ...p, lastName: e.target.value }))} />
+                    <label htmlFor="s-email">Email Address</label>
+                    <input id="s-email" type="email" className="input-field" value={profile.email} disabled
+                      style={{ opacity: 0.6, cursor: 'not-allowed' }} />
+                    <span className="settings-field__hint">Email cannot be changed. Contact support if needed.</span>
+                  </div>
+                  <div className="settings-form-actions">
+                    <button type="submit" className="btn-primary" disabled={profileSaving} id="save-profile-btn">
+                      {profileSaving ? 'Saving…' : <><Save size={14} /> Save Changes</>}
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              {/* ── Organization / Company Logo Card ── */}
+              <div className="glass-card settings-panel">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <h2 className="settings-panel__title">Organization / Company Logo</h2>
+                  {isOrgManager ? (
+                    <span className="badge badge-primary" style={{ fontSize: 11 }}>
+                      <ShieldCheck size={12} style={{ marginRight: 4 }} /> Company Owner Controls
+                    </span>
+                  ) : (
+                    <span className="badge badge-info">View Only</span>
+                  )}
+                </div>
+                <p className="settings-panel__sub">
+                  Upload your official company logo to personalize your workspace branding, executive reports, and sidebar.
+                </p>
+
+                <div className="org-logo-upload-wrap">
+                  <div className="org-logo-preview-box">
+                    <img
+                      src={user?.org?.logoUrl || user?.company?.logoUrl || logoFull}
+                      alt={user?.org?.name || 'Company Logo'}
+                      className="org-logo-preview-img"
+                    />
+                  </div>
+
+                  <div className="org-logo-actions">
+                    <div className="org-logo-buttons">
+                      <input
+                        type="file"
+                        ref={logoInputRef}
+                        onChange={handleLogoChange}
+                        accept="image/png, image/jpeg, image/jpg, image/webp, image/svg+xml"
+                        style={{ display: 'none' }}
+                        id="org-logo-file-input"
+                      />
+                      <button
+                        type="button"
+                        className="btn-primary"
+                        onClick={() => logoInputRef.current?.click()}
+                        disabled={logoUploading || !isOrgManager}
+                        id="upload-org-logo-btn"
+                      >
+                        {logoUploading ? (
+                          <><Loader2 size={14} className="dos-spin" /> Uploading…</>
+                        ) : (
+                          <><Upload size={14} /> Upload Company Logo</>
+                        )}
+                      </button>
+
+                      {(user?.org?.logoUrl || user?.company?.logoUrl) && isOrgManager && (
+                        <button
+                          type="button"
+                          className="btn-ghost"
+                          onClick={handleRemoveLogo}
+                          disabled={logoUploading}
+                          style={{ color: '#EF4444', borderColor: '#FCA5A5' }}
+                          id="remove-org-logo-btn"
+                        >
+                          <Trash2 size={14} /> Remove Logo
+                        </button>
+                      )}
+                    </div>
+                    <span className="org-logo-hint">
+                      PNG, JPG, WebP, or SVG (Max 4MB). For best appearance across day mode dashboards, a transparent background is recommended.
+                    </span>
+                    {!isOrgManager && (
+                      <span className="org-logo-hint" style={{ color: '#F59E0B' }}>
+                        <AlertCircle size={12} style={{ display: 'inline', marginRight: 4 }} />
+                        Only organization owners and admins can change the company logo.
+                      </span>
+                    )}
                   </div>
                 </div>
-                <div className="settings-field">
-                  <label htmlFor="s-email">Email Address</label>
-                  <input id="s-email" type="email" className="input-field" value={profile.email} disabled
-                    style={{ opacity: 0.6, cursor: 'not-allowed' }} />
-                  <span className="settings-field__hint">Email cannot be changed. Contact support if needed.</span>
-                </div>
-                <div className="settings-form-actions">
-                  <button type="submit" className="btn-primary" disabled={profileSaving} id="save-profile-btn">
-                    {profileSaving ? 'Saving…' : <><Save size={14} /> Save Changes</>}
-                  </button>
-                </div>
-              </form>
+              </div>
             </div>
           )}
 
@@ -673,32 +816,6 @@ export default function Settings() {
             </div>
           )}
 
-          {/* ── Appearance ── */}
-          {activeTab === 'appearance' && (
-            <div className="glass-card settings-panel">
-              <h2 className="settings-panel__title">Appearance</h2>
-              <p className="settings-panel__sub">Choose how DecisionOS looks on your device.</p>
-              <div className="settings-theme-grid">
-                {[
-                  { id: 'light', label: 'Light', desc: 'Clean and bright', preview: '#F8FAFC' },
-                  { id: 'dark',  label: 'Dark',  desc: 'Easy on the eyes', preview: '#0F172A' },
-                  { id: 'auto',  label: 'System', desc: 'Match OS setting',  preview: 'linear-gradient(135deg, #F8FAFC 50%, #0F172A 50%)' },
-                ].map((t) => (
-                  <button
-                    key={t.id}
-                    className={`settings-theme-card ${theme === t.id ? 'settings-theme-card--active' : ''}`}
-                    onClick={() => { setTheme(t.id); notify.success(`Switched to ${t.label} theme.`, 'Theme Changed') }}
-                    id={`theme-${t.id}`}
-                  >
-                    <div className="settings-theme-preview" style={{ background: t.preview }} />
-                    <div className="settings-theme-label">{t.label}</div>
-                    <div className="settings-theme-desc">{t.desc}</div>
-                    {theme === t.id && <CheckCircle size={16} className="settings-theme-check" />}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* ── Security ── */}
           {activeTab === 'security' && (

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Topbar from './Topbar'
+import AtlasConcierge from '../ui/AtlasConcierge'
 import './AppLayout.css'
 
 export default function AppLayout() {
@@ -16,6 +17,7 @@ export default function AppLayout() {
           <Outlet />
         </main>
       </div>
+      <AtlasConcierge />
     </div>
   )
 }

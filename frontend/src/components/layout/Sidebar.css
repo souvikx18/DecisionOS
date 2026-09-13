@@ -34,32 +34,61 @@
   cursor: pointer;
 }
 
-/* Hover overlay — only for collapsed state (full cover) */
-.sidebar__logo-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
+/* Collapsed logo styling — keeps logo crisp and shows only a clean greater-than icon on hover */
+.sidebar--collapsed .sidebar__logo {
+  justify-content: center;
+  padding: 12px 6px;
+}
+
+.sidebar__logo-collapsed-wrap {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--accent-primary);
-  opacity: 0;
-  transition: opacity 200ms ease;
-  pointer-events: none;
-  border-radius: 0;
+  gap: 3px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  position: relative;
+  transition: background 180ms ease, box-shadow 180ms ease;
 }
 
-/* Only show overlay when in collapsed state */
-.sidebar__logo--is-collapsed.sidebar__logo--clickable:hover .sidebar__logo-overlay {
-  opacity: 0.92;
+.sidebar__logo-collapsed-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: block;
+  transition: transform 180ms ease;
 }
 
-.sidebar__logo--is-collapsed.sidebar__logo--clickable:hover .sidebar__logo-overlay .sidebar__logo-chevron {
-  color: #fff;
-}
-
-.sidebar__logo-chevron {
+.sidebar__logo-collapsed-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: var(--accent-primary);
-  transition: transform 250ms ease;
+  opacity: 0;
+  max-width: 0;
+  transform: translateX(-4px);
+  transition: opacity 180ms ease, transform 180ms ease, max-width 180ms ease;
+  overflow: hidden;
+}
+
+/* Hover state on collapsed sidebar logo:
+   Logo stays fully visible and sharp!
+   Only a greater than icon appears beside it!
+   NO solid blue background! */
+.sidebar__logo--is-collapsed:hover .sidebar__logo-collapsed-wrap {
+  background: var(--bg-canvas);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.sidebar__logo--is-collapsed:hover .sidebar__logo-collapsed-img {
+  transform: scale(0.95);
+}
+
+.sidebar__logo--is-collapsed:hover .sidebar__logo-collapsed-chevron {
+  opacity: 1;
+  max-width: 16px;
+  transform: translateX(0);
 }
 
 /* Close hint — only for expanded state, slides in beside the logo */
@@ -98,17 +127,7 @@
   flex-shrink: 0;
 }
 
-.sidebar__logo-icon-collapsed {
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  overflow: hidden;
-  background: transparent;
-}
+
 
 
 
@@ -228,16 +247,13 @@
   flex-shrink: 0;
   width: 34px;
   height: 34px;
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-indigo));
+  background: #ffffff;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: 0.3px;
   box-shadow: 0 0 0 2px var(--bg-sidebar), 0 0 0 3.5px rgba(37, 99, 235, 0.22);
+  overflow: hidden;
 }
 
 .sidebar__avatar--lg {

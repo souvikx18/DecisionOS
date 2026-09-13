@@ -20,7 +20,10 @@ datasource db {
 enum MemberRole {
   OWNER
   ADMIN
+  MANAGER
   ANALYST
+  FINANCE
+  AUDITOR
   VIEWER
 }
 

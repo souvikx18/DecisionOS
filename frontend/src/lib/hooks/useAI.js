@@ -21,6 +21,9 @@ export const triggerGenerateInsights = () => api.post('/ai/generate').then(unwra
 export const fetchRevenueForecast = (months = 3) =>
   api.get(`/ai/forecast/revenue?months=${months}`).then(unwrap)
 
+export const askDecisionOs = (query) =>
+  api.post('/ai/ask', { query }).then(unwrap)
+
 // ── React Hooks ────────────────────────────────────────────────
 
 export function useInsights(filters = {}) {
