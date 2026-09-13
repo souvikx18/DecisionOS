@@ -7,6 +7,10 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { useAuth } from '../../context/AuthContext.jsx'
 
 function getWebSocketUrl() {
+  if (import.meta.env.VITE_WS_URL) {
+    return import.meta.env.VITE_WS_URL
+  }
+
   const isSecure = window.location.protocol === 'https:'
   const protocol = isSecure ? 'wss:' : 'ws:'
   

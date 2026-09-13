@@ -62,16 +62,21 @@ function createPrismaClient() {
             return query(args);
           }
 
+          // Strictly validate IDs to prevent SQL injection in session variables
+          const validIdRegex = /^[a-zA-Z0-9_-]+$/;
+          const cleanOrgId = orgId && validIdRegex.test(orgId) ? orgId : null;
+          const cleanUserId = userId && validIdRegex.test(userId) ? userId : null;
+
           // Wrap query in a transaction with SET LOCAL to scope PostgreSQL RLS vars
           return baseClient.$transaction(async (tx) => {
-            if (orgId) {
+            if (cleanOrgId) {
               await tx.$executeRawUnsafe(
-                `SET LOCAL app.current_org_id = '${orgId}'`
+                `SET LOCAL app.current_org_id = '${cleanOrgId}'`
               );
             }
-            if (userId) {
+            if (cleanUserId) {
               await tx.$executeRawUnsafe(
-                `SET LOCAL app.current_user_id = '${userId}'`
+                `SET LOCAL app.current_user_id = '${cleanUserId}'`
               );
             }
             return query(args);

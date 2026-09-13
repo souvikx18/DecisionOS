@@ -9,6 +9,7 @@
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
+import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -36,6 +37,10 @@ import { razorpayWebhook } from './modules/billing/billing.controller.js';
 
 const app = express();
 
+// ── 0. Production Reverse Proxy Trust ─────────────────────────
+// Required behind Nginx, Cloudflare, Docker, AWS ALB for accurate IP extraction
+app.set('trust proxy', 1);
+
 // ── 1. Security Headers (Helmet) ──────────────────────────────
 app.use(helmet({
   contentSecurityPolicy: {
@@ -50,7 +55,17 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false,
 }));
 
-// ── 2. CORS ───────────────────────────────────────────────────
+// ── 2. Response Compression (Gzip / Deflate) ──────────────────
+app.use(compression({
+  filter: (req, res) => {
+    // Don't compress responses if client says not to
+    if (req.headers['x-no-compression']) return false;
+    return compression.filter(req, res);
+  },
+  threshold: 1024, // Compress responses over 1 KB
+}));
+
+// ── 3. CORS ───────────────────────────────────────────────────
 const allowedOrigins = env.ALLOWED_ORIGINS.split(',').map((o) => o.trim());
 
 app.use(cors({
@@ -67,7 +82,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-// ── 3a. Razorpay Webhook raw-body capture (MUST be before express.json) ──
+// ── 4a. Razorpay Webhook raw-body capture (MUST be before express.json) ──
 // Razorpay HMAC SHA-256 signature verification requires the exact raw request bytes.
 app.post(
   '/api/v1/billing/webhook/razorpay',
@@ -75,15 +90,14 @@ app.post(
   razorpayWebhook
 );
 
+// ── 4b. Body Parser (Standard JSON for all other API endpoints) ──
+app.use(express.json({ limit: '5mb' }));
+app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 
-// ── 3b. Body Parser (Standard JSON for all other API endpoints) ──
-app.use(express.json({ limit: '1mb' }));
-app.use(express.urlencoded({ extended: true, limit: '1mb' }));
-
-// ── 4. Cookie Parser ──────────────────────────────────────────
+// ── 5. Cookie Parser ──────────────────────────────────────────
 app.use(cookieParser(env.COOKIE_SECRET));
 
-// ── 5. Request ID Middleware ──────────────────────────────────
+// ── 6. Request ID Middleware ──────────────────────────────────
 // Attaches a unique UUID to every request for tracing
 app.use((req, res, next) => {
   const requestId = uuidv4();
@@ -92,22 +106,45 @@ app.use((req, res, next) => {
   next();
 });
 
-// ── 6. Request Logger (simple, no pino-http for now) ─────────
+// ── 7. Production Request Logger ──────────────────────────────
 app.use((req, res, next) => {
   const start = Date.now();
   res.on('finish', () => {
     const duration = Date.now() - start;
-    const logFn = res.statusCode >= 500 ? console.error : res.statusCode >= 400 ? console.warn : console.log;
-    logFn(`[${new Date().toISOString()}] ${req.method} ${req.path} ${res.statusCode} ${duration}ms — ${res.locals.requestId}`);
+    const isProd = env.NODE_ENV === 'production';
+
+    if (isProd) {
+      // Structured JSON logging for production aggregators (Datadog, Loki, CloudWatch)
+      console.log(JSON.stringify({
+        level: res.statusCode >= 500 ? 'error' : res.statusCode >= 400 ? 'warn' : 'info',
+        timestamp: new Date().toISOString(),
+        requestId: res.locals.requestId,
+        method: req.method,
+        path: req.originalUrl || req.path,
+        statusCode: res.statusCode,
+        durationMs: duration,
+        ip: req.ip,
+        userAgent: req.headers['user-agent'],
+      }));
+    } else {
+      const logFn = res.statusCode >= 500 ? console.error : res.statusCode >= 400 ? console.warn : console.log;
+      logFn(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl || req.path} ${res.statusCode} ${duration}ms — ${res.locals.requestId}`);
+    }
   });
   next();
 });
 
-// ── 7. Global Rate Limiter ────────────────────────────────────
+// ── 8. Global Rate Limiter ────────────────────────────────────
 app.use(globalLimiter);
 
-// ── 8. Health Check (no auth, no rate limit) ──────────────────
-app.get('/health', async (req, res) => {
+// ── 9. Health & Readiness Probes ──────────────────────────────
+// Liveness probe (Kubernetes / Docker simple check)
+app.get('/health/live', (req, res) => {
+  res.status(200).json({ status: 'alive', timestamp: new Date().toISOString() });
+});
+
+// Full readiness probe (Database + Redis verification)
+app.get(['/health', '/health/ready'], async (req, res) => {
   const { redisHealthCheck } = await import('./config/redis.js');
   const { prisma } = await import('./lib/prisma.js');
 
@@ -121,11 +158,12 @@ app.get('/health', async (req, res) => {
 
   redisOk = await redisHealthCheck();
 
-  const status = dbOk && redisOk ? 'healthy' : 'degraded';
+  const isHealthy = dbOk && redisOk;
 
-  res.status(dbOk && redisOk ? 200 : 503).json({
-    status,
+  res.status(isHealthy ? 200 : 503).json({
+    status: isHealthy ? 'healthy' : 'degraded',
     version: '2.0.0',
+    environment: env.NODE_ENV,
     timestamp: new Date().toISOString(),
     services: {
       database: dbOk ? 'connected' : 'disconnected',
@@ -134,7 +172,7 @@ app.get('/health', async (req, res) => {
   });
 });
 
-// ── 9. API Routes ─────────────────────────────────────────────
+// ── 10. API Routes ────────────────────────────────────────────
 app.use('/api/v1/auth',          authRouter);
 app.use('/api/v1/organizations', orgRouter);
 app.use('/api/v1/members',       membersRouter);
@@ -151,7 +189,7 @@ app.use('/api/v1/reports',       reportsRouter);
 app.use('/api/v1/realtime',      realtimeRouter);
 app.use('/api/v1/billing',       billingRouter);
 
-// ── 10. 404 Handler ──────────────────────────────────────────
+// ── 11. 404 Handler ───────────────────────────────────────────
 app.use((req, res) => {
   return sendError(
     res, 404, 'NOT_FOUND',
@@ -159,30 +197,47 @@ app.use((req, res) => {
   );
 });
 
-// ── 11. Global Error Handler ──────────────────────────────────
-// Catches any error thrown from routes/middleware
-// NEVER sends stack traces to the client in production
+// ── 12. Global Production Error Handler ───────────────────────
+// Catches all synchronous and asynchronous unhandled errors
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || err.status || 500;
+  const requestId = res.locals?.requestId || 'unknown';
+  const isProd = env.NODE_ENV === 'production';
 
-  // Log the full error server-side
-  console.error('[Error]', {
-    requestId: res.locals.requestId,
-    method: req.method,
-    path: req.path,
-    statusCode,
-    message: err.message,
-    stack: env.NODE_ENV === 'development' ? err.stack : undefined,
-  });
+  // Server-side logging
+  if (isProd) {
+    console.error(JSON.stringify({
+      level: 'error',
+      timestamp: new Date().toISOString(),
+      requestId,
+      method: req.method,
+      path: req.originalUrl || req.path,
+      statusCode,
+      errorCode: err.code || 'SERVER_ERROR',
+      message: err.message,
+      stack: err.stack,
+    }));
+  } else {
+    console.error('[Error]', {
+      requestId,
+      method: req.method,
+      path: req.path,
+      statusCode,
+      message: err.message,
+      stack: err.stack,
+    });
+  }
 
-  // Send safe error to client
+  // Safe client response — strictly mask internal database/Prisma errors in production
+  const clientMessage = isProd && statusCode >= 500
+    ? 'An unexpected error occurred. Please try again later.'
+    : err.message;
+
   return sendError(
     res,
     statusCode,
     err.code || 'SERVER_ERROR',
-    env.NODE_ENV === 'production'
-      ? 'An unexpected error occurred. Please try again.'
-      : err.message
+    clientMessage
   );
 });
 
