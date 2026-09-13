@@ -3,9 +3,8 @@ set -e
 
 echo "🚀 [DecisionOS] Initializing backend container..."
 
-# Wait for database connection and apply schema
-echo "📦 [DecisionOS] Applying Prisma database schema migrations..."
-npx prisma db push --skip-generate || echo "⚠️ Prisma schema push completed or skipped"
+# (Migrations should be run manually or via CI, not on every container start)
+echo "📦 [DecisionOS] Skipping automatic schema push in production..."
 
 # Optional: seed if required
 if [ "$SEED_DATABASE" = "true" ]; then
