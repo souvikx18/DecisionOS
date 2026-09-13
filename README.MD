@@ -4,7 +4,7 @@
 
 ### *Enterprise AI-Powered Business Intelligence & Predictive Analytics Operating System*
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-Available_Here-success?style=for-the-badge)](leave it i will add later)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Available_Here-success?style=for-the-badge)](https://decision-os-tan.vercel.app/)
 [![Node.js](https://img.shields.io/badge/Node.js-v24-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
 [![Vite](https://img.shields.io/badge/Vite-8.x-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
