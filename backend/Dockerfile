@@ -7,8 +7,8 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Install openssl for Prisma engines
-RUN apk add --no-cache openssl libc6-compat
+# Install openssl for Prisma engines and build tools for node-gyp (argon2)
+RUN apk add --no-cache openssl libc6-compat python3 make g++
 
 # Copy package descriptors
 COPY package*.json ./
