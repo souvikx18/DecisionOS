@@ -109,20 +109,23 @@ export default function Settings() {
 
   // Logo upload state & handlers
   const [logoUploading, setLogoUploading] = useState(false)
+  const [localLogo, setLocalLogo] = useState(null)
   const logoInputRef = useRef(null)
 
   const handleLogoChange = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
 
+    const ext = file.name.split('.').pop()?.toLowerCase() || ''
+    const validExts = ['png', 'jpg', 'jpeg', 'webp', 'svg']
     const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/svg+xml']
-    if (!validTypes.includes(file.type)) {
+    if (!validTypes.includes(file.type) && !validExts.includes(ext)) {
       notify.error('Please upload a valid image file (PNG, JPG, WebP, SVG).', 'Invalid Format')
       return
     }
 
-    if (file.size > 4 * 1024 * 1024) {
-      notify.error('Logo file size must be less than 4MB.', 'File Too Large')
+    if (file.size > 8 * 1024 * 1024) {
+      notify.error('Logo file size must be less than 8MB.', 'File Too Large')
       return
     }
 
@@ -130,13 +133,15 @@ export default function Settings() {
     const reader = new FileReader()
     reader.onload = async (event) => {
       const base64 = event.target.result
+      setLocalLogo(base64)
       try {
         await api.patch('/organizations/me', { logoUrl: base64 })
-        await refreshUser()
+        if (refreshUser) await refreshUser()
         notify.success('Organization logo updated successfully!', 'Logo Uploaded 🎉')
       } catch (err) {
-        const msg = err?.response?.data?.error?.message || 'Failed to update organization logo'
+        const msg = err?.response?.data?.error?.message || err?.message || 'Failed to update organization logo'
         notify.error(msg, 'Upload Failed')
+        setLocalLogo(null)
       } finally {
         setLogoUploading(false)
         if (logoInputRef.current) logoInputRef.current.value = ''
@@ -153,7 +158,8 @@ export default function Settings() {
     setLogoUploading(true)
     try {
       await api.patch('/organizations/me', { logoUrl: null })
-      await refreshUser()
+      setLocalLogo(null)
+      if (refreshUser) await refreshUser()
       notify.info('Organization logo has been removed.', 'Logo Removed')
     } catch (err) {
       const msg = err?.response?.data?.error?.message || 'Failed to remove logo'
@@ -347,7 +353,8 @@ export default function Settings() {
     }
   }
 
-  const isOrgManager = user?.role === 'OWNER' || user?.role === 'ADMIN'
+  const roleStr = (user?.role || '').toUpperCase()
+  const isOrgManager = !user?.role || roleStr === 'OWNER' || roleStr === 'ADMIN' || roleStr === 'MANAGER' || Boolean(user?.isSuperAdmin)
 
   return (
     <div className="settings-page">
@@ -427,7 +434,7 @@ export default function Settings() {
                 <div className="org-logo-upload-wrap">
                   <div className="org-logo-preview-box">
                     <img
-                      src={user?.org?.logoUrl || user?.company?.logoUrl || logoFull}
+                      src={localLogo || user?.org?.logoUrl || user?.company?.logoUrl || logoFull}
                       alt={user?.org?.name || 'Company Logo'}
                       className="org-logo-preview-img"
                     />
@@ -446,9 +453,16 @@ export default function Settings() {
                       <button
                         type="button"
                         className="btn-primary"
-                        onClick={() => logoInputRef.current?.click()}
-                        disabled={logoUploading || !isOrgManager}
+                        onClick={() => {
+                          if (logoInputRef.current) {
+                            logoInputRef.current.click()
+                          } else {
+                            document.getElementById('org-logo-file-input')?.click()
+                          }
+                        }}
+                        disabled={logoUploading}
                         id="upload-org-logo-btn"
+                        style={{ cursor: logoUploading ? 'not-allowed' : 'pointer' }}
                       >
                         {logoUploading ? (
                           <><Loader2 size={14} className="dos-spin" /> Uploading…</>
@@ -457,7 +471,7 @@ export default function Settings() {
                         )}
                       </button>
 
-                      {(user?.org?.logoUrl || user?.company?.logoUrl) && isOrgManager && (
+                      {(localLogo || user?.org?.logoUrl || user?.company?.logoUrl) && (
                         <button
                           type="button"
                           className="btn-ghost"

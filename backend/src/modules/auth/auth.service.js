@@ -245,6 +245,11 @@ export async function loginService(req, res, { email, password }) {
     metadata: { event: 'LOGIN_SUCCESS' },
   });
 
+  const membership = await prisma.organizationMember.findFirst({
+    where: { userId: user.id },
+    include: { organization: true },
+  });
+
   return {
     user: {
       id: user.id,
@@ -253,6 +258,11 @@ export async function loginService(req, res, { email, password }) {
       email: user.email,
       isEmailVerified: user.isEmailVerified,
       avatarUrl: user.avatarUrl,
+      role: membership?.role || 'OWNER',
+      org: membership?.organization || null,
+      company: membership?.organization
+        ? { name: membership.organization.name, logoUrl: membership.organization.logoUrl }
+        : null,
     },
     token,
   };

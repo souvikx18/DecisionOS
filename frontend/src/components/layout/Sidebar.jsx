@@ -31,8 +31,21 @@ export default function Sidebar({ collapsed, setCollapsed }) {
     navigate('/login')
   }
 
-  const companyLogo = user?.org?.logoUrl || user?.company?.logoUrl || logoFull
+  const userPhoto = user?.avatarUrl || user?.org?.logoUrl || user?.company?.logoUrl || null
   const orgName = user?.company?.name || user?.org?.name || 'Company'
+
+  const initials = (() => {
+    const first = user?.firstName?.trim()
+    const last = user?.lastName?.trim()
+    if (first && last) return `${first[0]}${last[0]}`.toUpperCase()
+    if (first) return first.slice(0, 2).toUpperCase()
+    if (user?.name) {
+      const parts = user.name.trim().split(' ')
+      return parts.length > 1 ? `${parts[0][0]}${parts[1][0]}`.toUpperCase() : parts[0].slice(0, 2).toUpperCase()
+    }
+    if (user?.email) return user.email.slice(0, 2).toUpperCase()
+    return 'U'
+  })()
 
   return (
     <aside className={`sidebar ${collapsed ? 'sidebar--collapsed' : ''}`}>
@@ -98,7 +111,11 @@ export default function Sidebar({ collapsed, setCollapsed }) {
           <>
             <div className="sidebar__user-collapsed-wrap" title={orgName}>
               <div className="sidebar__avatar sidebar__avatar--lg">
-                <img src={companyLogo} alt={orgName} className="sidebar__avatar-photo" />
+                {userPhoto ? (
+                  <img src={userPhoto} alt={orgName} className="sidebar__avatar-photo" />
+                ) : (
+                  <div className="sidebar__avatar-initials">{initials}</div>
+                )}
               </div>
             </div>
             <div className="sidebar__actions-collapsed">
@@ -114,7 +131,11 @@ export default function Sidebar({ collapsed, setCollapsed }) {
           /* ── Expanded: organization/company card ── */
           <div className="sidebar__user-card">
             <div className="sidebar__avatar">
-              <img src={companyLogo} alt={orgName} className="sidebar__avatar-photo" />
+              {userPhoto ? (
+                <img src={userPhoto} alt={orgName} className="sidebar__avatar-photo" />
+              ) : (
+                <div className="sidebar__avatar-initials">{initials}</div>
+              )}
             </div>
             <div className="sidebar__user-info">
               <span className="sidebar__user-name">{`${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim() || user?.email}</span>

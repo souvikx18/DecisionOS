@@ -97,8 +97,8 @@ app.post(
 );
 
 // ── 4b. Body Parser (Standard JSON for all other API endpoints) ──
-app.use(express.json({ limit: '5mb' }));
-app.use(express.urlencoded({ extended: true, limit: '5mb' }));
+app.use(express.json({ limit: '15mb' }));
+app.use(express.urlencoded({ extended: true, limit: '15mb' }));
 
 // ── 5. Cookie Parser ──────────────────────────────────────────
 app.use(cookieParser(env.COOKIE_SECRET));

@@ -12,8 +12,21 @@ export default function Topbar({ sidebarCollapsed, onToggleSidebar }) {
   const navigate = useNavigate()
   const [searchFocused, setSearchFocused] = useState(false)
 
-  const companyLogo = user?.org?.logoUrl || user?.company?.logoUrl || logoFull
+  const userPhoto = user?.avatarUrl || user?.org?.logoUrl || user?.company?.logoUrl || null
   const orgName = user?.company?.name || user?.org?.name || 'Company'
+
+  const initials = (() => {
+    const first = user?.firstName?.trim()
+    const last = user?.lastName?.trim()
+    if (first && last) return `${first[0]}${last[0]}`.toUpperCase()
+    if (first) return first.slice(0, 2).toUpperCase()
+    if (user?.name) {
+      const parts = user.name.trim().split(' ')
+      return parts.length > 1 ? `${parts[0][0]}${parts[1][0]}`.toUpperCase() : parts[0].slice(0, 2).toUpperCase()
+    }
+    if (user?.email) return user.email.slice(0, 2).toUpperCase()
+    return 'U'
+  })()
 
   const today = new Date().toLocaleDateString('en-IN', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
@@ -77,7 +90,11 @@ export default function Topbar({ sidebarCollapsed, onToggleSidebar }) {
           }}
         >
           <div className="topbar__avatar">
-            <img src={companyLogo} alt={orgName} className="topbar__avatar-photo" />
+            {userPhoto ? (
+              <img src={userPhoto} alt={orgName} className="topbar__avatar-photo" />
+            ) : (
+              <div className="topbar__avatar-initials">{initials}</div>
+            )}
           </div>
           <div className="topbar__user-info">
             <span className="topbar__user-name">{user?.name || [user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'Executive'}</span>
