@@ -7,20 +7,28 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { useAuth } from '../../context/AuthContext.jsx'
 
 function getWebSocketUrl() {
+  let url = ''
   if (import.meta.env.VITE_WS_URL) {
-    return import.meta.env.VITE_WS_URL
+    url = import.meta.env.VITE_WS_URL
+  } else {
+    const isSecure = window.location.protocol === 'https:'
+    const protocol = isSecure ? 'wss:' : 'ws:'
+    
+    // If Vite dev server on port 5173, point directly to backend port 3001
+    if (window.location.port === '5173') {
+      url = `${protocol}//${window.location.hostname}:3001/ws`
+    } else {
+      url = `${protocol}//${window.location.host}/ws`
+    }
   }
 
-  const isSecure = window.location.protocol === 'https:'
-  const protocol = isSecure ? 'wss:' : 'ws:'
-  
-  // If Vite dev server on port 5173, point directly to backend port 3001
-  if (window.location.port === '5173') {
-    return `${protocol}//${window.location.hostname}:3001/ws`
+  const token = localStorage.getItem('decisionos_token')
+  if (token) {
+    const sep = url.includes('?') ? '&' : '?'
+    url = `${url}${sep}token=${encodeURIComponent(token)}`
   }
-  
-  // In production / Docker, Nginx proxies /ws to backend:5000
-  return `${protocol}//${window.location.host}/ws`
+
+  return url
 }
 
 export function useRealtime() {

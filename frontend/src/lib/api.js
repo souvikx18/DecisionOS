@@ -19,12 +19,26 @@ const api = axios.create({
   },
 })
 
+// ── Request Interceptor ────────────────────────────────────────
+api.interceptors.request.use(
+  (config) => {
+    // Send Bearer token in addition to credentials cookie (ensures cross-site auth works reliably)
+    const token = localStorage.getItem('decisionos_token')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+  },
+  (error) => Promise.reject(error)
+)
+
 // ── Response Interceptor ───────────────────────────────────────
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     // Auto-redirect on session expiry
     if (error.response?.status === 401) {
+      localStorage.removeItem('decisionos_token')
       const currentPath = window.location.pathname
       if (currentPath !== '/login' && currentPath !== '/register' && currentPath !== '/') {
         window.location.href = '/login'

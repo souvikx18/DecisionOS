@@ -228,7 +228,7 @@ export async function loginService(req, res, { email, password }) {
   await redisDel(bruteKey);
 
   // 7. Create session (Redis + DB + cookie)
-  await createSession(res, user, req);
+  const token = await createSession(res, user, req);
 
   // 8. Update lastLoginAt
   await prisma.user.update({
@@ -254,6 +254,7 @@ export async function loginService(req, res, { email, password }) {
       isEmailVerified: user.isEmailVerified,
       avatarUrl: user.avatarUrl,
     },
+    token,
   };
 }
 

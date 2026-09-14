@@ -71,7 +71,13 @@ const allowedOrigins = env.ALLOWED_ORIGINS.split(',').map((o) => o.trim());
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (mobile apps, curl, Postman)
-    if (!origin || allowedOrigins.includes(origin)) {
+    // or if origin is in ALLOWED_ORIGINS, or is any Vercel domain (*.vercel.app), or localhost
+    if (
+      !origin ||
+      allowedOrigins.includes(origin) ||
+      origin.endsWith('.vercel.app') ||
+      origin.includes('localhost')
+    ) {
       callback(null, true);
     } else {
       callback(new Error(`CORS: Origin '${origin}' is not allowed.`));
@@ -79,7 +85,7 @@ app.use(cors({
   },
   credentials: true,       // Required for cookies to be sent cross-origin
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 }));
 
 // ── 4a. Razorpay Webhook raw-body capture (MUST be before express.json) ──

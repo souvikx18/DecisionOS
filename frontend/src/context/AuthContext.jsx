@@ -16,15 +16,18 @@ export function AuthProvider({ children }) {
   // ── Restore session on page load ─────────────────────────
   useEffect(() => {
     async function restoreSession() {
-      // Try to fetch the current user from the backend cookie session
+      // Try to fetch the current user from the backend cookie or Bearer token session
       try {
         const res = await api.get('/auth/me');
         const data = res.data?.data ?? res.data;
         if (data?.user || data?.id) {
           setUser(data.user ?? data);
+        } else {
+          setUser(null);
         }
       } catch {
-        // 401 = not logged in — that's fine
+        // 401 = not logged in / expired — clear local token
+        localStorage.removeItem('decisionos_token');
         setUser(null);
       } finally {
         setLoading(false);
@@ -36,8 +39,12 @@ export function AuthProvider({ children }) {
   // ── Login ─────────────────────────────────────────────────
   const login = async (email, password) => {
     const res  = await api.post('/auth/login', { email, password });
-    const data = res.data?.data ?? res.data;
-    const loggedInUser = data?.user ?? data;
+    const envelope = res.data?.data ?? res.data;
+    const loggedInUser = envelope?.user ?? envelope;
+    const token = envelope?.token;
+    if (token) {
+      localStorage.setItem('decisionos_token', token);
+    }
     setUser(loggedInUser);
     return loggedInUser;
   };
@@ -82,6 +89,7 @@ export function AuthProvider({ children }) {
     } catch {
       // ignore errors — clear local state regardless
     }
+    localStorage.removeItem('decisionos_token');
     setUser(null);
   };
 

@@ -66,7 +66,7 @@ export async function login(req, res) {
     );
   }
 
-  return sendSuccess(res, { user: result.user }, 200);
+  return sendSuccess(res, { user: result.user, token: result.token }, 200);
 }
 
 // ── POST /api/v1/auth/logout ───────────────────────────────────

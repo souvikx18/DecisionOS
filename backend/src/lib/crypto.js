@@ -49,10 +49,11 @@ export function timingSafeEqual(a, b) {
  * Applies full security flags.
  */
 export function getSessionCookieOptions(ttlSeconds) {
+  const isProd = env.NODE_ENV === 'production';
   return {
     httpOnly: true,                   // JS cannot read → XSS protection
-    secure: env.NODE_ENV === 'production', // HTTPS only in production
-    sameSite: 'strict',               // Never sent cross-site → CSRF protection
+    secure: isProd,                   // HTTPS only in production (required when sameSite is 'none')
+    sameSite: isProd ? 'none' : 'lax', // 'none' required for cross-site (Vercel -> backend API)
     maxAge: ttlSeconds * 1000,        // Convert seconds to milliseconds
     path: '/',
   };
@@ -62,10 +63,11 @@ export function getSessionCookieOptions(ttlSeconds) {
  * Cookie options to clear a session cookie (expire it immediately)
  */
 export function getClearCookieOptions() {
+  const isProd = env.NODE_ENV === 'production';
   return {
     httpOnly: true,
-    secure: env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax',
     maxAge: 0,
     path: '/',
   };
