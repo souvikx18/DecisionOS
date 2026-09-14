@@ -37,7 +37,7 @@ export async function signup(req, res) {
     res,
     null,
     201,
-    'Account created successfully. Please check your email to verify your account.'
+    'Account created successfully. You can now sign in.'
   );
 }
 

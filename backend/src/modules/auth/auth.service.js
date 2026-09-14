@@ -44,8 +44,8 @@ export async function signupService(req, { firstName, lastName, email, password,
   // Hash password
   const passwordHash = await argon2.hash(password, ARGON2_OPTIONS);
 
-  // Auto-verify email in development so sign up -> login works seamlessly
-  const isEmailVerified = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
+  // Auto-verify email for all users so signup -> login works seamlessly without mail verification
+  const isEmailVerified = true;
 
   // Create user
   const user = await prisma.user.create({
@@ -185,17 +185,13 @@ export async function loginService(req, res, { email, password }) {
     return { invalid: true };
   }
 
-  // 5. Check email verified
+  // 5. Ensure user is verified (auto-verify any legacy unverified accounts seamlessly)
   if (!user.isEmailVerified) {
-    if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { isEmailVerified: true },
-      });
-      user.isEmailVerified = true;
-    } else {
-      return { unverified: true };
-    }
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { isEmailVerified: true },
+    });
+    user.isEmailVerified = true;
   }
 
   // Ensure user has at least one organization

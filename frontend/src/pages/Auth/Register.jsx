@@ -10,7 +10,7 @@ import './Auth.css'
 const INDUSTRIES = ['Manufacturing', 'Retail', 'Distribution', 'Services', 'Pharma', 'Food & Beverage', 'Other']
 
 export default function Register() {
-  const { register } = useAuth()
+  const { register, login } = useAuth()
   const navigate = useNavigate()
   const [form, setForm] = useState({ name: '', email: '', company: '', industry: '', password: '', confirm: '', photo: null })
   const [showPass, setShowPass] = useState(false)
@@ -49,8 +49,14 @@ export default function Register() {
     setLoading(true)
     try {
       const res = await register(form)
-      notify.success(res?.message || 'Account created successfully! Please sign in.', 'Account Created 🎉')
-      navigate('/login')
+      try {
+        await login(form.email, form.password)
+        notify.success('Account created! Welcome to your workspace.', 'Welcome! 🎉')
+        navigate('/dashboard')
+      } catch {
+        notify.success(res?.message || 'Account created successfully! Please sign in.', 'Account Created 🎉')
+        navigate('/login')
+      }
     } catch (err) {
       const errData = err.response?.data?.error
       const msg = errData?.details?.[0]?.message || errData?.message || err.message || 'Could not complete registration. Please try again.'
